@@ -60,7 +60,7 @@ export const createPendingUser = async ({
         create: {
           id: customerId,
           fullName,
-          nationalId: "000000000000",
+          nationalId: phone.replace("+84", "0").padStart(12, "0"),
           phoneNumber: phone,
         },
       },
