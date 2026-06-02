@@ -1,6 +1,7 @@
 import prisma from "../config/database.js";
 import AppError from "../utils/AppError.js";
 import generateId from "../utils/generateId.js";
+import bcrypt from "bcryptjs";
 
 const EMAIL_OR_PHONE_EXISTS_MESSAGE =
   "Email hoặc Số điện thoại này đã được đăng ký. Bạn có muốn Đăng nhập hoặc Khôi phục mật khẩu không?";
@@ -44,11 +45,13 @@ export const createPendingUser = async ({
   const customerId = generateId("KH");
   const accountId = generateId("TK");
 
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   const account = await prisma.account.create({
     data: {
       id: accountId,
       email,
-      password,
+      password: hashedPassword,
       role: "Khach hang",
       verificationToken: token,
       verificationTokenExpiresAt: expiresAt,
