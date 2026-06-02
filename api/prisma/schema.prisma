@@ -6,3 +6,30 @@ datasource db {
   provider = "sqlserver"
   url      = env("DATABASE_URL")
 }
+
+model Customer {
+  id          String   @id @map("MaKhachHang") @db.VarChar(10)
+  fullName    String   @map("HoTen") @db.NVarChar(100)
+  nationalId  String   @unique @map("CCCD") @db.Char(12)
+  phoneNumber String   @unique @map("SoDienThoai") @db.VarChar(10)
+  address     String?  @map("DiaChi") @db.NVarChar(255)
+
+  account Account?
+
+  @@map("KhachHang")
+}
+
+model Account {
+  id                         String    @id @map("MaTaiKhoan") @db.VarChar(10)
+  email                      String    @unique @map("Email") @db.VarChar(50)
+  password                   String    @map("MatKhau") @db.VarChar(255)
+  role                       String    @map("VaiTro") @db.NVarChar(50)
+  status                     String?   @default("Cho xac thuc") @map("TrangThaiTaiKhoan") @db.NVarChar(50)
+  verificationToken          String?   @map("TokenXacThuc") @db.VarChar(255)
+  verificationTokenExpiresAt DateTime? @map("HanTokenXacThuc")
+
+  customerId String   @unique @map("MaKhachHang") @db.VarChar(10)
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@map("TaiKhoan")
+}
