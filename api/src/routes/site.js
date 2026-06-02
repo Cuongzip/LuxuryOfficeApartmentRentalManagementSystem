@@ -1,9 +1,10 @@
-import express from 'express';
+import { Router } from 'express';
 
-import siteController from '../controllers/site.js';
+import * as siteController from '../controllers/siteController.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/', siteController.home);
+router.get('/', asyncHandler(siteController.home));
 
 export default router;

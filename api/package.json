@@ -1,12 +1,15 @@
 {
-  "name": "expressjs-folder-structure",
+  "name": "luxury-rental-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Luxury Office Apartment Rental Management System API",
   "main": "src/index.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --inspect ./src/index.js"
+    "start": "nodemon --inspect ./src/index.js",
+    "postinstall": "prisma generate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
   },
   "repository": {
     "type": "git",
@@ -19,13 +22,14 @@
   },
   "homepage": "https://github.com/Cuongzip/expressjs-folder-structure#readme",
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "method-override": "^3.0.0",
-    "mongoose": "^8.19.3",
     "morgan": "^1.10.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "prisma": "^6.19.0"
   }
 }
