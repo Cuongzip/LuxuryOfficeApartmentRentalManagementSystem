@@ -2,7 +2,7 @@ import AppError from '../utils/AppError.js';
 
 const errorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;
-    const message = err.isOperational ? err.message : 'Internal server error';
+    const message = err.isOperational ? err.message : 'Hệ thống đang gặp sự cố, vui lòng thử lại sau!';
 
     if (process.env.NODE_ENV !== 'production' && !err.isOperational) {
         console.error(err);

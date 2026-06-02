@@ -57,3 +57,30 @@ export const verifyEmail = asyncHandler(async (req, res) => {
     },
   });
 });
+
+export const login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const { account, token } = await authService.login({ email, password });
+
+  res.json({
+    success: true,
+    message: "Đăng nhập thành công",
+    data: {
+      token,
+      account: {
+        id: account.id,
+        email: account.email,
+        role: account.role,
+        status: account.status,
+        customer: account.customer
+          ? {
+              id: account.customer.id,
+              fullName: account.customer.fullName,
+              phoneNumber: account.customer.phoneNumber,
+            }
+          : null,
+      },
+    },
+  });
+});

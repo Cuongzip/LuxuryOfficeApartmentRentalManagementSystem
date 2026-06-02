@@ -27,6 +27,8 @@ model Account {
   status                     String?   @default("Cho xac thuc") @map("TrangThaiTaiKhoan") @db.NVarChar(50)
   verificationToken          String?   @map("TokenXacThuc") @db.VarChar(255)
   verificationTokenExpiresAt DateTime? @map("HanTokenXacThuc")
+  failedAttempts             Int       @default(0) @map("SoLanDangNhapSai")
+  lockoutUntil               DateTime? @map("ThoiGianKhoaDen")
 
   customerId String   @unique @map("MaKhachHang") @db.VarChar(10)
   customer   Customer @relation(fields: [customerId], references: [id])

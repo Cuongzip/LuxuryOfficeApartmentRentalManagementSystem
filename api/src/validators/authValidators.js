@@ -28,3 +28,13 @@ export const registerSchema = z
       });
     }
   });
+
+export const loginSchema = z.object({
+  email: z
+    .string("Email không đúng định dạng!")
+    .trim()
+    .email("Email không đúng định dạng!"),
+  password: z
+    .string("Mật khẩu không được để trống")
+    .min(1, "Mật khẩu không được để trống"),
+});
