@@ -1,4 +1,4 @@
-import AppError from '../utils/AppError.js';
+import { AppError } from '../utils/index.js';
 
 const toFieldErrors = (issues) => {
     const errors = {};

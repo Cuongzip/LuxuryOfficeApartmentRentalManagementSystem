@@ -1,4 +1,4 @@
-import * as siteService from '../services/siteService.js';
+import { siteService } from '../services/index.js';
 
 export const home = async (req, res) => {
     const message = await siteService.getHomeMessage();

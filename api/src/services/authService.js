@@ -1,11 +1,14 @@
 import prisma from "../config/database.js";
-import AppError from "../utils/AppError.js";
-import generateId from "../utils/generateId.js";
+import { AppError, generateId } from "../utils/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { ACCOUNT_STATUS, ROLES, AUTH, ID_PREFIXES } from "../constants/index.js";
 
 const EMAIL_OR_PHONE_EXISTS_MESSAGE =
-  "Email hoặc Số điện thoại này đã được đăng ký. Bạn có muốn Đăng nhập hoặc Khôi phục mật khẩu không?";
+  "Email hoặc Số điện thoại này đã được đăng ký";
+
+const LOCKOUT_MESSAGE =
+  "Tài khoản của bạn đã bị tạm khóa do đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút!";
 
 export const checkDuplicateEmailOrPhone = async ({ email, phone }) => {
   const [existingAccount, existingCustomer] = await Promise.all([
@@ -33,7 +36,6 @@ const generateVerificationToken = () => {
   );
 };
 
-
 export const createPendingUser = async ({
   fullName,
   email,
@@ -41,19 +43,19 @@ export const createPendingUser = async ({
   password,
 }) => {
   const token = generateVerificationToken();
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + AUTH.VERIFICATION_TOKEN_EXPIRY_MS);
 
-  const customerId = generateId("KH");
-  const accountId = generateId("TK");
+  const customerId = generateId(ID_PREFIXES.CUSTOMER);
+  const accountId = generateId(ID_PREFIXES.ACCOUNT);
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, AUTH.BCRYPT_SALT_ROUNDS);
 
   const account = await prisma.account.create({
     data: {
       id: accountId,
       email,
       password: hashedPassword,
-      role: "Khach hang",
+      role: ROLES.CUSTOMER,
       verificationToken: token,
       verificationTokenExpiresAt: expiresAt,
       customer: {
@@ -92,7 +94,7 @@ export const verifyEmailToken = async (token) => {
   const updated = await prisma.account.update({
     where: { id: account.id },
     data: {
-      status: "Kich hoat",
+      status: ACCOUNT_STATUS.ACTIVE,
       verificationToken: null,
       verificationTokenExpiresAt: null,
     },
@@ -103,7 +105,7 @@ export const verifyEmailToken = async (token) => {
 };
 
 const sendSecurityEmail = async (email) => {
-  console.log(`[MOCK EMAIL] Security Alert sent to ${email}: Your account has been temporarily locked due to too many failed login attempts.`);
+  // TODO: Implement actual email sending
 };
 
 export const login = async ({ email, password }) => {
@@ -113,20 +115,24 @@ export const login = async ({ email, password }) => {
   });
 
   if (!account) {
-    throw new AppError("Tên đăng nhập hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại!", 400);
+    throw new AppError("Tên đăng nhập hoặc mật khẩu không chính xác", 400);
+  }
+
+  if (account.status === ACCOUNT_STATUS.PENDING) {
+    throw new AppError(
+      "Tài khoản chưa được xác thực. Vui lòng kiểm tra email để kích hoạt tài khoản!",
+      400
+    );
+  }
+
+  if (account.status === ACCOUNT_STATUS.LOCKED) {
+    throw new AppError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Quản lý!", 400);
   }
 
   const now = new Date();
 
   if (account.lockoutUntil && account.lockoutUntil > now) {
-    throw new AppError(
-      "Tài khoản của bạn đã bị tạm khóa do đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút!",
-      400
-    );
-  }
-
-  if (account.status === "Bi khoa") {
-    throw new AppError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Quản lý!", 400);
+    throw new AppError(LOCKOUT_MESSAGE, 400);
   }
 
   const isPasswordValid = await bcrypt.compare(password, account.password);
@@ -135,9 +141,9 @@ export const login = async ({ email, password }) => {
     const newFailedAttempts = account.failedAttempts + 1;
     let dataUpdate = { failedAttempts: newFailedAttempts };
 
-    if (newFailedAttempts >= 5) {
-      dataUpdate.lockoutUntil = new Date(Date.now() + 15 * 60 * 1000);
-      dataUpdate.failedAttempts = 5;
+    if (newFailedAttempts >= AUTH.MAX_FAILED_ATTEMPTS) {
+      dataUpdate.lockoutUntil = new Date(Date.now() + AUTH.LOCKOUT_DURATION_MS);
+      dataUpdate.failedAttempts = AUTH.MAX_FAILED_ATTEMPTS;
       await sendSecurityEmail(email);
     }
 
@@ -146,11 +152,8 @@ export const login = async ({ email, password }) => {
       data: dataUpdate,
     });
 
-    if (newFailedAttempts >= 5) {
-      throw new AppError(
-        "Tài khoản của bạn đã bị tạm khóa do đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút!",
-        400
-      );
+    if (newFailedAttempts >= AUTH.MAX_FAILED_ATTEMPTS) {
+      throw new AppError(LOCKOUT_MESSAGE, 400);
     } else {
       throw new AppError("Tên đăng nhập hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại!", 400);
     }
@@ -173,8 +176,8 @@ export const login = async ({ email, password }) => {
       role: account.role,
       customerId: account.customerId,
     },
-    process.env.JWT_SECRET || "super-secret-key-123456",
-    { expiresIn: "7d" }
+    process.env.JWT_SECRET,
+    { expiresIn: AUTH.JWT_EXPIRY }
   );
 
   return { account, token };

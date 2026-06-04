@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import * as siteController from '../controllers/siteController.js';
-import asyncHandler from '../utils/asyncHandler.js';
+import { siteController } from '../controllers/index.js';
+import { asyncHandler } from '../utils/index.js';
 
 const router = Router();
 

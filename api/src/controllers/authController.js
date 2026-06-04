@@ -1,8 +1,8 @@
-import * as authService from "../services/authService.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import { authService } from "../services/index.js";
+import { asyncHandler } from "../utils/index.js";
 
 export const register = asyncHandler(async (req, res) => {
-  const { fullName, email, phone, password, confirmPassword } = req.body;
+  const { fullName, email, phone, password } = req.body;
 
   await authService.checkDuplicateEmailOrPhone({ email, phone });
 
@@ -42,19 +42,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: "Kích hoạt tài khoản thành công",
-    data: {
-      id: account.id,
-      email: account.email,
-      role: account.role,
-      status: account.status,
-      customer: account.customer
-        ? {
-            id: account.customer.id,
-            fullName: account.customer.fullName,
-            phoneNumber: account.customer.phoneNumber,
-          }
-        : null,
-    },
+    data: account,
   });
 });
 
@@ -68,19 +56,7 @@ export const login = asyncHandler(async (req, res) => {
     message: "Đăng nhập thành công",
     data: {
       token,
-      account: {
-        id: account.id,
-        email: account.email,
-        role: account.role,
-        status: account.status,
-        customer: account.customer
-          ? {
-              id: account.customer.id,
-              fullName: account.customer.fullName,
-              phoneNumber: account.customer.phoneNumber,
-            }
-          : null,
-      },
+      account,
     },
   });
 });
