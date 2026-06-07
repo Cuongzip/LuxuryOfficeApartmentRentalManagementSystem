@@ -3,9 +3,8 @@ import { AppError, generateId } from "../utils/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { ACCOUNT_STATUS, ROLES, AUTH, ID_PREFIXES } from "../constants/index.js";
+import * as mailService from "./mailService.js";
 
-const EMAIL_OR_PHONE_EXISTS_MESSAGE =
-  "Email hoặc Số điện thoại này đã được đăng ký";
 
 const LOCKOUT_MESSAGE =
   "Tài khoản của bạn đã bị tạm khóa do đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút!";
@@ -20,10 +19,10 @@ export const checkDuplicateEmailOrPhone = async ({ email, phone }) => {
 
   const errors = {};
   if (existingAccount) {
-    errors.email = EMAIL_OR_PHONE_EXISTS_MESSAGE;
+    errors.email = "Email này đã được đăng ký";
   }
   if (existingCustomer) {
-    errors.phone = EMAIL_OR_PHONE_EXISTS_MESSAGE;
+    errors.phone = "Số điện thoại này đã được đăng ký";
   }
 
   throw new AppError("Thông tin đăng ký không hợp lệ", 400, errors);
@@ -104,9 +103,7 @@ export const verifyEmailToken = async (token) => {
   return updated;
 };
 
-const sendSecurityEmail = async (email) => {
-  // TODO: Implement actual email sending
-};
+
 
 export const login = async ({ email, password }) => {
   const account = await prisma.account.findUnique({
@@ -144,7 +141,7 @@ export const login = async ({ email, password }) => {
     if (newFailedAttempts >= AUTH.MAX_FAILED_ATTEMPTS) {
       dataUpdate.lockoutUntil = new Date(Date.now() + AUTH.LOCKOUT_DURATION_MS);
       dataUpdate.failedAttempts = AUTH.MAX_FAILED_ATTEMPTS;
-      await sendSecurityEmail(email);
+      await mailService.sendSecurityEmail(email);
     }
 
     await prisma.account.update({

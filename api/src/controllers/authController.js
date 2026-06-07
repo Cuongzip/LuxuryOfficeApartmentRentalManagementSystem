@@ -1,5 +1,5 @@
-import { authService } from "../services/index.js";
-import { asyncHandler } from "../utils/index.js";
+import { authService, mailService } from "../services/index.js";
+import { asyncHandler, formatAccountResponse } from "../utils/index.js";
 
 export const register = asyncHandler(async (req, res) => {
   const { fullName, email, phone, password } = req.body;
@@ -16,13 +16,16 @@ export const register = asyncHandler(async (req, res) => {
   const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
   const verificationLink = `${baseUrl}/api/auth/verify-email?token=${token}`;
 
+  await mailService.sendVerificationEmail({
+    email,
+    fullName,
+    verificationLink,
+  });
+
   res.status(201).json({
     success: true,
     message:
-      "Tạo tài khoản tạm thời thành công. Vui lòng kiểm tra email để xác thực tài khoản.",
-    data: {
-      verificationLink,
-    },
+      "Vui lòng kiểm tra email để xác thực tài khoản.",
   });
 });
 
@@ -42,7 +45,7 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: "Kích hoạt tài khoản thành công",
-    data: account,
+    data: formatAccountResponse(account),
   });
 });
 
@@ -56,7 +59,7 @@ export const login = asyncHandler(async (req, res) => {
     message: "Đăng nhập thành công",
     data: {
       token,
-      account,
+      account: formatAccountResponse(account),
     },
   });
 });
