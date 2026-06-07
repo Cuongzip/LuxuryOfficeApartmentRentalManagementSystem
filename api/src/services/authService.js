@@ -108,22 +108,19 @@ export const verifyEmailToken = async (token) => {
 export const login = async ({ email, password }) => {
   const account = await prisma.account.findUnique({
     where: { email },
-    include: { customer: true },
+    include: { customer: true, employee: true },
   });
 
   if (!account) {
     throw new AppError("Tên đăng nhập hoặc mật khẩu không chính xác", 400);
   }
 
-  if (account.status === ACCOUNT_STATUS.PENDING) {
-    throw new AppError(
-      "Tài khoản chưa được xác thực. Vui lòng kiểm tra email để kích hoạt tài khoản!",
-      400
-    );
+  if (account.status === ACCOUNT_STATUS.LOCKED) {
+    throw new AppError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ ban quản trị để được hỗ trợ!", 400);
   }
 
-  if (account.status === ACCOUNT_STATUS.LOCKED) {
-    throw new AppError("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Quản lý!", 400);
+  if (account.status === ACCOUNT_STATUS.PENDING) {
+    throw new AppError("Tài khoản chưa được xác thực email. Vui lòng kiểm tra email để xác thực!", 400);
   }
 
   const now = new Date();
@@ -171,7 +168,8 @@ export const login = async ({ email, password }) => {
       accountId: account.id,
       email: account.email,
       role: account.role,
-      customerId: account.customerId,
+      customerId: account.customer?.id,
+      employeeId: account.employee?.id,
     },
     process.env.JWT_SECRET,
     { expiresIn: AUTH.JWT_EXPIRY }
