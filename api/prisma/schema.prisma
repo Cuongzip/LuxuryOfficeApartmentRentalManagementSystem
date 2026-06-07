@@ -137,7 +137,7 @@ model Account {
   email                      String    @unique @map("Email") @db.VarChar(50)
   password                   String    @map("MatKhau") @db.VarChar(255)
   role                       String    @map("VaiTro") @db.NVarChar(20)
-  status                     String?   @default("Kich hoat") @map("TrangThaiTaiKhoan") @db.NVarChar(20)
+  status                     String?   @default("Cho xac thuc") @map("TrangThaiTaiKhoan") @db.NVarChar(20)
   verificationToken          String?   @map("MaXacThuc") @db.NVarChar(255)
   verificationTokenExpiresAt DateTime? @map("HanXacThuc")
   failedAttempts             Int       @default(0) @map("SoLanDangNhapSai") @db.TinyInt
