@@ -44,7 +44,7 @@ model Room {
 model Customer {
   id          String    @id @map("MaKhachHang") @db.VarChar(10)
   fullName    String    @map("HoTen") @db.NVarChar(100)
-  nationalId  String    @unique @map("CCCD") @db.Char(12)
+  nationalId  String?   @unique @map("CCCD") @db.Char(12)
   phoneNumber String    @unique @map("SoDienThoai") @db.VarChar(10)
   address     String?   @map("DiaChi") @db.NVarChar(255)
   gender      String?   @map("GioiTinh") @db.NVarChar(20)
