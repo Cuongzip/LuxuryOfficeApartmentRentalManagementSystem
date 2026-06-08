@@ -31,6 +31,7 @@ model Room {
   image       String?  @map("HinhAnh") @db.NVarChar(255)
   description String?  @map("MoTa") @db.NVarChar(1000)
   maxPeople   Int      @default(2) @map("SoNguoiToiDa") @db.TinyInt
+  deletedAt   DateTime? @map("NgayXoa")
 
   buildingId  String   @map("MaToaNha") @db.VarChar(10)
   building    Building @relation(fields: [buildingId], references: [id])

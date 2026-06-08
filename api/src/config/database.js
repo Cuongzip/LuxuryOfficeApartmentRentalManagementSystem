@@ -18,9 +18,41 @@ const prisma = prismaClient.$extends({
         });
       },
     },
+    room: {
+      async delete({ where }) {
+        return prismaClient.room.update({
+          where,
+          data: { deletedAt: new Date() },
+        });
+      },
+      async deleteMany({ where }) {
+        return prismaClient.room.updateMany({
+          where,
+          data: { deletedAt: new Date() },
+        });
+      },
+    },
   },
   query: {
     building: {
+      async findMany({ args, query }) {
+        args.where = { ...args.where, deletedAt: null };
+        return query(args);
+      },
+      async findFirst({ args, query }) {
+        args.where = { ...args.where, deletedAt: null };
+        return query(args);
+      },
+      async findUnique({ args, query }) {
+        args.where = { ...args.where, deletedAt: null };
+        return query(args);
+      },
+      async count({ args, query }) {
+        args.where = { ...args.where, deletedAt: null };
+        return query(args);
+      },
+    },
+    room: {
       async findMany({ args, query }) {
         args.where = { ...args.where, deletedAt: null };
         return query(args);
