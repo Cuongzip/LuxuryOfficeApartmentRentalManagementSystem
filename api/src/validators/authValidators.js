@@ -14,6 +14,10 @@ export const registerSchema = z
       .string("Số điện thoại không hợp lệ")
       .trim()
       .regex(/^(0|\+84)(\d{9})$/, "Số điện thoại không hợp lệ"),
+    nationalId: z
+      .string("Số cccd không hợp lệ")
+      .trim()
+      .regex(/^(0[0-9]{2}|09[7-9])[0-9]{9}$/, "Số cccd không hợp lệ"),
     password: z
       .string("Mật khẩu phải có ít nhất 8 ký tự")
       .min(8, "Mật khẩu phải có ít nhất 8 ký tự"),

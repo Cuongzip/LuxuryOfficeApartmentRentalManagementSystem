@@ -8,6 +8,7 @@ const formatAccountResponse = (account) => ({
         id: account.customer.id,
         fullName: account.customer.fullName,
         phoneNumber: account.customer.phoneNumber,
+        nationalId: account.customer.nationalId,
       }
     : null,
 });

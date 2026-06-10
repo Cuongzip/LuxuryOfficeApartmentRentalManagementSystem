@@ -9,20 +9,24 @@ import * as mailService from "./mailService.js";
 const LOCKOUT_MESSAGE =
   "Tài khoản của bạn đã bị tạm khóa do đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút!";
 
-export const checkDuplicateEmailOrPhone = async ({ email, phone }) => {
-  const [existingAccount, existingCustomer] = await Promise.all([
+export const checkDuplicateUniqueFields = async ({ email, phone, nationalId }) => {
+  const [existingAccount, existingCustomerByPhone, existingCustomerByNationalId] = await Promise.all([
     prisma.account.findUnique({ where: { email } }),
     prisma.customer.findUnique({ where: { phoneNumber: phone } }),
+    prisma.customer.findUnique({ where: { nationalId } }),
   ]);
 
-  if (!existingAccount && !existingCustomer) return;
+  if (!existingAccount && !existingCustomerByPhone && !existingCustomerByNationalId) return;
 
   const errors = {};
   if (existingAccount) {
     errors.email = "Email này đã được đăng ký";
   }
-  if (existingCustomer) {
+  if (existingCustomerByPhone) {
     errors.phone = "Số điện thoại này đã được đăng ký";
+  }
+  if (existingCustomerByNationalId) {
+    errors.nationalId = "Số CCCD/CMND này đã được đăng ký";
   }
 
   throw new AppError("Thông tin đăng ký không hợp lệ", 400, errors);
@@ -40,6 +44,7 @@ export const createPendingUser = async ({
   email,
   phone,
   password,
+  nationalId,
 }) => {
   const token = generateVerificationToken();
   const expiresAt = new Date(Date.now() + AUTH.VERIFICATION_TOKEN_EXPIRY_MS);
@@ -48,6 +53,8 @@ export const createPendingUser = async ({
   const accountId = generateId(ID_PREFIXES.ACCOUNT);
 
   const hashedPassword = await bcrypt.hash(password, AUTH.BCRYPT_SALT_ROUNDS);
+
+
 
   const account = await prisma.account.create({
     data: {
@@ -62,6 +69,7 @@ export const createPendingUser = async ({
           id: customerId,
           fullName,
           phoneNumber: phone,
+          nationalId,
         },
       },
     },

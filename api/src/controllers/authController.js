@@ -2,15 +2,24 @@ import { authService, mailService } from "../services/index.js";
 import { asyncHandler, formatAccountResponse } from "../utils/index.js";
 
 export const register = asyncHandler(async (req, res) => {
-  const { fullName, email, phone, password } = req.body;
+  const { fullName, email, phone, password, nationalId } = req.body;
 
-  await authService.checkDuplicateEmailOrPhone({ email, phone });
+  if (!nationalId) {
+    res.status(400).json({
+      success: false,
+      message: "Vui lòng nhập số CCCD/CMND",
+    });
+    return;
+  }
+
+  await authService.checkDuplicateUniqueFields({ email, phone, nationalId });
 
   const { token } = await authService.createPendingUser({
     fullName,
     email,
     phone,
     password,
+    nationalId,
   });
 
   const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get("host")}`;
