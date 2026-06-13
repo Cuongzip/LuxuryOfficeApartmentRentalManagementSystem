@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }) {
 
   useEffect(() => {
     if (!loading && (!user || (user.role !== 'Admin' && user.role !== 'Employee'))) {
-      router.push('/login');
+      router.push('/?showLogin=true');
     }
   }, [user, loading, router]);
 

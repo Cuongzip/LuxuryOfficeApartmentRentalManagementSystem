@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
+import { Modal } from '@/components/ui/Modal';
 
-export default function LoginPage() {
+export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
@@ -23,6 +23,8 @@ export default function LoginPage() {
 
     try {
       const data = await login(email, password);
+      onClose(); // Close the modal
+      
       // If user is Admin or Employee, redirect to admin dashboard
       if (data.account.role === 'Admin' || data.account.role === 'Employee') {
         router.push('/admin');
@@ -37,24 +39,23 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="!border-zinc-800 bg-zinc-900 text-zinc-100 p-8 shadow-2xl">
-      <div className="flex flex-col items-center mb-8">
-        <div className="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold text-xl mb-4">
+    <Modal isOpen={isOpen} onClose={onClose} title="Đăng nhập hệ thống" size="md">
+      <div className="flex flex-col items-center mb-6">
+        <div className="w-10 h-10 rounded-lg bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 flex items-center justify-center font-bold text-lg mb-2">
           L
         </div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Chào mừng trở lại</h2>
-        <p className="text-sm text-zinc-400 mt-2 text-center">
-          Hệ thống quản lý căn hộ & văn phòng dịch vụ cao cấp
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+          Quản lý căn hộ & văn phòng dịch vụ cao cấp
         </p>
       </div>
 
       {error && (
-        <div className="mb-5 p-3.5 bg-red-950/50 border border-red-800/50 rounded-lg text-sm text-red-400 font-medium">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Địa chỉ Email"
           id="email"
@@ -63,8 +64,6 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="admin@luxuryrental.vn"
           required
-          className="text-white"
-          inputClassName="bg-zinc-950/50 border-zinc-800 focus:ring-zinc-700 focus:border-transparent text-white"
         />
 
         <Input
@@ -75,34 +74,37 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
           required
-          className="text-white"
-          inputClassName="bg-zinc-950/50 border-zinc-800 focus:ring-zinc-700 focus:border-transparent text-white"
         />
 
-        <div className="flex justify-between items-center text-sm pt-1">
-          <label className="flex items-center gap-2 text-zinc-400 cursor-pointer select-none">
-            <input type="checkbox" className="rounded border-zinc-800 bg-zinc-950 text-zinc-500 focus:ring-0 focus:ring-offset-0" />
+        <div className="flex justify-between items-center text-xs pt-1">
+          <label className="flex items-center gap-1.5 text-zinc-500 cursor-pointer select-none">
+            <input type="checkbox" className="rounded border-zinc-200 text-zinc-600 focus:ring-0 focus:ring-offset-0" />
             Ghi nhớ đăng nhập
           </label>
-          <a href="#" className="text-zinc-300 hover:text-white font-medium">Quên mật khẩu?</a>
+          <a href="#" className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 font-medium">
+            Quên mật khẩu?
+          </a>
         </div>
 
         <Button
           type="submit"
           variant="primary"
           isLoading={isLoading}
-          className="w-full mt-4 !bg-white !text-zinc-950 hover:!bg-zinc-200"
+          className="w-full mt-2"
         >
           Đăng nhập
         </Button>
       </form>
 
-      <div className="mt-8 text-center text-sm text-zinc-400 border-t border-zinc-800 pt-6">
+      <div className="mt-6 text-center text-xs text-zinc-500 border-t border-zinc-100 dark:border-zinc-900 pt-4">
         Chưa có tài khoản khách thuê?{' '}
-        <Link href="/register" className="text-white hover:underline font-semibold">
+        <button
+          onClick={onSwitchToRegister}
+          className="text-zinc-900 dark:text-zinc-100 hover:underline font-semibold cursor-pointer"
+        >
           Đăng ký ngay
-        </Link>
+        </button>
       </div>
-    </Card>
+    </Modal>
   );
-}
+};

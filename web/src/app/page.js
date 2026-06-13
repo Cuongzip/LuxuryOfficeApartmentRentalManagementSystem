@@ -1,11 +1,56 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { LoginModal } from '@/components/auth/LoginModal';
+import { RegisterModal } from '@/components/auth/RegisterModal';
 
 export default function PublicHome() {
   const { user } = useAuth();
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('showLogin') === 'true') {
+        setIsLoginOpen(true);
+      } else if (params.get('showRegister') === 'true') {
+        setIsRegisterOpen(true);
+      }
+    }
+  }, []);
+
+  const handleCloseLogin = () => {
+    setIsLoginOpen(false);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  };
+
+  const handleCloseRegister = () => {
+    setIsRegisterOpen(false);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  };
+
+  const handleSwitchToRegister = () => {
+    setIsLoginOpen(false);
+    setIsRegisterOpen(true);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `${window.location.pathname}?showRegister=true`);
+    }
+  };
+
+  const handleSwitchToLogin = () => {
+    setIsRegisterOpen(false);
+    setIsLoginOpen(true);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-white selection:text-black">
@@ -30,15 +75,28 @@ export default function PublicHome() {
             </Link>
           ) : (
             <>
-              <Link href="/login" className="text-sm text-zinc-300 hover:text-white font-medium">
+              <button
+                onClick={() => {
+                  setIsLoginOpen(true);
+                  if (typeof window !== 'undefined') {
+                    window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
+                  }
+                }}
+                className="text-sm text-zinc-300 hover:text-white font-medium cursor-pointer"
+              >
                 Đăng nhập
-              </Link>
-              <Link
-                href="/register"
-                className="text-sm bg-white text-zinc-950 hover:bg-zinc-200 px-5 py-2.5 rounded-full font-semibold transition-all"
+              </button>
+              <button
+                onClick={() => {
+                  setIsRegisterOpen(true);
+                  if (typeof window !== 'undefined') {
+                    window.history.replaceState(null, '', `${window.location.pathname}?showRegister=true`);
+                  }
+                }}
+                className="text-sm bg-white text-zinc-950 hover:bg-zinc-200 px-5 py-2.5 rounded-full font-semibold transition-all cursor-pointer"
               >
                 Đăng ký
-              </Link>
+              </button>
             </>
           )}
         </nav>
@@ -70,12 +128,17 @@ export default function PublicHome() {
               </Link>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-950 font-semibold rounded-full hover:bg-zinc-200 transition-all text-center"
+                <button
+                  onClick={() => {
+                    setIsLoginOpen(true);
+                    if (typeof window !== 'undefined') {
+                      window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
+                    }
+                  }}
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-950 font-semibold rounded-full hover:bg-zinc-200 transition-all text-center cursor-pointer"
                 >
                   Trải nghiệm hệ thống ngay
-                </Link>
+                </button>
                 <a
                   href="#features"
                   className="w-full sm:w-auto px-8 py-4 border border-zinc-800 text-zinc-300 font-semibold rounded-full hover:bg-zinc-900 hover:text-white transition-all text-center"
@@ -139,6 +202,20 @@ export default function PublicHome() {
           </div>
         </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={handleCloseLogin}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
+
+      {/* Register Modal */}
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={handleCloseRegister}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
     </div>
   );
 }
