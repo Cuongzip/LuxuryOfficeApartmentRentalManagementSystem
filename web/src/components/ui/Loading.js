@@ -3,7 +3,7 @@ import React from 'react';
 export const Loading = ({ 
   fullScreen = false, 
   text = 'Đang tải...', 
-  size = 'md', // 'sm', 'md', 'lg'
+  size = 'md',
   className = ''
 }) => {
   const sizeClasses = {

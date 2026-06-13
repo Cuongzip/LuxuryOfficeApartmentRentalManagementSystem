@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { ROLES } from '@/constants';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { RegisterModal } from '@/components/auth/RegisterModal';
 
@@ -67,7 +68,7 @@ export default function PublicHome() {
           <span className="h-4 w-px bg-slate-200"></span>
           {user ? (
             <Link
-              href={user.role === 'Admin' || user.role === 'Employee' ? '/admin' : '/customer/dashboard'}
+              href={user.role === ROLES.ADMIN || user.role === ROLES.EMPLOYEE ? '/admin' : '/customer/dashboard'}
               className="text-sm bg-blue-950 text-white hover:bg-blue-900 px-5 py-2.5 rounded-full font-semibold transition-all"
             >
               Vào Dashboard ({user.fullName})
@@ -120,7 +121,7 @@ export default function PublicHome() {
           <div className="flex flex-col sm:flex-row gap-4 items-center">
             {user ? (
               <Link
-                href={user.role === 'Admin' || user.role === 'Employee' ? '/admin' : '/customer/dashboard'}
+                href={user.role === ROLES.ADMIN || user.role === ROLES.EMPLOYEE ? '/admin' : '/customer/dashboard'}
                 className="w-full sm:w-auto px-8 py-4 bg-blue-950 text-white font-semibold rounded-full hover:bg-blue-900 transition-all text-center shadow-md shadow-blue-950/10"
               >
                 Quản lý hệ thống của bạn

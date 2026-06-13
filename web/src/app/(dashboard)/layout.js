@@ -6,13 +6,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { Loading } from '@/components/ui/Loading';
+import { ROLES } from '@/constants';
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== 'Admin' && user.role !== 'Employee'))) {
+    if (!loading && (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.EMPLOYEE))) {
       router.push('/?showLogin=true');
     }
   }, [user, loading, router]);
@@ -21,7 +22,7 @@ export default function DashboardLayout({ children }) {
     return <Loading fullScreen />;
   }
 
-  if (!user || (user.role !== 'Admin' && user.role !== 'Employee')) {
+  if (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.EMPLOYEE)) {
     return null; // Prevents flashing content before redirect completes
   }
 

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { formatCurrency } from '@/utils/format';
-import { getRoomStatus } from '@/utils/constants';
+import { getRoomStatus } from '@/constants';
 
 export default function RoomsManagement() {
   const [rooms, setRooms] = useState([]);

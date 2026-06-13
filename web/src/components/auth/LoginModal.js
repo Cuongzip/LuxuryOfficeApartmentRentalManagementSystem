@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { ROLES } from '@/constants';
 
 export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const router = useRouter();
@@ -26,7 +27,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
       onClose(); // Close the modal
       
       // If user is Admin or Employee, redirect to admin dashboard
-      if (data.account.role === 'Admin' || data.account.role === 'Employee') {
+      if (data.account.role === ROLES.ADMIN || data.account.role === ROLES.EMPLOYEE) {
         router.push('/admin');
       } else {
         router.push('/');
