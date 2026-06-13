@@ -71,22 +71,22 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Đăng ký tài khoản" size="md">
       <div className="flex flex-col items-center mb-4">
-        <div className="w-10 h-10 rounded-lg bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 flex items-center justify-center font-bold text-lg mb-2">
+        <div className="w-10 h-10 rounded-lg bg-blue-950 text-white flex items-center justify-center font-bold text-lg mb-2">
           L
         </div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+        <p className="text-xs text-slate-500 text-center">
           Đăng ký tài khoản khách thuê căn hộ & văn phòng dịch vụ
         </p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 text-emerald-600 dark:text-emerald-400 rounded-lg text-sm font-medium">
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-lg text-sm font-medium">
           {success}
         </div>
       )}
@@ -169,11 +169,11 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         </div>
       )}
 
-      <div className="mt-6 text-center text-xs text-zinc-500 border-t border-zinc-100 dark:border-zinc-900 pt-4">
+      <div className="mt-6 text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
         Đã có tài khoản?{' '}
         <button
           onClick={onSwitchToLogin}
-          className="text-zinc-900 dark:text-zinc-100 hover:underline font-semibold cursor-pointer"
+          className="text-blue-950 hover:underline font-semibold cursor-pointer"
         >
           Đăng nhập ngay
         </button>

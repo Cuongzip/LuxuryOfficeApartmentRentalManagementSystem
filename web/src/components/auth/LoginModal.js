@@ -41,16 +41,16 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Đăng nhập hệ thống" size="md">
       <div className="flex flex-col items-center mb-6">
-        <div className="w-10 h-10 rounded-lg bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 flex items-center justify-center font-bold text-lg mb-2">
+        <div className="w-10 h-10 rounded-lg bg-blue-950 text-white flex items-center justify-center font-bold text-lg mb-2">
           L
         </div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+        <p className="text-xs text-slate-500 text-center">
           Quản lý căn hộ & văn phòng dịch vụ cao cấp
         </p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
           {error}
         </div>
       )}
@@ -77,11 +77,11 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
         />
 
         <div className="flex justify-between items-center text-xs pt-1">
-          <label className="flex items-center gap-1.5 text-zinc-500 cursor-pointer select-none">
-            <input type="checkbox" className="rounded border-zinc-200 text-zinc-600 focus:ring-0 focus:ring-offset-0" />
+          <label className="flex items-center gap-1.5 text-slate-500 cursor-pointer select-none">
+            <input type="checkbox" className="rounded border-slate-200 text-blue-950 focus:ring-0 focus:ring-offset-0" />
             Ghi nhớ đăng nhập
           </label>
-          <a href="#" className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-50 font-medium">
+          <a href="#" className="text-slate-600 hover:text-blue-950 font-medium">
             Quên mật khẩu?
           </a>
         </div>
@@ -96,11 +96,11 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-xs text-zinc-500 border-t border-zinc-100 dark:border-zinc-900 pt-4">
+      <div className="mt-6 text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
         Chưa có tài khoản khách thuê?{' '}
         <button
           onClick={onSwitchToRegister}
-          className="text-zinc-900 dark:text-zinc-100 hover:underline font-semibold cursor-pointer"
+          className="text-blue-950 hover:underline font-semibold cursor-pointer"
         >
           Đăng ký ngay
         </button>

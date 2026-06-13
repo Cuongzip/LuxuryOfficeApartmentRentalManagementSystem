@@ -14,11 +14,11 @@ export const Button = ({
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer';
   
   const variants = {
-    primary: 'bg-zinc-950 text-white hover:bg-zinc-900 focus:ring-zinc-950 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200 dark:focus:ring-zinc-300',
-    secondary: 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200 focus:ring-zinc-500 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700',
+    primary: 'bg-blue-950 text-white hover:bg-blue-900 focus:ring-blue-950 dark:bg-blue-50 dark:text-blue-950 dark:hover:bg-blue-100 dark:focus:ring-blue-200',
+    secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-500 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 dark:bg-red-600 dark:hover:bg-red-700',
-    outline: 'border border-zinc-200 text-zinc-900 hover:bg-zinc-50 focus:ring-zinc-500 dark:border-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900',
-    ghost: 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100',
+    outline: 'border border-slate-200 text-slate-800 hover:bg-slate-50 focus:ring-blue-950 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900',
+    ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-slate-100',
   };
 
   const sizes = {

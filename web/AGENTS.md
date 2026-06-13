@@ -9,6 +9,16 @@ Before implementing any feature:
 2. Follow the business rules described in that document.
 3. If implementation conflicts with the document, ask for clarification.
 
+Always consult files in the agent-skills directory before generating code.
+
+Relevant skills:
+
+- agent-skills/design-taste-frontend/SKILL.md
+- agent-skills/design-taste-frontend-v1/SKILL.md
+- agent-skills/image-to-code/SKILL.md
+- agent-skills/minimalist-ui/SKILL.md
+
+Follow the conventions and business rules defined in those files.
 
 # AGENT CODING RULES
 

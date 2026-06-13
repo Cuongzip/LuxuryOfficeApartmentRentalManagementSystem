@@ -148,8 +148,8 @@ export default function BuildingsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Quản lý tòa nhà</h2>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+          <h2 className="text-2xl font-bold tracking-tight text-blue-950">Quản lý tòa nhà</h2>
+          <p className="text-slate-500 text-sm mt-1">
             Xem, thêm mới, cập nhật và quản lý danh sách tòa nhà trong hệ thống.
           </p>
         </div>
@@ -171,14 +171,14 @@ export default function BuildingsManagement() {
       {/* modal block */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 w-full max-w-lg rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-5 border-b border-zinc-100 dark:border-zinc-900 flex justify-between items-center">
-              <h3 className="font-bold text-zinc-900 dark:text-zinc-50 text-lg">
+          <div className="bg-white border border-slate-200 w-full max-w-lg rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="font-bold text-blue-950 text-lg">
                 {currentBuilding ? 'Chỉnh sửa tòa nhà' : 'Thêm tòa nhà mới'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-50 cursor-pointer"
+                className="text-slate-400 hover:text-blue-950 cursor-pointer"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -189,7 +189,7 @@ export default function BuildingsManagement() {
             <form onSubmit={handleSubmit}>
               <div className="p-6 space-y-4">
                 {error && (
-                  <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium">
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
                     {error}
                   </div>
                 )}
@@ -234,7 +234,7 @@ export default function BuildingsManagement() {
                 />
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="description" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  <label htmlFor="description" className="text-sm font-medium text-slate-700">
                     Mô tả / Thông tin thêm
                   </label>
                   <textarea
@@ -242,12 +242,12 @@ export default function BuildingsManagement() {
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Mô tả các tiện ích của tòa nhà..."
-                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:focus:ring-zinc-300 focus:border-transparent transition-all placeholder-zinc-400 dark:placeholder-zinc-600 h-24 resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent transition-all placeholder-slate-400 h-24 resize-none"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-100 dark:border-zinc-900 flex justify-end gap-3">
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   Hủy
                 </Button>
