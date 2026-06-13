@@ -13,8 +13,8 @@ export const roomSchema = z.object({
     .trim()
     .min(1, "Mã tòa nhà không được để trống")
     .max(10, "Mã tòa nhà không được vượt quá 10 ký tự"),
-  floor: z
-    .number("Tầng không được để trống")
+  floor: z.coerce
+    .number({ invalid_type_error: "Tầng phải là số nguyên dương" })
     .int("Tầng phải là số nguyên")
     .positive("Tầng phải là số nguyên dương"),
   type: z
@@ -22,11 +22,11 @@ export const roomSchema = z.object({
     .trim()
     .min(1, "Loại phòng không được để trống")
     .max(20, "Loại phòng không được vượt quá 20 ký tự"),
-  area: z
-    .number("Diện tích không được để trống")
+  area: z.coerce
+    .number({ invalid_type_error: "Diện tích phải là số dương" })
     .positive("Diện tích phải là số dương"),
-  price: z
-    .number("Đơn giá thuê không được để trống")
+  price: z.coerce
+    .number({ invalid_type_error: "Đơn giá thuê phải là số dương" })
     .positive("Đơn giá thuê phải là số dương"),
   status: z.enum([ROOM_STATUS.AVAILABLE, ROOM_STATUS.RENTED, ROOM_STATUS.MAINTENANCE], {
     message: `Trạng thái phòng phải thuộc: ${Object.values(ROOM_STATUS).join(", ")}`,
@@ -37,21 +37,27 @@ export const roomSchema = z.object({
     .max(1000, "Mô tả không được vượt quá 1000 ký tự")
     .optional()
     .nullable(),
-  image: z
-    .string()
-    .trim()
-    .max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự")
+  images: z
+    .array(
+      z.union([
+        z.string().trim().max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự"),
+        z.object({
+          imagePath: z.string().trim().max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự"),
+          displayOrder: z.number().int().nonnegative().optional(),
+          isPrimary: z.boolean().optional(),
+        }),
+      ])
+    )
     .optional()
     .nullable(),
-  maxPeople: z
+  maxPeople: z.coerce
     .number()
     .int()
     .positive()
     .default(2)
     .optional(),
   confirmPriceChange: z
-    .boolean()
-    .optional(),
+    .preprocess((val) => val === 'true' || val === true, z.boolean().optional()),
 });
 
 export const updateRoomSchema = roomSchema.omit({ id: true });

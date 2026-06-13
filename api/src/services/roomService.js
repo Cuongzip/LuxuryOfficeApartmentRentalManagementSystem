@@ -1,6 +1,6 @@
 import prisma from "../config/database.js";
-import { AppError } from "../utils/index.js";
-import { ROOM_STATUS } from "../constants/index.js";
+import { AppError, generateId } from "../utils/index.js";
+import { ROOM_STATUS, ID_PREFIXES } from "../constants/index.js";
 
 export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10 }) => {
   const where = {};
@@ -21,7 +21,12 @@ export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10
       where,
       skip,
       take: limit,
-      include: { building: true },
+      include: {
+        building: true,
+        images: {
+          orderBy: { displayOrder: "asc" },
+        },
+      },
     }),
     prisma.room.count({ where }),
   ]);
@@ -40,7 +45,12 @@ export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10
 export const getRoomById = async (id) => {
   const room = await prisma.room.findUnique({
     where: { id },
-    include: { building: true },
+    include: {
+      building: true,
+      images: {
+        orderBy: { displayOrder: "asc" },
+      },
+    },
   });
 
   if (!room) {
@@ -59,7 +69,7 @@ export const createRoom = async ({
   price,
   status,
   description,
-  image,
+  images,
   maxPeople,
 }) => {
   const building = await prisma.building.findUnique({
@@ -95,8 +105,24 @@ export const createRoom = async ({
       price,
       status,
       description: description || null,
-      image: image || null,
       maxPeople: maxPeople !== undefined ? maxPeople : 2,
+      images: images && images.length > 0 ? {
+        create: images.map((img, index) => {
+          const imgObj = typeof img === "string" ? { imagePath: img } : img;
+          return {
+            id: generateId(ID_PREFIXES.IMAGE),
+            imagePath: imgObj.imagePath,
+            displayOrder: imgObj.displayOrder !== undefined ? imgObj.displayOrder : index + 1,
+            isPrimary: imgObj.isPrimary !== undefined ? imgObj.isPrimary : index === 0,
+          };
+        }),
+      } : undefined,
+    },
+    include: {
+      building: true,
+      images: {
+        orderBy: { displayOrder: "asc" },
+      },
     },
   });
 
@@ -105,7 +131,7 @@ export const createRoom = async ({
 
 export const updateRoom = async (
   id,
-  { buildingId, floor, type, area, price, status, description, image, maxPeople, confirmPriceChange }
+  { buildingId, floor, type, area, price, status, description, images, maxPeople, confirmPriceChange }
 ) => {
   const room = await prisma.room.findUnique({
     where: { id },
@@ -153,8 +179,22 @@ export const updateRoom = async (
   if (area !== undefined) data.area = area;
   if (status !== undefined) data.status = status;
   if (description !== undefined) data.description = description;
-  if (image !== undefined) data.image = image;
   if (maxPeople !== undefined) data.maxPeople = maxPeople;
+
+  if (images !== undefined) {
+    data.images = {
+      deleteMany: {},
+      create: images ? images.map((img, index) => {
+        const imgObj = typeof img === "string" ? { imagePath: img } : img;
+        return {
+          id: generateId(ID_PREFIXES.IMAGE),
+          imagePath: imgObj.imagePath,
+          displayOrder: imgObj.displayOrder !== undefined ? imgObj.displayOrder : index + 1,
+          isPrimary: imgObj.isPrimary !== undefined ? imgObj.isPrimary : index === 0,
+        };
+      }) : [],
+    };
+  }
 
   if (price !== undefined) {
     if (Number(price) !== Number(room.price)) {
@@ -178,6 +218,12 @@ export const updateRoom = async (
   const updatedRoom = await prisma.room.update({
     where: { id },
     data,
+    include: {
+      building: true,
+      images: {
+        orderBy: { displayOrder: "asc" },
+      },
+    },
   });
 
   return updatedRoom;

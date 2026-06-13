@@ -58,44 +58,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 ```
 
-# AGENT CODING RULES
-
-## 1. Code Style
-
-- Write clean, minimal code.
-- Do not add comments unless explicitly required.
-- Prefer self-explanatory variable and function names.
-- Avoid unnecessary abstractions.
-
----
-
-## 2. Commit Rules
-
-- Do NOT commit after each function or small change.
-- Only commit when a feature is fully complete and working.
-- Never commit WIP (Work In Progress) code.
-- Each commit must represent a complete, testable unit of work.
-- Commit message must clearly describe the feature or fix.
-
-Example:
-
-- feat: implement user authentication flow
-- fix: resolve login token expiration issue
-
----
-
-## 3. Development Workflow
-
-- Break tasks into steps internally, but do not commit per step.
-- Follow this flow:
-  1. Plan
-  2. Implement
-  3. Test
-  4. Finalize
-  5. Commit
-
----
-
 ## Code Understanding
 
 Before making changes:
@@ -160,67 +122,109 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
-## 1. Think Before Coding
+# AGENT CODING RULES
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+## 1. Think Before Coding
 
 Before implementing:
 
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+- Do not assume.
+- State assumptions clearly.
+- If something is unclear, ask before coding.
+- If multiple interpretations exist, present them instead of choosing silently.
+- Consider simpler approaches first.
+- Surface trade-offs when needed.
+
+---
 
 ## 2. Simplicity First
 
-**Minimum code that solves the problem. Nothing speculative.**
+- Write clean, minimal code.
+- Only implement what is requested.
+- Do not add unnecessary features.
+- Avoid unnecessary abstractions.
+- Do not create flexibility/configuration without a real need.
+- Avoid over-engineering.
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
+Ask:
+"Would a senior engineer consider this overcomplicated?"
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+---
 
 ## 3. Surgical Changes
 
-**Touch only what you must. Clean up only your own mess.**
-
 When editing existing code:
 
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
+- Change only what is necessary.
+- Do not refactor unrelated code.
+- Do not improve adjacent code, comments, or formatting unless required.
+- Match the existing code style.
+- Do not remove existing unused code unless requested.
 
-When your changes create orphans:
+When your changes create unused code:
 
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
+- Remove imports, variables, or functions made unused by your changes.
 
-The test: Every changed line should trace directly to the user's request.
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+Every changed line should directly relate to the request.
 
 ---
+
+## 4. Code Style
+
+- Use clear and self-explanatory variable and function names.
+- Do not add comments unless explicitly required.
+- Avoid unnecessary abstractions.
+- Keep code simple and readable.
+
+---
+
+## 5. Development Workflow
+
+Follow this flow:
+
+1. Plan
+2. Implement
+3. Test
+4. Finalize
+5. Commit
+
+For multi-step tasks:
+
+- Break tasks into steps internally.
+- Verify each step before finishing.
+
+---
+
+## 6. Goal-Driven Execution
+
+Define success criteria before completing a task.
+
+Examples:
+
+"Add validation"
+→ Verify invalid inputs fail correctly.
+
+"Fix a bug"
+→ Reproduce the issue → fix → verify.
+
+"Refactor"
+→ Ensure behavior works before and after.
+
+---
+
+## 7. Commit Rules
+
+- Do NOT commit after every function or small change.
+- Only commit when a feature is complete and working.
+- Never commit WIP (Work In Progress) code.
+- Each commit must represent a complete, testable unit of work.
+- Commit messages must clearly describe the feature or fix.
+
+Examples:
+
+feat: implement user authentication flow
+
+fix: resolve login token expiration issue
+
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

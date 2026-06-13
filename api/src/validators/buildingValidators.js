@@ -11,8 +11,8 @@ export const buildingSchema = z.object({
     .trim()
     .min(1, "Địa chỉ không được để trống")
     .max(255, "Địa chỉ không được vượt quá 255 ký tự"),
-  numberOfFloors: z
-    .number("Số tầng không được để trống")
+  numberOfFloors: z.coerce
+    .number({ invalid_type_error: "Số tầng phải là số nguyên dương" })
     .int("Số tầng phải là số nguyên dương")
     .positive("Số tầng phải là số nguyên dương"),
   description: z
@@ -21,10 +21,17 @@ export const buildingSchema = z.object({
     .max(1000, "Mô tả không được vượt quá 1000 ký tự")
     .optional()
     .nullable(),
-  image: z
-    .string()
-    .trim()
-    .max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự")
+  images: z
+    .array(
+      z.union([
+        z.string().trim().max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự"),
+        z.object({
+          imagePath: z.string().trim().max(255, "Đường dẫn hình ảnh không được vượt quá 255 ký tự"),
+          displayOrder: z.number().int().nonnegative().optional(),
+          isPrimary: z.boolean().optional(),
+        }),
+      ])
+    )
     .optional()
     .nullable(),
 });

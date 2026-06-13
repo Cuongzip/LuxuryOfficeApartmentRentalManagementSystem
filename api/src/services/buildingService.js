@@ -23,6 +23,11 @@ export const getBuildings = async ({ keyword, page = 1, limit = 10 }) => {
       skip,
       take: limitNum,
       orderBy: { id: "asc" },
+      include: {
+        images: {
+          orderBy: { displayOrder: "asc" },
+        },
+      },
     }),
     prisma.building.count({ where }),
   ]);
@@ -41,6 +46,11 @@ export const getBuildings = async ({ keyword, page = 1, limit = 10 }) => {
 export const getBuildingById = async (id) => {
   const building = await prisma.building.findUnique({
     where: { id },
+    include: {
+      images: {
+        orderBy: { displayOrder: "asc" },
+      },
+    },
   });
 
   if (!building) {
@@ -55,7 +65,7 @@ export const createBuilding = async ({
   address,
   numberOfFloors,
   description,
-  image,
+  images,
 }) => {
   const [existingName, existingAddress] = await Promise.all([
     prisma.building.findFirst({ where: { name } }),
@@ -83,7 +93,22 @@ export const createBuilding = async ({
       address,
       numberOfFloors,
       description: description || null,
-      image: image || null,
+      images: images && images.length > 0 ? {
+        create: images.map((img, index) => {
+          const imgObj = typeof img === "string" ? { imagePath: img } : img;
+          return {
+            id: generateId(ID_PREFIXES.IMAGE),
+            imagePath: imgObj.imagePath,
+            displayOrder: imgObj.displayOrder !== undefined ? imgObj.displayOrder : index + 1,
+            isPrimary: imgObj.isPrimary !== undefined ? imgObj.isPrimary : index === 0,
+          };
+        }),
+      } : undefined,
+    },
+    include: {
+      images: {
+        orderBy: { displayOrder: "asc" },
+      },
     },
   });
 
@@ -92,7 +117,7 @@ export const createBuilding = async ({
 
 export const updateBuilding = async (
   id,
-  { name, address, numberOfFloors, description, image }
+  { name, address, numberOfFloors, description, images }
 ) => {
   const building = await prisma.building.findUnique({
     where: { id },
@@ -119,14 +144,35 @@ export const updateBuilding = async (
     throw new AppError("Thông tin chỉnh sửa không hợp lệ", 400, errors);
   }
 
+  const data = {
+    name,
+    address,
+    numberOfFloors,
+    description: description !== undefined ? description : building.description,
+  };
+
+  if (images !== undefined) {
+    data.images = {
+      deleteMany: {},
+      create: images ? images.map((img, index) => {
+        const imgObj = typeof img === "string" ? { imagePath: img } : img;
+        return {
+          id: generateId(ID_PREFIXES.IMAGE),
+          imagePath: imgObj.imagePath,
+          displayOrder: imgObj.displayOrder !== undefined ? imgObj.displayOrder : index + 1,
+          isPrimary: imgObj.isPrimary !== undefined ? imgObj.isPrimary : index === 0,
+        };
+      }) : [],
+    };
+  }
+
   const updatedBuilding = await prisma.building.update({
     where: { id },
-    data: {
-      name,
-      address,
-      numberOfFloors,
-      description: description !== undefined ? description : building.description,
-      image: image !== undefined ? image : building.image,
+    data,
+    include: {
+      images: {
+        orderBy: { displayOrder: "asc" },
+      },
     },
   });
 

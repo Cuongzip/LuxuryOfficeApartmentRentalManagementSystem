@@ -29,15 +29,7 @@ export const getBuildingById = asyncHandler(async (req, res) => {
 });
 
 export const createBuilding = asyncHandler(async (req, res) => {
-  const { name, address, numberOfFloors, description, image } = req.body;
-
-  const building = await buildingService.createBuilding({
-    name,
-    address,
-    numberOfFloors,
-    description,
-    image,
-  });
+  const building = await buildingService.createBuilding(req.body);
 
   res.status(201).json({
     success: true,
@@ -48,15 +40,7 @@ export const createBuilding = asyncHandler(async (req, res) => {
 
 export const updateBuilding = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name, address, numberOfFloors, description, image } = req.body;
-
-  const building = await buildingService.updateBuilding(id, {
-    name,
-    address,
-    numberOfFloors,
-    description,
-    image,
-  });
+  const building = await buildingService.updateBuilding(id, req.body);
 
   res.json({
     success: true,
