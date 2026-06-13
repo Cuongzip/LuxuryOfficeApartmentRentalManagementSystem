@@ -55,7 +55,6 @@ export default function PublicHome() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-950 selection:text-white">
-      {/* Top Navbar */}
       <header className="h-20 border-b border-slate-200 bg-white/90 backdrop-blur-md flex items-center justify-between px-8 md:px-16 sticky top-0 z-50">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-lg bg-blue-950 text-white flex items-center justify-center font-black text-xl">
@@ -102,10 +101,8 @@ export default function PublicHome() {
         </nav>
       </header>
 
-      {/* Hero Section */}
       <main className="flex-1 flex flex-col">
         <section className="relative py-28 md:py-36 flex flex-col items-center justify-center text-center px-6 overflow-hidden border-b border-slate-100 bg-slate-50/30">
-          {/* Background glowing decorations */}
           <div className="absolute top-[10%] left-[-15%] w-[45vw] h-[45vw] rounded-full bg-blue-50/60 blur-[150px] pointer-events-none"></div>
           <div className="absolute bottom-[10%] right-[-15%] w-[45vw] h-[45vw] rounded-full bg-blue-50/60 blur-[150px] pointer-events-none"></div>
           
@@ -150,7 +147,6 @@ export default function PublicHome() {
           </div>
         </section>
 
-        {/* Features / Details */}
         <section id="features" className="py-24 px-8 md:px-16 max-w-6xl mx-auto space-y-16">
           <div className="text-center max-w-xl mx-auto space-y-3">
             <h2 className="text-3xl font-extrabold tracking-tight text-blue-950">Dịch vụ quản lý tinh giản</h2>
@@ -197,7 +193,6 @@ export default function PublicHome() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-slate-200 py-12 px-8 md:px-16 bg-slate-50 text-center text-sm text-slate-500">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© 2026 Luxury Rental Management. Bảo lưu mọi quyền.</p>
@@ -209,14 +204,12 @@ export default function PublicHome() {
         </div>
       </footer>
 
-      {/* Login Modal */}
       <LoginModal
         isOpen={isLoginOpen}
         onClose={handleCloseLogin}
         onSwitchToRegister={handleSwitchToRegister}
       />
 
-      {/* Register Modal */}
       <RegisterModal
         isOpen={isRegisterOpen}
         onClose={handleCloseRegister}

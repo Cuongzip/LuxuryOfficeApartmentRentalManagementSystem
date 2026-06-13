@@ -11,9 +11,8 @@ export default function BuildingsManagement() {
   const [buildings, setBuildings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Modal & Form state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentBuilding, setCurrentBuilding] = useState(null); // null means adding new
+  const [currentBuilding, setCurrentBuilding] = useState(null);
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -83,10 +82,8 @@ export default function BuildingsManagement() {
       };
 
       if (currentBuilding) {
-        // Edit mode
         await buildingService.updateBuilding(currentBuilding.id, payload);
       } else {
-        // Add mode
         await buildingService.createBuilding(payload);
       }
 
@@ -168,7 +165,6 @@ export default function BuildingsManagement() {
         emptyMessage="Chưa có tòa nhà nào được tạo."
       />
 
-      {/* modal block */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-slate-200 w-full max-w-lg rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-150">
@@ -201,7 +197,7 @@ export default function BuildingsManagement() {
                   onChange={handleInputChange}
                   placeholder="Ví dụ: TOANHA01"
                   required
-                  disabled={!!currentBuilding} // Cannot change ID once created
+                  disabled={!!currentBuilding}
                 />
 
                 <Input

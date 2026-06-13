@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,20 +21,14 @@ export default function DashboardLayout({ children }) {
   }
 
   if (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.EMPLOYEE)) {
-    return null; // Prevents flashing content before redirect completes
+    return null;
   }
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
-      {/* Navigation Sidebar */}
       <Sidebar />
-
-      {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Top Navbar Header */}
         <Header />
-
-        {/* Dynamic Page Container */}
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-6xl mx-auto space-y-6">
             {children}

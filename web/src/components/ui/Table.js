@@ -2,7 +2,7 @@ import React from 'react';
 import { Loading } from './Loading';
 
 export const Table = ({
-  columns = [], // Array of { header: string, key: string, render: (row) => ReactNode }
+  columns = [],
   data = [],
   isLoading = false,
   emptyMessage = 'Không có dữ liệu hiển thị.',

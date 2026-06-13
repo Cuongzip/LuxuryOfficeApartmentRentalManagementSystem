@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load authentication details on mount
     const savedToken = localStorage.getItem('token');
     const savedUser = authService.getCurrentUser();
 

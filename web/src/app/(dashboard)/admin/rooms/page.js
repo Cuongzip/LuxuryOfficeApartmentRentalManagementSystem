@@ -15,12 +15,11 @@ export default function RoomsManagement() {
   const [buildings, setBuildings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Modal & Form state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentRoom, setCurrentRoom] = useState(null); // null = add new
+  const [currentRoom, setCurrentRoom] = useState(null);
   const [formData, setFormData] = useState({
     id: '',
-    type: 'Văn phòng', // Default
+    type: 'Văn phòng',
     floor: '',
     area: '',
     price: '',
@@ -201,7 +200,6 @@ export default function RoomsManagement() {
         emptyMessage={buildings.length === 0 ? "Vui lòng tạo tòa nhà trước khi tạo phòng." : "Chưa có phòng nào được tạo."}
       />
 
-      {/* Modal Dialog */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-slate-200 w-full max-w-lg rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-150">

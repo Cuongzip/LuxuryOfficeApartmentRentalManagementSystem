@@ -41,7 +41,6 @@ export const Sidebar = () => {
 
   return (
     <aside className="w-64 border-r border-slate-200 bg-white flex flex-col h-screen sticky top-0">
-      {/* Brand Logo */}
       <div className="h-16 border-b border-slate-200 flex items-center px-6">
         <Link href="/admin" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-blue-950 flex items-center justify-center font-bold text-white text-base">
@@ -51,7 +50,6 @@ export const Sidebar = () => {
         </Link>
       </div>
 
-      {/* User Status Summary */}
       <div className="p-4 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600">
@@ -64,7 +62,6 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      {/* Menu items */}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -87,7 +84,6 @@ export const Sidebar = () => {
         })}
       </nav>
 
-      {/* Footer / Logout */}
       <div className="p-4 border-t border-slate-200">
         <button
           onClick={logout}

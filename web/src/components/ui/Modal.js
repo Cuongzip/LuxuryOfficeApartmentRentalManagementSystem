@@ -5,10 +5,9 @@ export const Modal = ({
   onClose,
   title,
   children,
-  size = 'md', // 'sm' | 'md' | 'lg' | 'xl'
+  size = 'md',
   className = '',
 }) => {
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -31,16 +30,13 @@ export const Modal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      {/* Backdrop click to close */}
       <div className="absolute inset-0" onClick={onClose}></div>
 
-      {/* Modal Box */}
       <div
         className={`bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 w-full rounded-xl overflow-hidden shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200 ${
           sizeClasses[size]
         } ${className}`}
       >
-        {/* Header */}
         <div className="px-6 py-5 border-b border-zinc-100 dark:border-zinc-900 flex justify-between items-center">
           <h3 className="font-bold text-zinc-900 dark:text-zinc-50 text-lg leading-none">
             {title}
@@ -55,7 +51,6 @@ export const Modal = ({
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-6">{children}</div>
       </div>
     </div>

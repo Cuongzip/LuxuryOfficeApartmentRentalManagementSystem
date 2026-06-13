@@ -1,16 +1,8 @@
-/**
- * Base API Client wrapper using Fetch API
- */
-
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
-/**
- * Get headers including Authorization JWT token if available
- */
 const getHeaders = (body, customHeaders = {}) => {
   const headers = {};
   
-  // Only set application/json if body is not FormData
   if (!(typeof window !== 'undefined' && body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
@@ -27,9 +19,6 @@ const getHeaders = (body, customHeaders = {}) => {
   return headers;
 };
 
-/**
- * Handle API responses and throw on errors
- */
 const handleResponse = async (response) => {
   if (!response.ok) {
     let errorMessage = 'Something went wrong';
@@ -42,7 +31,6 @@ const handleResponse = async (response) => {
     throw new Error(errorMessage);
   }
 
-  // Handle 204 No Content
   if (response.status === 204) {
     return null;
   }
