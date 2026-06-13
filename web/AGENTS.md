@@ -3,3 +3,113 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+
+Before implementing any feature:
+1. Read docs/UseCaseSpecification.md.
+2. Follow the business rules described in that document.
+3. If implementation conflicts with the document, ask for clarification.
+
+
+# AGENT CODING RULES
+
+## 1. Think Before Coding
+
+Before implementing:
+
+- Do not assume.
+- State assumptions clearly.
+- If something is unclear, ask before coding.
+- If multiple interpretations exist, present them instead of choosing silently.
+- Consider simpler approaches first.
+- Surface trade-offs when needed.
+
+---
+
+## 2. Simplicity First
+
+- Write clean, minimal code.
+- Only implement what is requested.
+- Do not add unnecessary features.
+- Avoid unnecessary abstractions.
+- Do not create flexibility/configuration without a real need.
+- Avoid over-engineering.
+
+Ask:
+"Would a senior engineer consider this overcomplicated?"
+
+---
+
+## 3. Surgical Changes
+
+When editing existing code:
+
+- Change only what is necessary.
+- Do not refactor unrelated code.
+- Do not improve adjacent code, comments, or formatting unless required.
+- Match the existing code style.
+- Do not remove existing unused code unless requested.
+
+When your changes create unused code:
+
+- Remove imports, variables, or functions made unused by your changes.
+
+Every changed line should directly relate to the request.
+
+---
+
+## 4. Code Style
+
+- Use clear and self-explanatory variable and function names.
+- Do not add comments unless explicitly required.
+- Avoid unnecessary abstractions.
+- Keep code simple and readable.
+
+---
+
+## 5. Development Workflow
+
+Follow this flow:
+
+1. Plan
+2. Implement
+3. Test
+4. Finalize
+5. Commit
+
+For multi-step tasks:
+
+- Break tasks into steps internally.
+- Verify each step before finishing.
+
+---
+
+## 6. Goal-Driven Execution
+
+Define success criteria before completing a task.
+
+Examples:
+
+"Add validation"
+→ Verify invalid inputs fail correctly.
+
+"Fix a bug"
+→ Reproduce the issue → fix → verify.
+
+"Refactor"
+→ Ensure behavior works before and after.
+
+---
+
+## 7. Commit Rules
+
+- Do NOT commit after every function or small change.
+- Only commit when a feature is complete and working.
+- Never commit WIP (Work In Progress) code.
+- Each commit must represent a complete, testable unit of work.
+- Commit messages must clearly describe the feature or fix.
+
+Examples:
+
+feat: implement user authentication flow
+
+fix: resolve login token expiration issue

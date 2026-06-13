@@ -1,65 +1,144 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React from 'react';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+
+export default function PublicHome() {
+  const { user } = useAuth();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-white selection:text-black">
+      {/* Top Navbar */}
+      <header className="h-20 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md flex items-center justify-between px-8 md:px-16 sticky top-0 z-50">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-lg bg-white text-zinc-950 flex items-center justify-center font-black text-xl">
+            L
+          </div>
+          <span className="font-bold text-white text-lg tracking-wider">LUXURY RENTAL</span>
+        </Link>
+        <nav className="flex items-center gap-6">
+          <a href="#features" className="text-sm text-zinc-400 hover:text-white transition-all">Dịch vụ</a>
+          <a href="#buildings" className="text-sm text-zinc-400 hover:text-white transition-all">Tòa nhà</a>
+          <span className="h-4 w-px bg-zinc-800"></span>
+          {user ? (
+            <Link
+              href={user.role === 'Admin' || user.role === 'Employee' ? '/admin' : '/customer/dashboard'}
+              className="text-sm bg-white text-zinc-950 hover:bg-zinc-200 px-5 py-2.5 rounded-full font-semibold transition-all"
+            >
+              Vào Dashboard ({user.fullName})
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="text-sm text-zinc-300 hover:text-white font-medium">
+                Đăng nhập
+              </Link>
+              <Link
+                href="/register"
+                className="text-sm bg-white text-zinc-950 hover:bg-zinc-200 px-5 py-2.5 rounded-full font-semibold transition-all"
+              >
+                Đăng ký
+              </Link>
+            </>
+          )}
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col">
+        <section className="relative py-28 md:py-36 flex flex-col items-center justify-center text-center px-6 overflow-hidden border-b border-zinc-900">
+          {/* Background glowing decorations */}
+          <div className="absolute top-[10%] left-[-15%] w-[45vw] h-[45vw] rounded-full bg-zinc-800/20 blur-[150px] pointer-events-none"></div>
+          <div className="absolute bottom-[10%] right-[-15%] w-[45vw] h-[45vw] rounded-full bg-zinc-800/20 blur-[150px] pointer-events-none"></div>
+          
+          <span className="text-xs font-semibold tracking-[0.2em] text-zinc-400 uppercase mb-4">Luxury Office & Apartment Management</span>
+          <h1 className="max-w-4xl text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.1] mb-6">
+            Kiến tạo không gian <br/>
+            <span className="bg-gradient-to-r from-zinc-100 via-zinc-400 to-zinc-600 bg-clip-text text-transparent">Làm việc & Đáng sống</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="max-w-2xl text-base md:text-lg text-zinc-400 leading-relaxed mb-10">
+            Hệ thống quản lý dịch vụ cho thuê văn phòng và căn hộ chung cư cao cấp. Trải nghiệm quy trình quản lý thông minh, tinh giản, dịch vụ hỗ trợ 24/7.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            {user ? (
+              <Link
+                href={user.role === 'Admin' || user.role === 'Employee' ? '/admin' : '/customer/dashboard'}
+                className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-950 font-semibold rounded-full hover:bg-zinc-200 transition-all text-center"
+              >
+                Quản lý hệ thống của bạn
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-950 font-semibold rounded-full hover:bg-zinc-200 transition-all text-center"
+                >
+                  Trải nghiệm hệ thống ngay
+                </Link>
+                <a
+                  href="#features"
+                  className="w-full sm:w-auto px-8 py-4 border border-zinc-800 text-zinc-300 font-semibold rounded-full hover:bg-zinc-900 hover:text-white transition-all text-center"
+                >
+                  Tìm hiểu thêm
+                </a>
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* Features / Details */}
+        <section id="features" className="py-24 px-8 md:px-16 max-w-6xl mx-auto space-y-16">
+          <div className="text-center max-w-xl mx-auto space-y-3">
+            <h2 className="text-3xl font-bold tracking-tight text-white">Dịch vụ quản lý tinh giản</h2>
+            <p className="text-zinc-400 text-sm">Cung cấp các công cụ cần thiết cho cả người thuê và ban quản lý vận hành tòa nhà.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-8 rounded-2xl border border-zinc-900 bg-zinc-950/40 relative group hover:border-zinc-800 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-lg mb-6">
+                🏢
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3">Tòa nhà & Căn hộ</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Quản lý chi tiết danh sách tòa nhà, số tầng, phân loại phòng dịch vụ, diện tích sử dụng và cập nhật trạng thái phòng tức thì.
+              </p>
+            </div>
+            
+            <div className="p-8 rounded-2xl border border-zinc-900 bg-zinc-950/40 relative group hover:border-zinc-800 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-lg mb-6">
+                📝
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3">Hợp đồng & Hóa đơn</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Tự động hóa lập hợp đồng thuê văn phòng/căn hộ, theo dõi tiến độ thanh toán và phát hành hóa đơn dịch vụ hàng tháng.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-2xl border border-zinc-900 bg-zinc-950/40 relative group hover:border-zinc-800 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-zinc-900 text-white flex items-center justify-center font-bold text-lg mb-6">
+                ⚡
+              </div>
+              <h3 className="text-lg font-bold text-white mb-3">Yêu cầu & Cư dân</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Tiếp nhận và xử lý nhanh chóng các yêu cầu bảo trì kỹ thuật, kiểm soát thông tin khai báo cư dân và thẻ ra vào tòa nhà an toàn.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-900 py-12 px-8 md:px-16 bg-black text-center text-sm text-zinc-500">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <p>© 2026 Luxury Rental Management. Bảo lưu mọi quyền.</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-zinc-300">Điều khoản</a>
+            <a href="#" className="hover:text-zinc-300">Bảo mật</a>
+            <a href="#" className="hover:text-zinc-300">Liên hệ hỗ trợ</a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
