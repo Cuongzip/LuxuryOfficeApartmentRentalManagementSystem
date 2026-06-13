@@ -71,10 +71,8 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Đăng ký tài khoản" size="md">
       <div className="flex flex-col items-center mb-4">
-        <div className="w-10 h-10 rounded-lg bg-blue-950 text-white flex items-center justify-center font-bold text-lg mb-2">
-          L
-        </div>
-        <p className="text-xs text-slate-500 text-center">
+        <img src="/images/logo.png" alt="Logo" className="w-10 h-10 object-contain mb-2" />
+        <p className="text-xs text-neutral-500 text-center">
           Đăng ký tài khoản khách thuê căn hộ & văn phòng dịch vụ
         </p>
       </div>
@@ -169,11 +167,11 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
         </div>
       )}
 
-      <div className="mt-6 text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
+      <div className="mt-6 text-center text-xs text-neutral-500 border-t border-neutral-100 pt-4">
         Đã có tài khoản?{' '}
         <button
           onClick={onSwitchToLogin}
-          className="text-blue-950 hover:underline font-semibold cursor-pointer"
+          className="text-neutral-900 hover:underline font-semibold cursor-pointer"
         >
           Đăng nhập ngay
         </button>

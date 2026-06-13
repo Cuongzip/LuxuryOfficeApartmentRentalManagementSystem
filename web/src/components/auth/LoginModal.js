@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
@@ -24,9 +23,8 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
 
     try {
       const data = await login(email, password);
-      onClose(); // Close the modal
+      onClose();
       
-      // If user is Admin or Employee, redirect to admin dashboard
       if (data.account.role === ROLES.ADMIN || data.account.role === ROLES.EMPLOYEE) {
         router.push('/admin');
       } else {
@@ -42,10 +40,8 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Đăng nhập hệ thống" size="md">
       <div className="flex flex-col items-center mb-6">
-        <div className="w-10 h-10 rounded-lg bg-blue-950 text-white flex items-center justify-center font-bold text-lg mb-2">
-          L
-        </div>
-        <p className="text-xs text-slate-500 text-center">
+        <img src="/images/logo.png" alt="Logo" className="w-10 h-10 object-contain mb-2" />
+        <p className="text-xs text-neutral-500 text-center">
           Quản lý căn hộ & văn phòng dịch vụ cao cấp
         </p>
       </div>
@@ -78,11 +74,11 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
         />
 
         <div className="flex justify-between items-center text-xs pt-1">
-          <label className="flex items-center gap-1.5 text-slate-500 cursor-pointer select-none">
-            <input type="checkbox" className="rounded border-slate-200 text-blue-950 focus:ring-0 focus:ring-offset-0" />
+          <label className="flex items-center gap-1.5 text-neutral-500 cursor-pointer select-none">
+            <input type="checkbox" className="rounded border-neutral-200 text-neutral-900 focus:ring-0 focus:ring-offset-0" />
             Ghi nhớ đăng nhập
           </label>
-          <a href="#" className="text-slate-600 hover:text-blue-950 font-medium">
+          <a href="#" className="text-neutral-600 hover:text-neutral-900 font-medium">
             Quên mật khẩu?
           </a>
         </div>
@@ -97,11 +93,11 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
+      <div className="mt-6 text-center text-xs text-neutral-500 border-t border-neutral-100 pt-4">
         Chưa có tài khoản khách thuê?{' '}
         <button
           onClick={onSwitchToRegister}
-          className="text-blue-950 hover:underline font-semibold cursor-pointer"
+          className="text-neutral-900 hover:underline font-semibold cursor-pointer"
         >
           Đăng ký ngay
         </button>

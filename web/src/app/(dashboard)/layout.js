@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,7 +26,7 @@ export default function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-[#F5F5F7]">
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />

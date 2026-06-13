@@ -10,19 +10,19 @@ export const Card = ({
 }) => {
   return (
     <div
-      className={`rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden ${className}`}
+      className={`rounded-xl border border-neutral-200 bg-white shadow-sm overflow-hidden ${className}`}
       {...props}
     >
       {(title || subtitle || actions) && (
-        <div className="border-b border-slate-100 dark:border-slate-800/80 p-5 flex items-center justify-between gap-4 flex-wrap">
+        <div className="border-b border-neutral-100 p-5 flex items-center justify-between gap-4 flex-wrap">
           <div>
             {title && (
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 leading-tight">
+              <h3 className="text-lg font-semibold text-neutral-900 leading-tight">
                 {title}
               </h3>
             )}
             {subtitle && (
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-sm text-neutral-500 mt-1">
                 {subtitle}
               </p>
             )}

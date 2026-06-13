@@ -145,7 +145,7 @@ export default function BuildingsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-blue-950">Quản lý tòa nhà</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-neutral-900">Quản lý tòa nhà</h2>
           <p className="text-slate-500 text-sm mt-1">
             Xem, thêm mới, cập nhật và quản lý danh sách tòa nhà trong hệ thống.
           </p>
@@ -169,12 +169,12 @@ export default function BuildingsManagement() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-slate-200 w-full max-w-lg rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-150">
             <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="font-bold text-blue-950 text-lg">
+              <h3 className="font-bold text-neutral-900 text-lg">
                 {currentBuilding ? 'Chỉnh sửa tòa nhà' : 'Thêm tòa nhà mới'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-blue-950 cursor-pointer"
+                className="text-neutral-400 hover:text-neutral-900 cursor-pointer"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -238,12 +238,12 @@ export default function BuildingsManagement() {
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Mô tả các tiện ích của tòa nhà..."
-                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-slate-900 border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-950 focus:border-transparent transition-all placeholder-slate-400 h-24 resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 h-24 resize-none"
                   />
                 </div>
               </div>
 
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+              <div className="px-6 py-4 bg-neutral-50 border-t border-neutral-100 flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   Hủy
                 </Button>
