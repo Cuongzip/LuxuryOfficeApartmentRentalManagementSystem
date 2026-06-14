@@ -7,12 +7,32 @@ import { ROLES } from '@/constants';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { RegisterModal } from '@/components/auth/RegisterModal';
 import { PublicHeader } from '@/components/layout/PublicHeader';
+import { buildingService } from '@/services/building.service';
 import toast from 'react-hot-toast';
 
 export default function PublicHome() {
   const { user, logout } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [buildings, setBuildings] = useState([]);
+  const [isLoadingBuildings, setIsLoadingBuildings] = useState(true);
+
+  useEffect(() => {
+    const fetchHomeBuildings = async () => {
+      try {
+        const data = await buildingService.getBuildings({ limit: 6 });
+        setBuildings(data || []);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách tòa nhà:', err);
+      } finally {
+        setIsLoadingBuildings(false);
+      }
+    };
+    
+    Promise.resolve().then(() => {
+      fetchHomeBuildings();
+    });
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -126,6 +146,93 @@ export default function PublicHome() {
                   Tìm hiểu thêm
                 </a>
               </>
+            )}
+          </div>
+        </section>
+
+        {/* Buildings Section */}
+        <section id="buildings" className="py-24 px-8 md:px-16 bg-neutral-50/50 border-b border-neutral-100">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="text-center max-w-xl mx-auto space-y-3">
+              <span className="text-xs font-semibold tracking-[0.2em] text-neutral-500 uppercase block">Hệ thống của chúng tôi</span>
+              <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900">Khám phá các Tòa nhà nổi bật</h2>
+              <p className="text-neutral-500 text-sm">Xem danh sách các tòa nhà văn phòng và căn hộ dịch vụ cao cấp hiện đại đang cho thuê.</p>
+            </div>
+
+            {isLoadingBuildings ? (
+              <div className="flex justify-center py-12">
+                <div className="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : buildings.length === 0 ? (
+              <div className="text-center py-12 text-neutral-500 text-sm">
+                Hiện tại chưa có tòa nhà nào hoạt động.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {buildings.map((building) => {
+                  const primaryImage = building.images?.find(img => img.isPrimary) || building.images?.[0];
+                  const backendUrl = process.env.NEXT_PUBLIC_API_URL 
+                    ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+                    : 'http://localhost:3000';
+                  
+                  return (
+                    <div key={building.id} className="bg-white rounded-2xl overflow-hidden border border-neutral-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group">
+                      <div className="h-56 relative bg-neutral-100 overflow-hidden">
+                        {primaryImage ? (
+                          <img 
+                            src={`${backendUrl}${primaryImage.imagePath}`} 
+                            alt={building.name} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-brand/5 text-brand/40">
+                            <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="absolute top-4 right-4 bg-brand/90 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm backdrop-blur-sm">
+                          {building.numberOfFloors} tầng
+                        </div>
+                      </div>
+
+                      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                        <div className="space-y-2">
+                          <h3 className="text-lg font-bold text-neutral-900 line-clamp-1 group-hover:text-brand transition-colors">{building.name}</h3>
+                          <p className="text-xs text-neutral-500 flex items-center gap-1.5">
+                            <svg className="w-4 h-4 text-neutral-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span className="line-clamp-1">{building.address}</span>
+                          </p>
+                          <p className="text-neutral-600 text-sm line-clamp-3 leading-relaxed pt-2">
+                            {building.description || "Tòa nhà cho thuê cao cấp sở hữu vị trí đắc địa, giao thông thuận tiện và các dịch vụ quản lý tiện ích chuẩn quốc tế."}
+                          </p>
+                        </div>
+
+                        <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
+                          <span className="text-xs text-neutral-400 font-semibold tracking-wider uppercase">Mã: {building.id}</span>
+                          <button 
+                            onClick={() => {
+                              setIsLoginOpen(true);
+                              if (typeof window !== 'undefined') {
+                                window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
+                              }
+                            }}
+                            className="text-xs font-bold text-brand hover:text-brand-hover flex items-center gap-1 group/btn cursor-pointer"
+                          >
+                            Xem chi tiết 
+                            <svg className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
         </section>
