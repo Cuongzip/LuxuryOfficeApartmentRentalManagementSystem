@@ -2,6 +2,7 @@
 
 import React, { createContext, useState, useEffect } from 'react';
 import { authService } from '../services/auth.service';
+import { registerUnauthorizedListener } from '../services/apiClient';
 
 export const AuthContext = createContext({
   user: null,
@@ -26,6 +27,10 @@ export const AuthProvider = ({ children }) => {
       setUser(savedUser);
     }
     setLoading(false);
+
+    registerUnauthorizedListener(() => {
+      logout();
+    });
   }, []);
 
   const login = async (email, password) => {

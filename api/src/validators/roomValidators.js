@@ -14,9 +14,9 @@ export const roomSchema = z.object({
     .min(1, "Mã tòa nhà không được để trống")
     .max(10, "Mã tòa nhà không được vượt quá 10 ký tự"),
   floor: z.coerce
-    .number({ invalid_type_error: "Tầng phải là số nguyên dương" })
+    .number({ invalid_type_error: "Tầng phải là số nguyên không âm" })
     .int("Tầng phải là số nguyên")
-    .positive("Tầng phải là số nguyên dương"),
+    .nonnegative("Tầng phải là số nguyên không âm"),
   type: z
     .string("Loại phòng không được để trống")
     .trim()

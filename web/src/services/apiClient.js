@@ -19,16 +19,32 @@ const getHeaders = (body, customHeaders = {}) => {
   return headers;
 };
 
+let unauthorizedListener = null;
+
+export const registerUnauthorizedListener = (listener) => {
+  unauthorizedListener = listener;
+};
+
 const handleResponse = async (response) => {
+  if (response.status === 401 && unauthorizedListener) {
+    unauthorizedListener();
+  }
+
   if (!response.ok) {
     let errorMessage = 'Something went wrong';
+    let errors = null;
     try {
       const errorData = await response.json();
       errorMessage = errorData.message || errorData.error || errorMessage;
+      errors = errorData.errors || null;
     } catch (e) {
       // response might not be JSON
     }
-    throw new Error(errorMessage);
+    const error = new Error(errorMessage);
+    if (errors) {
+      error.errors = errors;
+    }
+    throw error;
   }
 
   if (response.status === 204) {
