@@ -1,11 +1,25 @@
 import { contractService } from "../services/index.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import { asyncHandler, AppError } from "../utils/index.js";
+import { ROLES } from "../constants/index.js";
 
 export const getContracts = asyncHandler(async (req, res) => {
   const { customerId, roomId, employeeId, status, page, limit } = req.query;
 
+  const allowedRoles = [ROLES.RENTAL_MANAGER, ROLES.ADMIN, ROLES.CUSTOMER];
+  if (!allowedRoles.includes(req.user.role)) {
+    throw new AppError("Bạn không có quyền truy cập chức năng này", 403);
+  }
+
+  let targetCustomerId = customerId;
+  if (req.user.role === ROLES.CUSTOMER) {
+    if (!req.user.customerId) {
+      throw new AppError("Tài khoản chưa được liên kết thông tin khách hàng", 403);
+    }
+    targetCustomerId = req.user.customerId;
+  }
+
   const result = await contractService.getContracts({
-    customerId,
+    customerId: targetCustomerId,
     roomId,
     employeeId,
     status,
@@ -22,7 +36,17 @@ export const getContracts = asyncHandler(async (req, res) => {
 
 export const getContractById = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
+  const allowedRoles = [ROLES.RENTAL_MANAGER, ROLES.ADMIN, ROLES.CUSTOMER];
+  if (!allowedRoles.includes(req.user.role)) {
+    throw new AppError("Bạn không có quyền truy cập chức năng này", 403);
+  }
+
   const contract = await contractService.getContractById(id);
+
+  if (req.user.role === ROLES.CUSTOMER && contract.customerId !== req.user.customerId) {
+    throw new AppError("Bạn không có quyền truy cập chi tiết hợp đồng của người khác", 403);
+  }
 
   res.json({
     success: true,

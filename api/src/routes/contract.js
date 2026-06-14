@@ -12,8 +12,10 @@ router.get("/", contractController.getContracts);
 router.get("/:id", contractController.getContractById);
 
 // RENTAL_MANAGER-only endpoints for contract operations
-router.post("/", requireRoles(ROLES.RENTAL_MANAGER), validateBody(createContractSchema), contractController.createContract);
-router.patch("/:id/extend", requireRoles(ROLES.RENTAL_MANAGER), validateBody(extendContractSchema), contractController.extendContract);
-router.patch("/:id/cancel", requireRoles(ROLES.RENTAL_MANAGER), validateBody(cancelContractSchema), contractController.cancelContract);
+router.use(requireRoles(ROLES.RENTAL_MANAGER));
+
+router.post("/", validateBody(createContractSchema), contractController.createContract);
+router.patch("/:id/extend", validateBody(extendContractSchema), contractController.extendContract);
+router.patch("/:id/cancel", validateBody(cancelContractSchema), contractController.cancelContract);
 
 export default router;

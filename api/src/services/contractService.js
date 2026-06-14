@@ -1,6 +1,6 @@
 import prisma from "../config/database.js";
 import { AppError } from "../utils/index.js";
-import { CONTRACT_STATUS } from "../constants/index.js";
+import { CONTRACT_STATUS, ROOM_STATUS } from "../constants/index.js";
 
 export const getContracts = async ({ customerId, roomId, employeeId, status, page = 1, limit = 10 }) => {
   const where = {};
@@ -175,7 +175,7 @@ export const createContract = async ({
 
   await prisma.room.update({
     where: { id: roomId },
-    data: { status: "Đã thuê" },
+    data: { status: ROOM_STATUS.RENTED },
   });
 
   return newContract;
@@ -291,7 +291,7 @@ export const cancelContract = async (id, { force = false }) => {
     const roomIds = details.map((d) => d.roomId);
     await prisma.room.updateMany({
       where: { id: { in: roomIds } },
-      data: { status: "Còn trống" },
+      data: { status: ROOM_STATUS.AVAILABLE },
     });
   }
 

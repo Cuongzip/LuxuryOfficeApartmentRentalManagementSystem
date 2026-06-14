@@ -1,6 +1,6 @@
 import prisma from "../config/database.js";
 import { AppError, generateId } from "../utils/index.js";
-import { ROOM_STATUS, ID_PREFIXES } from "../constants/index.js";
+import { ROOM_STATUS, CONTRACT_STATUS, ID_PREFIXES } from "../constants/index.js";
 
 export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10 }) => {
   const where = {};
@@ -225,7 +225,7 @@ export const updateRoom = async (
         where: {
           roomId: id,
           contract: {
-            status: "Đang hiệu lực",
+            status: CONTRACT_STATUS.ACTIVE,
           },
           endDate: { gte: new Date() },
         },
@@ -293,7 +293,7 @@ export const updateRoomStatus = async (id, status) => {
       where: {
         roomId: id,
         contract: {
-          status: "Đang hiệu lực",
+          status: CONTRACT_STATUS.ACTIVE,
         },
         endDate: { gte: new Date() },
       },
