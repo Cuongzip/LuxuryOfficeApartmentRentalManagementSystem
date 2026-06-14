@@ -185,3 +185,17 @@ export const login = async ({ email, password }) => {
 
   return { account, token };
 };
+
+export const blacklistToken = async (token) => {
+  const decoded = jwt.decode(token);
+  const expiresAt = decoded && decoded.exp ? new Date(decoded.exp * 1000) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  await prisma.blacklistedToken.upsert({
+    where: { token },
+    update: {},
+    create: {
+      token,
+      expiresAt,
+    },
+  });
+};

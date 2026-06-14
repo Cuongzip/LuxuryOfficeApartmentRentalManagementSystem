@@ -8,7 +8,11 @@ export const getContracts = async ({ customerId, roomId, employeeId, status, pag
     where.customerId = customerId;
   }
   if (roomId) {
-    where.roomId = roomId;
+    where.contractDetails = {
+      some: {
+        roomId: roomId,
+      },
+    };
   }
   if (employeeId) {
     where.employeeId = employeeId;
@@ -25,7 +29,15 @@ export const getContracts = async ({ customerId, roomId, employeeId, status, pag
       skip,
       take: limit,
       include: {
-        room: { include: { building: true } },
+        contractDetails: {
+          include: {
+            room: {
+              include: {
+                building: true,
+              },
+            },
+          },
+        },
         customer: true,
         employee: true,
       },
@@ -48,7 +60,15 @@ export const getContractById = async (id) => {
   const contract = await prisma.contract.findUnique({
     where: { id },
     include: {
-      room: { include: { building: true } },
+      contractDetails: {
+        include: {
+          room: {
+            include: {
+              building: true,
+            },
+          },
+        },
+      },
       customer: true,
       employee: true,
     },
@@ -106,10 +126,12 @@ export const createContract = async ({
     throw new AppError("Ngày kết thúc phải sau ngày bắt đầu", 400);
   }
 
-  const activeContract = await prisma.contract.findFirst({
+  const activeContract = await prisma.contractDetail.findFirst({
     where: {
       roomId,
-      status: CONTRACT_STATUS.ACTIVE,
+      contract: {
+        status: CONTRACT_STATUS.ACTIVE,
+      },
       endDate: { gte: new Date() },
     },
   });
@@ -123,12 +145,31 @@ export const createContract = async ({
       id,
       customerId,
       employeeId,
-      roomId,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
       deposit: deposit || 0,
       status: CONTRACT_STATUS.ACTIVE,
       createdDate: new Date(),
+      contractImage: "",
+      contractDetails: {
+        create: {
+          roomId,
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+          agreedPrice: room.price,
+        },
+      },
+    },
+    include: {
+      contractDetails: {
+        include: {
+          room: {
+            include: {
+              building: true,
+            },
+          },
+        },
+      },
+      customer: true,
+      employee: true,
     },
   });
 
@@ -153,13 +194,39 @@ export const extendContract = async (id, { endDate }) => {
     throw new AppError("Chỉ có thể gia hạn hợp đồng đang hiệu lực", 400);
   }
 
-  if (new Date(endDate) <= new Date(contract.endDate)) {
+  const details = await prisma.contractDetail.findMany({
+    where: { contractId: id },
+  });
+
+  if (details.length === 0) {
+    throw new AppError("Chi tiết hợp đồng không tồn tại", 404);
+  }
+
+  const maxEndDate = new Date(Math.max(...details.map((d) => new Date(d.endDate).getTime())));
+  if (new Date(endDate) <= maxEndDate) {
     throw new AppError("Ngày hết hạn mới phải sau ngày hết hạn hiện tại", 400);
   }
 
-  const updatedContract = await prisma.contract.update({
-    where: { id },
+  await prisma.contractDetail.updateMany({
+    where: { contractId: id },
     data: { endDate: new Date(endDate) },
+  });
+
+  const updatedContract = await prisma.contract.findUnique({
+    where: { id },
+    include: {
+      contractDetails: {
+        include: {
+          room: {
+            include: {
+              building: true,
+            },
+          },
+        },
+      },
+      customer: true,
+      employee: true,
+    },
   });
 
   return updatedContract;
@@ -198,14 +265,32 @@ export const cancelContract = async (id, { force = false }) => {
     }
   }
 
+  const details = await prisma.contractDetail.findMany({
+    where: { contractId: id },
+  });
+
   const updatedContract = await prisma.contract.update({
     where: { id },
     data: { status: CONTRACT_STATUS.CANCELLED },
+    include: {
+      contractDetails: {
+        include: {
+          room: {
+            include: {
+              building: true,
+            },
+          },
+        },
+      },
+      customer: true,
+      employee: true,
+    },
   });
 
-  if (contract.roomId) {
-    await prisma.room.update({
-      where: { id: contract.roomId },
+  if (details.length > 0) {
+    const roomIds = details.map((d) => d.roomId);
+    await prisma.room.updateMany({
+      where: { id: { in: roomIds } },
       data: { status: "Còn trống" },
     });
   }

@@ -11,6 +11,14 @@ export const authenticate = asyncHandler(async (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1];
+
+  const isBlacklisted = await prisma.blacklistedToken.findUnique({
+    where: { token },
+  });
+  if (isBlacklisted) {
+    throw new AppError("Phiên làm việc đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại!", 401);
+  }
+
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);

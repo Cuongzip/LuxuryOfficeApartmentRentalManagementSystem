@@ -1,11 +1,6 @@
 import { z } from "zod";
 
 export const buildingSchema = z.object({
-  id: z
-    .string()
-    .trim()
-    .min(1, "Mã tòa nhà không được để trống")
-    .max(10, "Mã tòa nhà không được vượt quá 10 ký tự"),
   name: z
     .string()
     .trim()

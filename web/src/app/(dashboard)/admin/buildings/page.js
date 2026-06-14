@@ -16,7 +16,6 @@ export default function BuildingsManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBuilding, setCurrentBuilding] = useState(null);
   const [formData, setFormData] = useState({
-    id: '',
     name: '',
     address: '',
     numberOfFloors: '',
@@ -46,7 +45,6 @@ export default function BuildingsManagement() {
   const handleOpenAddModal = () => {
     setCurrentBuilding(null);
     setFormData({
-      id: '',
       name: '',
       address: '',
       numberOfFloors: '',
@@ -59,7 +57,6 @@ export default function BuildingsManagement() {
   const handleOpenEditModal = (building) => {
     setCurrentBuilding(building);
     setFormData({
-      id: building.id,
       name: building.name,
       address: building.address,
       numberOfFloors: String(building.numberOfFloors),
@@ -206,16 +203,6 @@ export default function BuildingsManagement() {
 
             <form onSubmit={handleSubmit} noValidate>
               <div className="p-6 space-y-4">
-                <Input
-                  label="Mã tòa nhà (Tối đa 10 ký tự)"
-                  id="id"
-                  value={formData.id}
-                  onChange={handleInputChange}
-                  placeholder="Ví dụ: TOANHA01"
-                  required
-                  disabled={!!currentBuilding}
-                  error={fieldErrors.id}
-                />
 
                 <Input
                   label="Tên tòa nhà"

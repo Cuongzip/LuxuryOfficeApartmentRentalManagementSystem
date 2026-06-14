@@ -23,6 +23,7 @@ model Building {
 
 model Room {
   id          String    @id @map("MaPhong") @db.VarChar(10)
+  roomNumber  String    @map("SoPhong") @db.VarChar(10)
   type        String    @map("LoaiPhong") @db.NVarChar(20)
   floor       Int       @map("Tang")
   area        Decimal   @map("DienTich") @db.Decimal(8, 2)
@@ -243,4 +244,13 @@ model Payment {
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("ThanhToan")
+}
+
+model BlacklistedToken {
+  id        Int      @id @default(autoincrement()) @map("Id")
+  token     String   @unique @map("Token") @db.VarChar(2048)
+  expiresAt DateTime @map("ThoiGianHetHan") @db.DateTime
+  createdAt DateTime @default(now()) @map("NgayTao") @db.DateTime
+
+  @@map("DanhSachDenToken")
 }

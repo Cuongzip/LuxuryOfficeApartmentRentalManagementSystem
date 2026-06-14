@@ -198,10 +198,12 @@ export const updateRoom = async (
 
   if (price !== undefined) {
     if (Number(price) !== Number(room.price)) {
-      const activeContract = await prisma.contract.findFirst({
+      const activeContract = await prisma.contractDetail.findFirst({
         where: {
           roomId: id,
-          status: "Đang hiệu lực",
+          contract: {
+            status: "Đang hiệu lực",
+          },
           endDate: { gte: new Date() },
         },
       });
@@ -238,7 +240,7 @@ export const deleteRoom = async (id) => {
     throw new AppError("Phòng không tồn tại", 404);
   }
 
-  const hasContract = await prisma.contract.findFirst({
+  const hasContract = await prisma.contractDetail.findFirst({
     where: { roomId: id },
   });
 
@@ -264,10 +266,12 @@ export const updateRoomStatus = async (id, status) => {
   }
 
   if (status === ROOM_STATUS.AVAILABLE) {
-    const activeContract = await prisma.contract.findFirst({
+    const activeContract = await prisma.contractDetail.findFirst({
       where: {
         roomId: id,
-        status: "Đang hiệu lực",
+        contract: {
+          status: "Đang hiệu lực",
+        },
         endDate: { gte: new Date() },
       },
     });
