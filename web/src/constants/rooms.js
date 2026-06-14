@@ -1,16 +1,16 @@
 export const ROOM_STATUS = {
   AVAILABLE: {
-    value: 'Trống',
+    value: 'Còn trống',
     label: 'Còn trống',
     colorClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   },
   RENTED: {
-    value: 'Đã thuê',
-    label: 'Đã thuê',
+    value: 'Đang thuê',
+    label: 'Đang thuê',
     colorClass: 'bg-blue-100 text-blue-800 border-blue-200',
   },
   MAINTENANCE: {
-    value: 'Bảo trì',
+    value: 'Đang bảo trì',
     label: 'Đang bảo trì',
     colorClass: 'bg-amber-100 text-amber-800 border-amber-200',
   },

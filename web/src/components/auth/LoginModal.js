@@ -8,19 +8,18 @@ import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { ROLES } from '@/constants';
 import { loginSchema, validateForm } from '@/validators';
+import toast from 'react-hot-toast';
 
 export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setFieldErrors({});
 
     const validation = validateForm(loginSchema, { email, password });
@@ -33,6 +32,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
 
     try {
       const data = await login(email, password);
+      toast.success('Đăng nhập thành công!');
       onClose();
 
       if (data.account.role === ROLES.ADMIN || data.account.role === ROLES.EMPLOYEE) {
@@ -41,7 +41,11 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
         router.push('/');
       }
     } catch (err) {
-      setError(err.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.');
+      if (err.errors) {
+        setFieldErrors(err.errors);
+      } else {
+        toast.error(err.message || 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -50,18 +54,11 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Đăng nhập hệ thống" size="md">
       <div className="flex flex-col items-center mb-6">
-        <img src="/images/logo.png" alt="Logo" className="w-10 h-10 object-contain mb-2" />
+        <img src="/images/logo.png" alt="Logo" className="w-45 h-20 object-contain mb-2" />
         <p className="text-xs text-neutral-500 text-center">
           Quản lý căn hộ & văn phòng dịch vụ cao cấp
         </p>
       </div>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
-          {error}
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <Input
           label="Địa chỉ Email"

@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { buildingSchema, validateForm } from '@/validators';
+import toast from 'react-hot-toast';
 
 export default function BuildingsManagement() {
   const [buildings, setBuildings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBuilding, setCurrentBuilding] = useState(null);
   const [formData, setFormData] = useState({
@@ -21,14 +22,13 @@ export default function BuildingsManagement() {
     numberOfFloors: '',
     description: '',
   });
-  const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchBuildings = async () => {
     setIsLoading(true);
     try {
-      const data = await buildingService.getBuildings();
+      const data = await buildingService.getBuildings({ limit: 10 });
       setBuildings(data || []);
     } catch (err) {
       console.error('Lỗi khi tải danh sách tòa nhà:', err);
@@ -38,7 +38,9 @@ export default function BuildingsManagement() {
   };
 
   useEffect(() => {
-    fetchBuildings();
+    Promise.resolve().then(() => {
+      fetchBuildings();
+    });
   }, []);
 
   const handleOpenAddModal = () => {
@@ -50,7 +52,6 @@ export default function BuildingsManagement() {
       numberOfFloors: '',
       description: '',
     });
-    setError('');
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -64,7 +65,6 @@ export default function BuildingsManagement() {
       numberOfFloors: String(building.numberOfFloors),
       description: building.description || '',
     });
-    setError('');
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -79,7 +79,6 @@ export default function BuildingsManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setFieldErrors({});
 
     const validation = validateForm(buildingSchema, formData);
@@ -98,14 +97,20 @@ export default function BuildingsManagement() {
 
       if (currentBuilding) {
         await buildingService.updateBuilding(currentBuilding.id, payload);
+        toast.success('Cập nhật tòa nhà thành công!');
       } else {
         await buildingService.createBuilding(payload);
+        toast.success('Thêm mới tòa nhà thành công!');
       }
 
       setIsModalOpen(false);
       fetchBuildings();
     } catch (err) {
-      setError(err.message || 'Có lỗi xảy ra khi lưu thông tin.');
+      if (err.errors) {
+        setFieldErrors(err.errors);
+      } else {
+        toast.error(err.message || 'Có lỗi xảy ra khi lưu thông tin.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -115,9 +120,11 @@ export default function BuildingsManagement() {
     if (!confirm('Bạn có chắc chắn muốn xóa tòa nhà này không?')) return;
     try {
       await buildingService.deleteBuilding(id);
+      toast.success('Xóa tòa nhà thành công!');
       fetchBuildings();
     } catch (err) {
-      alert(err.message || 'Xóa tòa nhà không thành công.');
+      const errorMsg = err.message || 'Xóa tòa nhà không thành công.';
+      toast.error(errorMsg);
     }
   };
 
@@ -199,12 +206,6 @@ export default function BuildingsManagement() {
 
             <form onSubmit={handleSubmit} noValidate>
               <div className="p-6 space-y-4">
-                {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
-                    {error}
-                  </div>
-                )}
-
                 <Input
                   label="Mã tòa nhà (Tối đa 10 ký tự)"
                   id="id"
@@ -256,9 +257,8 @@ export default function BuildingsManagement() {
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Mô tả các tiện ích của tòa nhà..."
-                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 h-24 resize-none ${
-                      fieldErrors.description ? 'border-red-500 focus:ring-red-500' : ''
-                    }`}
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 h-24 resize-none ${fieldErrors.description ? 'border-red-500 focus:ring-red-500' : ''
+                      }`}
                   />
                   {fieldErrors.description && (
                     <span className="text-xs text-red-500 font-medium">{fieldErrors.description}</span>

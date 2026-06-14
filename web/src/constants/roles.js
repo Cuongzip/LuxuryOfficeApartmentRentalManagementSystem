@@ -1,6 +1,6 @@
 export const ROLES = {
-  CUSTOMER: "Khach hang",
-  ADMIN: "Quan ly",
-  RENTAL_MANAGER: "Quan ly thue",
+  CUSTOMER: "Khách hàng",
+  ADMIN: "Quản lý",
+  RENTAL_MANAGER: "Quản lý thuê",
   SECURITY: "An ninh",
 };

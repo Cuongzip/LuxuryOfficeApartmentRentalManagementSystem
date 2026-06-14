@@ -7,6 +7,7 @@ import { ROLES } from '@/constants';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { RegisterModal } from '@/components/auth/RegisterModal';
 import { PublicHeader } from '@/components/layout/PublicHeader';
+import toast from 'react-hot-toast';
 
 export default function PublicHome() {
   const { user, logout } = useAuth();
@@ -16,11 +17,21 @@ export default function PublicHome() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('showLogin') === 'true') {
-        setIsLoginOpen(true);
-      } else if (params.get('showRegister') === 'true') {
-        setIsRegisterOpen(true);
-      }
+      const isVerified = params.get('verified') === 'true';
+      const showLogin = params.get('showLogin') === 'true';
+      const showRegister = params.get('showRegister') === 'true';
+
+      Promise.resolve().then(() => {
+        if (isVerified) {
+          toast.success('Xác thực tài khoản thành công! Vui lòng đăng nhập.');
+          setIsLoginOpen(true);
+          window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
+        } else if (showLogin) {
+          setIsLoginOpen(true);
+        } else if (showRegister) {
+          setIsRegisterOpen(true);
+        }
+      });
     }
   }, []);
 

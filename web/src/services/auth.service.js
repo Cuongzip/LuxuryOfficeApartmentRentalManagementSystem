@@ -14,12 +14,13 @@ export const authService = {
   },
 
   async register(registerData) {
-    const { fullName, email, phone, password, nationalId } = registerData;
+    const { fullName, email, phone, password, confirmPassword, nationalId } = registerData;
     const response = await apiClient.post('/auth/register', {
       fullName,
       email,
       phone,
       password,
+      confirmPassword,
       nationalId,
     });
     return response;

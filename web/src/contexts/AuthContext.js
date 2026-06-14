@@ -17,16 +17,23 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const logout = () => {
+    authService.logout();
+    setUser(null);
+    setToken(null);
+  };
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = authService.getCurrentUser();
 
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(savedUser);
-    }
-    setLoading(false);
+    Promise.resolve().then(() => {
+      if (savedToken && savedUser) {
+        setToken(savedToken);
+        setUser(savedUser);
+      }
+      setLoading(false);
+    });
 
     registerUnauthorizedListener(() => {
       logout();
@@ -57,15 +64,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-    setToken(null);
-  };
-
-  return (
+  };  return (
     <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>

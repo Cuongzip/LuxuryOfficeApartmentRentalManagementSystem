@@ -1,8 +1,9 @@
 import { apiClient } from './apiClient';
 
 export const roomService = {
-  async getRooms() {
-    const response = await apiClient.get('/rooms');
+  async getRooms(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    const response = await apiClient.get(`/rooms${query ? `?${query}` : ''}`);
     return response.data;
   },
 

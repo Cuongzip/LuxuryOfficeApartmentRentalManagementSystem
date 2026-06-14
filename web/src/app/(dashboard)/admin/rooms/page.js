@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { formatCurrency } from '@/utils/format';
 import { getRoomStatus } from '@/constants';
 import { roomSchema, validateForm } from '@/validators';
+import toast from 'react-hot-toast';
 
 export default function RoomsManagement() {
   const [rooms, setRooms] = useState([]);
@@ -24,20 +25,19 @@ export default function RoomsManagement() {
     floor: '',
     area: '',
     price: '',
-    status: 'Trống',
+    status: 'Còn trống',
     maxPeople: '2',
     description: '',
     buildingId: '',
   });
-  const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const bData = await buildingService.getBuildings();
-      const rData = await roomService.getRooms();
+      const bData = await buildingService.getBuildings({ limit: 1000 });
+      const rData = await roomService.getRooms({ limit: 1000 });
       setBuildings(bData || []);
       setRooms(rData || []);
     } catch (err) {
@@ -48,7 +48,9 @@ export default function RoomsManagement() {
   };
 
   useEffect(() => {
-    fetchData();
+    Promise.resolve().then(() => {
+      fetchData();
+    });
   }, []);
 
   const handleOpenAddModal = () => {
@@ -59,12 +61,11 @@ export default function RoomsManagement() {
       floor: '',
       area: '',
       price: '',
-      status: 'Trống',
+      status: 'Còn trống',
       maxPeople: '2',
       description: '',
       buildingId: buildings[0]?.id || '',
     });
-    setError('');
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -82,7 +83,6 @@ export default function RoomsManagement() {
       description: room.description || '',
       buildingId: room.buildingId,
     });
-    setError('');
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -97,7 +97,6 @@ export default function RoomsManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setFieldErrors({});
 
     const validation = validateForm(roomSchema, formData);
@@ -119,14 +118,20 @@ export default function RoomsManagement() {
 
       if (currentRoom) {
         await roomService.updateRoom(currentRoom.id, payload);
+        toast.success('Cập nhật thông tin phòng thành công!');
       } else {
         await roomService.createRoom(payload);
+        toast.success('Thêm phòng mới thành công!');
       }
 
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
-      setError(err.message || 'Có lỗi xảy ra khi lưu thông tin phòng.');
+      if (err.errors) {
+        setFieldErrors(err.errors);
+      } else {
+        toast.error(err.message || 'Có lỗi xảy ra khi lưu thông tin phòng.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -136,9 +141,11 @@ export default function RoomsManagement() {
     if (!confirm('Bạn có chắc chắn muốn xóa phòng này không?')) return;
     try {
       await roomService.deleteRoom(id);
+      toast.success('Xóa phòng thành công!');
       fetchData();
     } catch (err) {
-      alert(err.message || 'Xóa phòng không thành công.');
+      const errorMsg = err.message || 'Xóa phòng không thành công.';
+      toast.error(errorMsg);
     }
   };
 
@@ -234,12 +241,6 @@ export default function RoomsManagement() {
 
             <form onSubmit={handleSubmit} noValidate>
               <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
-                    {error}
-                  </div>
-                )}
-
                 <Input
                   label="Mã phòng (Tối đa 10 ký tự)"
                   id="id"
@@ -310,9 +311,9 @@ export default function RoomsManagement() {
                         fieldErrors.status ? 'border-red-500 focus:ring-red-500' : ''
                       }`}
                     >
-                      <option value="Trống">Còn trống</option>
-                      <option value="Đã thuê">Đã thuê</option>
-                      <option value="Bảo trì">Đang bảo trì</option>
+                      <option value="Còn trống">Còn trống</option>
+                      <option value="Đang thuê">Đang thuê</option>
+                      <option value="Đang bảo trì">Đang bảo trì</option>
                     </select>
                     {fieldErrors.status && (
                       <span className="text-xs text-red-500 font-medium">{fieldErrors.status}</span>

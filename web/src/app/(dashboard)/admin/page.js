@@ -17,15 +17,15 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const buildings = await buildingService.getBuildings();
-        const rooms = await roomService.getRooms();
+        const buildings = await buildingService.getBuildings({ limit: 10 });
+        const rooms = await roomService.getRooms({ limit: 10 });
 
         const totalB = buildings?.length || 0;
         const totalR = rooms?.length || 0;
-        
+
         let avail = 0;
         let rented = 0;
-        
+
         rooms?.forEach(room => {
           const status = room.status?.toLowerCase();
           if (status?.includes('trống') || status?.includes('avail') || status?.includes('trong')) {

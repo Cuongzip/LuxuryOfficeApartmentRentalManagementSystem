@@ -1,8 +1,9 @@
 import { apiClient } from './apiClient';
 
 export const buildingService = {
-  async getBuildings() {
-    const response = await apiClient.get('/buildings');
+  async getBuildings(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    const response = await apiClient.get(`/buildings${query ? `?${query}` : ''}`);
     return response.data;
   },
 
