@@ -57,21 +57,13 @@ export const UserDropdown = ({ variant = 'light' }) => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl border border-neutral-100 shadow-xl py-2 z-50">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-neutral-50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center font-bold text-base shadow-inner shrink-0 select-none">
+          <div className="px-4 py-3 border-b border-neutral-100 flex items-center gap-3 bg-neutral-50/50">
+            <div className="w-10 h-10 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center font-bold text-base shrink-0 select-none">
               {user.fullName?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="overflow-hidden">
-              <h4 className="text-sm font-bold text-neutral-800 truncate leading-snug">{user.fullName}</h4>
-              <span className={`inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full mt-1.5 capitalize ${
-                user.role === ROLES.ADMIN 
-                  ? 'bg-red-50 text-red-600 border border-red-100/50' 
-                  : user.role === ROLES.CUSTOMER 
-                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100/50' 
-                  : 'bg-blue-50 text-blue-600 border border-blue-100/50'
-              }`}>
-                {user.role}
-              </span>
+              <h4 className="text-sm font-semibold text-neutral-900 truncate leading-snug">{user.fullName}</h4>
+              <p className="text-xs text-neutral-500 truncate capitalize mt-0.5">{user.role}</p>
             </div>
           </div>
 
