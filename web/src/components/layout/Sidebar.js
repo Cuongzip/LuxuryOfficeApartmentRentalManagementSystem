@@ -40,38 +40,28 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 border-r border-neutral-200 bg-white flex flex-col h-screen sticky top-0">
-      <div className="h-16 border-b border-neutral-200 flex items-center px-6">
-        <Link href="/admin">
-          <img src="/images/logo.png" alt="Logo" className="w-45 h-20 object-contain" />
+    <aside className="w-64 border-r border-white/10 bg-brand flex flex-col h-screen sticky top-0 text-white">
+      <div className="h-16 border-b border-white/10 flex items-center px-6">
+        <Link href="/">
+          <img src="/images/logo.png" alt="Logo" className="w-45 object-contain" />
         </Link>
-      </div>
-
-      <div className="p-4 border-b border-neutral-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center font-bold text-neutral-600">
-            {user?.fullName?.charAt(0) || 'A'}
-          </div>
-          <div className="overflow-hidden">
-            <h4 className="font-semibold text-neutral-900 text-sm truncate">{user?.fullName || 'Admin'}</h4>
-            <p className="text-xs text-neutral-500 truncate capitalize">{user?.role || 'Administrator'}</p>
-          </div>
-        </div>
       </div>
 
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
         {menuItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isActive = item.href === '/admin'
+            ? pathname === '/admin'
+            : pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}
               href={item.href}
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive
-                ? 'bg-neutral-100 text-neutral-900 font-semibold'
-                : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
+                ? 'bg-white/15 text-white font-semibold'
+                : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
             >
-              <span className={isActive ? 'text-neutral-900' : 'text-neutral-400'}>
+              <span className={isActive ? 'text-white' : 'text-white/50'}>
                 {item.icon}
               </span>
               {item.label}
@@ -80,10 +70,10 @@ export const Sidebar = () => {
         })}
       </nav>
 
-      <div className="p-4 border-t border-neutral-200">
+      <div className="p-4 border-t border-white/10">
         <button
           onClick={logout}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all cursor-pointer"
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-red-300 hover:bg-red-500/20 transition-all cursor-pointer"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

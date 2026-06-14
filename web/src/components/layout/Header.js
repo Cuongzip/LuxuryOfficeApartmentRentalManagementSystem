@@ -2,11 +2,10 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { UserDropdown } from './UserDropdown';
 
 export const Header = () => {
   const pathname = usePathname();
-  const { user } = useAuth();
 
   const getPageTitle = () => {
     if (pathname === '/admin') return 'Tổng quan';
@@ -27,14 +26,7 @@ export const Header = () => {
           </svg>
         </button>
 
-        <div className="flex items-center gap-2 border border-neutral-200 rounded-full py-1.5 pl-2.5 pr-4 bg-neutral-50">
-          <div className="w-6 h-6 rounded-full bg-neutral-900 text-white flex items-center justify-center font-bold text-xs">
-            {user?.fullName?.charAt(0) || 'A'}
-          </div>
-          <span className="text-sm font-medium text-neutral-700">
-            {user?.fullName || 'Administrator'}
-          </span>
-        </div>
+        <UserDropdown />
       </div>
     </header>
   );
