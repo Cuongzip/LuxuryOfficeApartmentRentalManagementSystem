@@ -10,7 +10,7 @@ datasource db {
 model Building {
   id             String    @id @map("MaToaNha") @db.VarChar(10)
   name           String    @map("TenToaNha") @db.NVarChar(100)
-  address        String    @map("DiaChi") @db.NVarChar(255)
+  address        String    @map("DiaChi") @db.NVarChar(500)
   numberOfFloors Int       @map("SoTang")
   description    String?   @map("MoTa") @db.NVarChar(1000)
   deletedAt      DateTime? @map("NgayXoa")
@@ -26,19 +26,17 @@ model Room {
   type        String    @map("LoaiPhong") @db.NVarChar(20)
   floor       Int       @map("Tang")
   area        Decimal   @map("DienTich") @db.Decimal(8, 2)
-  price       Decimal   @map("DonGiaThue") @db.Decimal(18, 2)
+  price       Decimal   @map("GiaThue") @db.Decimal(18, 2)
   status      String    @map("TrangThai") @db.NVarChar(20)
   description String?   @map("MoTa") @db.NVarChar(1000)
   maxPeople   Int       @default(2) @map("SoNguoiToiDa") @db.TinyInt
   deletedAt   DateTime? @map("NgayXoa")
+  buildingId  String    @map("MaToaNha") @db.VarChar(10)
 
-  buildingId String   @map("MaToaNha") @db.VarChar(10)
-  building   Building @relation(fields: [buildingId], references: [id])
-
-  contracts Contract[]
-  residents Resident[]
-  requests  Request[]
-  images    RoomImage[]
+  building        Building         @relation(fields: [buildingId], references: [id])
+  contractDetails ContractDetail[]
+  requests        Request[]
+  images          RoomImage[]
 
   @@map("Phong")
 }
@@ -47,10 +45,10 @@ model Customer {
   id          String    @id @map("MaKhachHang") @db.VarChar(10)
   fullName    String    @map("HoTen") @db.NVarChar(100)
   nationalId  String    @unique @map("CCCD") @db.Char(12)
-  phoneNumber String    @unique @map("SoDienThoai") @db.VarChar(10)
-  address     String?   @map("DiaChi") @db.NVarChar(255)
+  phoneNumber String    @unique @map("SoDienThoai") @db.VarChar(15)
+  address     String?   @map("DiaChi") @db.NVarChar(500)
   gender      String?   @map("GioiTinh") @db.NVarChar(20)
-  dateOfBirth DateTime? @map("NgaySinh")
+  dateOfBirth DateTime? @map("NgaySinh") @db.Date
 
   accountId String  @unique @map("MaTaiKhoan") @db.VarChar(10)
   account   Account @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -63,56 +61,49 @@ model Customer {
 
 model Employee {
   id          String    @id @map("MaNhanVien") @db.VarChar(10)
+  accountId   String    @unique @map("MaTaiKhoan") @db.VarChar(10)
   fullName    String    @map("HoTen") @db.NVarChar(100)
-  phoneNumber String    @unique @map("SoDienThoai") @db.VarChar(10)
+  phoneNumber String    @unique @map("SoDienThoai") @db.VarChar(15)
   nationalId  String    @unique @map("CCCD") @db.Char(12)
   gender      String?   @map("GioiTinh") @db.NVarChar(10)
-  dateOfBirth DateTime? @map("NgaySinh")
+  dateOfBirth DateTime? @map("NgaySinh") @db.Date
 
-  accountId String  @unique @map("MaTaiKhoan") @db.VarChar(10)
-  account   Account @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
+  account   Account    @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   contracts Contract[]
+  requests  Request[]
 
   @@map("NhanVien")
 }
 
 model Contract {
-  id          String   @id @map("MaHopDong") @db.VarChar(10)
-  createdDate DateTime @map("NgayLap")
-  startDate   DateTime @map("NgayBatDau")
-  endDate     DateTime @map("NgayKetThuc")
-  deposit     Decimal? @default(0) @map("TienCoc") @db.Decimal(18, 2)
-  status      String   @map("TrangThaiHopDong") @db.NVarChar(20)
+  id            String   @id @map("MaHopDong") @db.VarChar(10)
+  createdDate   DateTime @map("NgayLap") @db.Date
+  deposit       Decimal  @default(0) @map("TienCoc") @db.Decimal(18, 2)
+  contractImage String   @map("AnhHopDong") @db.NVarChar(2048)
+  status        String   @map("TrangThaiHopDong") @db.NVarChar(20)
+  customerId    String   @map("MaKhachHang") @db.VarChar(10)
+  employeeId    String   @map("MaNhanVien") @db.VarChar(10)
 
-  roomId     String?   @map("MaPhong") @db.VarChar(10)
-  room       Room?     @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  customerId String?   @map("MaKhachHang") @db.VarChar(10)
-  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  employeeId String    @map("MaNhanVien") @db.VarChar(10)
-  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  invoices Invoice[]
+  customer        Customer         @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employee        Employee         @relation(fields: [employeeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contractDetails ContractDetail[]
+  invoices        Invoice[]
 
   @@map("HopDong")
 }
 
 model Invoice {
-  id                String    @id @map("MaHoaDon") @db.VarChar(10)
-  paymentMonth      Int?      @map("ThangThanhToan") @db.TinyInt
-  rentAmount        Decimal   @map("TienThue") @db.Decimal(18, 2)
-  electricityAmount Decimal?  @default(0) @map("TienDien") @db.Decimal(18, 2)
-  waterAmount       Decimal?  @default(0) @map("TienNuoc") @db.Decimal(18, 2)
-  serviceFee        Decimal?  @default(0) @map("PhiDichVu") @db.Decimal(18, 2)
-  totalAmount       Decimal   @map("TongTien") @db.Decimal(18, 2)
-  createdAt         DateTime? @default(now()) @map("NgayTao")
-  dueDate           DateTime? @map("NgayHetHan")
-  paymentDate       DateTime? @map("NgayThanhToan")
-  paymentStatus     String    @map("TrangThaiThanhToan") @db.NVarChar(20)
-  paymentMethod     String?   @map("PhuongThucThanhToan") @db.NVarChar(20)
+  id            String   @id @map("MaHoaDon") @db.VarChar(10)
+  contractId    String   @map("MaHopDong") @db.VarChar(10)
+  paymentMonth  Int      @map("ThangThanhToan") @db.TinyInt
+  paymentYear   Int      @map("NamThanhToan") @db.SmallInt
+  createdAt     DateTime @default(now()) @map("NgayTao") @db.DateTime
+  dueDate       DateTime @map("NgayHetHan") @db.Date
+  paymentStatus String   @map("TrangThaiThanhToan") @db.NVarChar(20)
 
-  contractId String   @map("MaHopDong") @db.VarChar(10)
-  contract   Contract @relation(fields: [contractId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contract       Contract        @relation(fields: [contractId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invoiceDetails InvoiceDetail[]
+  payments       Payment[]
 
   @@map("HoaDon")
 }
@@ -121,31 +112,32 @@ model Resident {
   id              String    @id @map("MaDinhDanh") @db.VarChar(10)
   fullName        String    @map("HoTen") @db.NVarChar(100)
   nationalId      String    @unique @map("CCCD") @db.Char(12)
-  phoneNumber     String    @unique @map("SoDienThoai") @db.VarChar(10)
-  image           String?   @map("HinhAnh") @db.NVarChar(255)
+  phoneNumber     String    @unique @map("SoDienThoai") @db.VarChar(15)
+  image           String?   @map("HinhAnh") @db.NVarChar(2048)
   residencyType   String    @map("LoaiCuTru") @db.NVarChar(20)
   residencyStatus String    @map("TrangThaiCuTru") @db.NVarChar(20)
-  dateOfBirth     DateTime? @map("NgaySinh")
+  dateOfBirth     DateTime? @map("NgaySinh") @db.Date
   gender          String?   @map("GioiTinh") @db.NVarChar(20)
+  contractId      String    @map("MaHopDong") @db.VarChar(10)
+  roomId          String    @map("MaPhong") @db.VarChar(10)
 
-  roomId String? @map("MaPhong") @db.VarChar(10)
-  room   Room?   @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contractDetail ContractDetail @relation(fields: [contractId, roomId], references: [contractId, roomId], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("NguoiSuDung")
 }
 
 model Account {
   id                         String    @id @map("MaTaiKhoan") @db.VarChar(10)
-  email                      String    @unique @map("Email") @db.VarChar(50)
+  email                      String    @unique @map("Email") @db.VarChar(255)
   password                   String    @map("MatKhau") @db.VarChar(255)
   role                       String    @map("VaiTro") @db.NVarChar(20)
-  status                     String    @default("Cho xac thuc") @map("TrangThaiTaiKhoan") @db.NVarChar(20)
+  status                     String?   @default("Kích hoạt") @map("TrangThaiTaiKhoan") @db.NVarChar(20)
   verificationToken          String?   @map("MaXacThuc") @db.NVarChar(255)
-  verificationTokenExpiresAt DateTime? @map("HanXacThuc")
+  verificationTokenExpiresAt DateTime? @map("HanXacThuc") @db.DateTime
   failedAttempts             Int       @default(0) @map("SoLanDangNhapSai") @db.TinyInt
   resendAttempts             Int       @default(0) @map("SoLanGuiLai") @db.TinyInt
   wrongOtpAttempts           Int       @default(0) @map("SoLanNhapSai") @db.TinyInt
-  lockoutUntil               DateTime? @map("ThoiGianKhoaGui")
+  lockoutUntil               DateTime? @map("ThoiGianKhoaGui") @db.DateTime
 
   customer Customer?
   employee Employee?
@@ -154,26 +146,28 @@ model Account {
 }
 
 model Request {
-  id              String    @id @map("MaYeuCau") @db.VarChar(10)
+  id              Int       @id @default(autoincrement()) @map("MaYeuCau")
+  roomId          String    @map("MaPhong") @db.VarChar(10)
+  employeeId      String    @map("MaNhanVien") @db.VarChar(10)
+  customerId      String    @map("MaKhachHang") @db.VarChar(10)
   status          String    @map("TrangThai") @db.NVarChar(20)
-  createdAt       DateTime  @map("NgayTao")
-  content         String?   @map("NoiDung") @db.NVarChar(100)
-  requestType     String    @map("LoaiYeuCau") @db.NVarChar(20)
-  appointmentDate DateTime? @map("NgayHen")
+  createdAt       DateTime  @default(now()) @map("NgayTao") @db.DateTime
+  content         String?   @map("NoiDung") @db.NVarChar(1000)
+  requestType     String    @map("LoaiYeuCau") @db.NVarChar(50)
+  appointmentDate DateTime? @map("NgayHen") @db.DateTime
 
-  roomId     String   @map("MaPhong") @db.VarChar(10)
-  room       Room     @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  customerId String   @map("MaKhachHang") @db.VarChar(10)
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("YeuCau")
 }
 
 model BuildingImage {
   id           String    @id @map("MaAnh") @db.VarChar(10)
-  imagePath    String    @map("DuongDanAnh") @db.NVarChar(255)
-  displayOrder Int       @map("ThuTuHienThi")
-  isPrimary    Boolean   @map("LaAnhDaiDien")
+  imagePath    String    @map("DuongDanAnh") @db.NVarChar(2048)
+  displayOrder Int       @default(1) @map("ThuTuHienThi_")
+  isPrimary    Boolean   @default(false) @map("LaAnhDaiDien_")
   buildingId   String?   @map("MaToaNha") @db.VarChar(10)
   building     Building? @relation(fields: [buildingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
@@ -182,11 +176,71 @@ model BuildingImage {
 
 model RoomImage {
   id           String  @id @map("MaAnh") @db.VarChar(10)
-  imagePath    String  @map("DuongDanAnh") @db.NVarChar(255)
-  displayOrder Int     @map("ThuTuHienThi")
-  isPrimary    Boolean @map("LaAnhDaiDien")
+  imagePath    String  @map("DuongDanAnh") @db.NVarChar(2048)
+  displayOrder Int     @default(1) @map("ThuTuHienThi_")
+  isPrimary    Boolean @default(false) @map("LaAnhDaiDien_")
   roomId       String? @map("MaPhong") @db.VarChar(10)
   room         Room?   @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@map("AnhPhong")
+}
+
+model ContractDetail {
+  contractId  String   @map("MaHopDong") @db.VarChar(10)
+  roomId      String   @map("MaPhong") @db.VarChar(10)
+  startDate   DateTime @map("NgayBatDau") @db.Date
+  endDate     DateTime @map("NgayKetThuc") @db.Date
+  agreedPrice Decimal  @default(0) @map("GiaThoaThuan") @db.Decimal(18, 2)
+
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  residents      Resident[]
+  invoiceDetails InvoiceDetail[]
+
+  @@id([contractId, roomId])
+  @@map("ChiTietHopDong")
+}
+
+model Service {
+  id           String  @id @map("MaDichVu") @db.VarChar(10)
+  name         String  @map("TenDichVu") @db.NVarChar(100)
+  unit         String  @map("DonViTinh") @db.NVarChar(50)
+  currentPrice Decimal @map("GiaHienTai") @db.Decimal(18, 2)
+
+  invoiceDetails InvoiceDetail[]
+
+  @@map("DichVu")
+}
+
+model InvoiceDetail {
+  id         String  @id @map("MaCTHD") @db.VarChar(10)
+  contractId String  @map("MaHopDong") @db.VarChar(10)
+  roomId     String  @map("MaPhong") @db.VarChar(10)
+  invoiceId  String  @map("MaHoaDon") @db.VarChar(10)
+  serviceId  String  @map("MaDichVu") @db.VarChar(10)
+  oldIndex   Int?    @map("ChiSoCu")
+  newIndex   Int?    @map("ChiSoMoi")
+  quantity   Int     @default(0) @map("SoLuong")
+  unitPrice  Decimal @map("DonGia") @db.Decimal(18, 2)
+
+  invoice        Invoice        @relation(fields: [invoiceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contractDetail ContractDetail @relation(fields: [contractId, roomId], references: [contractId, roomId], onDelete: NoAction, onUpdate: NoAction)
+  service        Service        @relation(fields: [serviceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("ChiTietHoaDon")
+}
+
+model Payment {
+  id            String   @id @map("MaThanhToan") @db.VarChar(10)
+  invoiceId     String   @map("MaHoaDon") @db.VarChar(10)
+  paymentDate   DateTime @map("NgayThanhToan") @db.DateTime
+  paymentMethod String   @map("PhuongThucTT") @db.NVarChar(20)
+  amountPaid    Decimal  @map("SoTienTra") @db.Decimal(18, 2)
+  transactionId String?  @map("MaGiaoDich") @db.NVarChar(100)
+  payerName     String?  @map("NguoiNopTien") @db.NVarChar(255)
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("ThanhToan")
 }
