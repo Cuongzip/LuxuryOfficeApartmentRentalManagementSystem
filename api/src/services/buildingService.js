@@ -1,6 +1,8 @@
 import prisma from "../config/database.js";
 import { AppError, generateId } from "../utils/index.js";
 import { ID_PREFIXES } from "../constants/index.js";
+import fs from "fs";
+import path from "path";
 
 export const getBuildings = async ({ keyword, page = 1, limit = 10 }) => {
   const pageNum = parseInt(page) || 1;
@@ -121,6 +123,7 @@ export const updateBuilding = async (
 ) => {
   const building = await prisma.building.findUnique({
     where: { id },
+    include: { images: true },
   });
 
   if (!building) {
@@ -150,7 +153,13 @@ export const updateBuilding = async (
   if (numberOfFloors !== undefined) data.numberOfFloors = numberOfFloors;
   if (description !== undefined) data.description = description;
 
+  let filesToDelete = [];
+
   if (images !== undefined) {
+    const existingPaths = building.images.map(img => img.imagePath);
+    const newPaths = images.map(img => typeof img === "string" ? img : img.imagePath);
+    filesToDelete = existingPaths.filter(p => !newPaths.includes(p));
+
     data.images = {
       deleteMany: {},
       create: images ? images.map((img, index) => {
@@ -174,6 +183,17 @@ export const updateBuilding = async (
       },
     },
   });
+
+  for (const imgPath of filesToDelete) {
+    const physicalPath = path.join("src/resources/public", imgPath.replace(/^\/static\//, ""));
+    try {
+      if (fs.existsSync(physicalPath)) {
+        fs.unlinkSync(physicalPath);
+      }
+    } catch (err) {
+      // Intentionally silent - DB is already consistent
+    }
+  }
 
   return updatedBuilding;
 };

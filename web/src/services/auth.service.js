@@ -26,10 +26,16 @@ export const authService = {
     return response;
   },
 
-  logout() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+  async logout() {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch (error) {
+      console.error('Lỗi khi đăng xuất từ API:', error);
+    } finally {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
   },
 

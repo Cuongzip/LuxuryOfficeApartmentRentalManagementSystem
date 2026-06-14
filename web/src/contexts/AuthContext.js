@@ -10,15 +10,15 @@ export const AuthContext = createContext({
   loading: true,
   login: async () => {},
   register: async () => {},
-  logout: () => {},
+  logout: async () => {},
 });
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
     setToken(null);
   };

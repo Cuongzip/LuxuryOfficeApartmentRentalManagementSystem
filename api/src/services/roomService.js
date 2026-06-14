@@ -1,6 +1,8 @@
 import prisma from "../config/database.js";
 import { AppError, generateId } from "../utils/index.js";
 import { ROOM_STATUS, CONTRACT_STATUS, ID_PREFIXES } from "../constants/index.js";
+import fs from "fs";
+import path from "path";
 
 export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10 }) => {
   const where = {};
@@ -142,6 +144,7 @@ export const updateRoom = async (
 ) => {
   const room = await prisma.room.findUnique({
     where: { id },
+    include: { images: true },
   });
 
   if (!room) {
@@ -204,7 +207,13 @@ export const updateRoom = async (
   if (description !== undefined) data.description = description;
   if (maxPeople !== undefined) data.maxPeople = maxPeople;
 
+  let filesToDelete = [];
+
   if (images !== undefined) {
+    const existingPaths = room.images.map(img => img.imagePath);
+    const newPaths = images.map(img => typeof img === "string" ? img : img.imagePath);
+    filesToDelete = existingPaths.filter(p => !newPaths.includes(p));
+
     data.images = {
       deleteMany: {},
       create: images ? images.map((img, index) => {
@@ -250,6 +259,17 @@ export const updateRoom = async (
       },
     },
   });
+
+  for (const imgPath of filesToDelete) {
+    const physicalPath = path.join("src/resources/public", imgPath.replace(/^\/static\//, ""));
+    try {
+      if (fs.existsSync(physicalPath)) {
+        fs.unlinkSync(physicalPath);
+      }
+    } catch (err) {
+      // Intentionally silent - DB is already consistent
+    }
+  }
 
   return updatedRoom;
 };

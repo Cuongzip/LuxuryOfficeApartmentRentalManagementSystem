@@ -1,6 +1,6 @@
 import prisma from "../config/database.js";
 import { AppError } from "../utils/index.js";
-import { CONTRACT_STATUS, ROOM_STATUS } from "../constants/index.js";
+import { CONTRACT_STATUS, ROOM_STATUS, PAYMENT_STATUS } from "../constants/index.js";
 
 export const getContracts = async ({ customerId, roomId, employeeId, status, page = 1, limit = 10 }) => {
   const where = {};
@@ -122,6 +122,10 @@ export const createContract = async ({
     throw new AppError("Phòng không tồn tại", 404);
   }
 
+  if (room.status !== ROOM_STATUS.AVAILABLE) {
+    throw new AppError("Phòng hiện không ở trạng thái sẵn sàng để cho thuê!", 400);
+  }
+
   if (new Date(startDate) >= new Date(endDate)) {
     throw new AppError("Ngày kết thúc phải sau ngày bắt đầu", 400);
   }
@@ -140,42 +144,46 @@ export const createContract = async ({
     throw new AppError("Phòng này hiện đang có hợp đồng thuê còn hiệu lực!", 400);
   }
 
-  const newContract = await prisma.contract.create({
-    data: {
-      id,
-      customerId,
-      employeeId,
-      deposit: deposit || 0,
-      status: CONTRACT_STATUS.ACTIVE,
-      createdDate: new Date(),
-      contractImage: "",
-      contractDetails: {
-        create: {
-          roomId,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          agreedPrice: room.price,
-        },
-      },
-    },
-    include: {
-      contractDetails: {
-        include: {
-          room: {
-            include: {
-              building: true,
-            },
+  const newContract = await prisma.$transaction(async (tx) => {
+    const createdContract = await tx.contract.create({
+      data: {
+        id,
+        customerId,
+        employeeId,
+        deposit: deposit || 0,
+        status: CONTRACT_STATUS.ACTIVE,
+        createdDate: new Date(),
+        contractImage: "",
+        contractDetails: {
+          create: {
+            roomId,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            agreedPrice: room.price,
           },
         },
       },
-      customer: true,
-      employee: true,
-    },
-  });
+      include: {
+        contractDetails: {
+          include: {
+            room: {
+              include: {
+                building: true,
+              },
+            },
+          },
+        },
+        customer: true,
+        employee: true,
+      },
+    });
 
-  await prisma.room.update({
-    where: { id: roomId },
-    data: { status: ROOM_STATUS.RENTED },
+    await tx.room.update({
+      where: { id: roomId },
+      data: { status: ROOM_STATUS.RENTED },
+    });
+
+    return createdContract;
   });
 
   return newContract;
@@ -253,7 +261,7 @@ export const cancelContract = async (id, { force = false }) => {
     const hasUnpaidInvoices = await prisma.invoice.findFirst({
       where: {
         contractId: id,
-        paymentStatus: { not: "Đã thanh toán" },
+        paymentStatus: { not: PAYMENT_STATUS.PAID },
       },
     });
 
@@ -269,31 +277,35 @@ export const cancelContract = async (id, { force = false }) => {
     where: { contractId: id },
   });
 
-  const updatedContract = await prisma.contract.update({
-    where: { id },
-    data: { status: CONTRACT_STATUS.CANCELLED },
-    include: {
-      contractDetails: {
-        include: {
-          room: {
-            include: {
-              building: true,
+  const updatedContract = await prisma.$transaction(async (tx) => {
+    const uContract = await tx.contract.update({
+      where: { id },
+      data: { status: CONTRACT_STATUS.CANCELLED },
+      include: {
+        contractDetails: {
+          include: {
+            room: {
+              include: {
+                building: true,
+              },
             },
           },
         },
+        customer: true,
+        employee: true,
       },
-      customer: true,
-      employee: true,
-    },
-  });
-
-  if (details.length > 0) {
-    const roomIds = details.map((d) => d.roomId);
-    await prisma.room.updateMany({
-      where: { id: { in: roomIds } },
-      data: { status: ROOM_STATUS.AVAILABLE },
     });
-  }
+
+    if (details.length > 0) {
+      const roomIds = details.map((d) => d.roomId);
+      await tx.room.updateMany({
+        where: { id: { in: roomIds } },
+        data: { status: ROOM_STATUS.AVAILABLE },
+      });
+    }
+
+    return uContract;
+  });
 
   return updatedContract;
 };
