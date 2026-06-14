@@ -20,7 +20,7 @@ export default function RoomsManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentRoom, setCurrentRoom] = useState(null);
   const [formData, setFormData] = useState({
-    id: '',
+    roomNumber: '',
     type: 'Văn phòng',
     floor: '',
     area: '',
@@ -56,7 +56,7 @@ export default function RoomsManagement() {
   const handleOpenAddModal = () => {
     setCurrentRoom(null);
     setFormData({
-      id: '',
+      roomNumber: '',
       type: 'Văn phòng',
       floor: '',
       area: '',
@@ -73,7 +73,7 @@ export default function RoomsManagement() {
   const handleOpenEditModal = (room) => {
     setCurrentRoom(room);
     setFormData({
-      id: room.id,
+      roomNumber: room.roomNumber || '',
       type: room.type,
       floor: String(room.floor),
       area: String(room.area),
@@ -150,6 +150,7 @@ export default function RoomsManagement() {
   };
 
   const columns = [
+    { header: 'Số phòng', key: 'roomNumber' },
     { header: 'Mã phòng', key: 'id' },
     { header: 'Tòa nhà', key: 'buildingName', render: (room) => room.building?.name || room.buildingId },
     { header: 'Loại phòng', key: 'type' },
@@ -242,14 +243,13 @@ export default function RoomsManagement() {
             <form onSubmit={handleSubmit} noValidate>
               <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                 <Input
-                  label="Mã phòng (Tối đa 10 ký tự)"
-                  id="id"
-                  value={formData.id}
+                  label="Số phòng (Tối đa 10 ký tự)"
+                  id="roomNumber"
+                  value={formData.roomNumber}
                   onChange={handleInputChange}
-                  placeholder="Ví dụ: P.402"
+                  placeholder="Ví dụ: 402, 501"
                   required
-                  disabled={!!currentRoom}
-                  error={fieldErrors.id}
+                  error={fieldErrors.roomNumber}
                 />
 
                 <div className="flex flex-col gap-1.5">

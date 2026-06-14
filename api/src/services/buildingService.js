@@ -128,8 +128,8 @@ export const updateBuilding = async (
   }
 
   const [existingName, existingAddress] = await Promise.all([
-    prisma.building.findFirst({ where: { name } }),
-    prisma.building.findFirst({ where: { address } }),
+    name !== undefined ? prisma.building.findFirst({ where: { name } }) : null,
+    address !== undefined ? prisma.building.findFirst({ where: { address } }) : null,
   ]);
 
   const errors = {};
@@ -144,12 +144,11 @@ export const updateBuilding = async (
     throw new AppError("Thông tin chỉnh sửa không hợp lệ", 400, errors);
   }
 
-  const data = {
-    name,
-    address,
-    numberOfFloors,
-    description: description !== undefined ? description : building.description,
-  };
+  const data = {};
+  if (name !== undefined) data.name = name;
+  if (address !== undefined) data.address = address;
+  if (numberOfFloors !== undefined) data.numberOfFloors = numberOfFloors;
+  if (description !== undefined) data.description = description;
 
   if (images !== undefined) {
     data.images = {

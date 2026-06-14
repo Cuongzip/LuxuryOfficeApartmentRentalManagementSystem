@@ -2,19 +2,18 @@ import { z } from "zod";
 import { ROOM_STATUS } from "../constants/index.js";
 
 export const roomSchema = z.object({
-  id: z
-    .string("Mã phòng không được để trống")
+  roomNumber: z
+    .string("Số phòng không được để trống")
     .trim()
-    .min(1, "Mã phòng không được để trống")
-    .max(10, "Mã phòng không được vượt quá 10 ký tự")
-    .toUpperCase(),
+    .min(1, "Số phòng không được để trống")
+    .max(10, "Số phòng không được vượt quá 10 ký tự"),
   buildingId: z
     .string("Mã tòa nhà không được để trống")
     .trim()
     .min(1, "Mã tòa nhà không được để trống")
     .max(10, "Mã tòa nhà không được vượt quá 10 ký tự"),
   floor: z.coerce
-    .number({ invalid_type_error: "Tầng phải là số nguyên không âm" })
+    .number("Tầng phải là số nguyên không âm")
     .int("Tầng phải là số nguyên")
     .nonnegative("Tầng phải là số nguyên không âm"),
   type: z
@@ -23,11 +22,11 @@ export const roomSchema = z.object({
     .min(1, "Loại phòng không được để trống")
     .max(20, "Loại phòng không được vượt quá 20 ký tự"),
   area: z.coerce
-    .number({ invalid_type_error: "Diện tích phải là số dương" })
+    .number("Diện tích phải là số dương")
     .positive("Diện tích phải là số dương"),
   price: z.coerce
-    .number({ invalid_type_error: "Đơn giá thuê phải là số dương" })
-    .positive("Đơn giá thuê phải là số dương"),
+    .number("Giá thuê phải là số dương")
+    .positive("Giá thuê phải là số dương"),
   status: z.enum([ROOM_STATUS.AVAILABLE, ROOM_STATUS.RENTED, ROOM_STATUS.MAINTENANCE], {
     message: `Trạng thái phòng phải thuộc: ${Object.values(ROOM_STATUS).join(", ")}`,
   }),
@@ -60,7 +59,7 @@ export const roomSchema = z.object({
     .preprocess((val) => val === 'true' || val === true, z.boolean().optional()),
 });
 
-export const updateRoomSchema = roomSchema.omit({ id: true });
+export const updateRoomSchema = roomSchema;
 
 export const roomStatusSchema = z.object({
   status: z.enum([ROOM_STATUS.AVAILABLE, ROOM_STATUS.RENTED, ROOM_STATUS.MAINTENANCE], {

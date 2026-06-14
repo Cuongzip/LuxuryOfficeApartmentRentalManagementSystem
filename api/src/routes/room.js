@@ -12,9 +12,11 @@ router.get("/", roomController.getRooms);
 router.get("/:id", roomController.getRoomById);
 
 // Admin-only endpoints for room modifications
-router.post("/", requireRoles(ROLES.ADMIN), upload.array("images", 10), parseMultipartImages, validateBody(roomSchema), roomController.createRoom);
-router.put("/:id", requireRoles(ROLES.ADMIN), upload.array("images", 10), parseMultipartImages, validateBody(updateRoomSchema), roomController.updateRoom);
-router.patch("/:id/status", requireRoles(ROLES.ADMIN), validateBody(roomStatusSchema), roomController.updateRoomStatus);
-router.delete("/:id", requireRoles(ROLES.ADMIN), roomController.deleteRoom);
+router.use(requireRoles(ROLES.ADMIN));
+
+router.post("/", upload.array("images", 10), parseMultipartImages, validateBody(roomSchema), roomController.createRoom);
+router.put("/:id", upload.array("images", 10), parseMultipartImages, validateBody(updateRoomSchema), roomController.updateRoom);
+router.patch("/:id/status", validateBody(roomStatusSchema), roomController.updateRoomStatus);
+router.delete("/:id", roomController.deleteRoom);
 
 export default router;

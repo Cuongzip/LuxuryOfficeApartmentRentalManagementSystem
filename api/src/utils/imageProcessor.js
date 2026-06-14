@@ -50,11 +50,14 @@ export const processUploadedImages = (files, existingImagesBody) => {
 
   // 3. Ensure display orders are consecutive and exactly one is primary
   if (images.length > 0) {
-    const hasPrimary = images.some((img) => img.isPrimary);
+    let primaryIndex = images.findIndex((img) => img.isPrimary);
+    if (primaryIndex === -1) {
+      primaryIndex = 0;
+    }
     images = images.map((img, index) => ({
       imagePath: img.imagePath,
       displayOrder: index + 1,
-      isPrimary: hasPrimary ? img.isPrimary : index === 0,
+      isPrimary: index === primaryIndex,
     }));
   }
 

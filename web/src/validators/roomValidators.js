@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const roomSchema = z.object({
-  id: z
+  roomNumber: z
     .string()
     .trim()
-    .min(1, "Mã phòng không được để trống")
-    .max(10, "Mã phòng không được vượt quá 10 ký tự"),
+    .min(1, "Số phòng không được để trống")
+    .max(10, "Số phòng không được vượt quá 10 ký tự"),
   buildingId: z
     .string()
     .trim()

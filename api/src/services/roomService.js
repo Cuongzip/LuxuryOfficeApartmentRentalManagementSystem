@@ -61,8 +61,8 @@ export const getRoomById = async (id) => {
 };
 
 export const createRoom = async ({
-  id,
   buildingId,
+  roomNumber,
   floor,
   type,
   area,
@@ -87,17 +87,24 @@ export const createRoom = async ({
     );
   }
 
-  const existingRoom = await prisma.room.findUnique({
-    where: { id },
+  const existingRoom = await prisma.room.findFirst({
+    where: {
+      buildingId,
+      roomNumber,
+      deletedAt: null,
+    },
   });
 
   if (existingRoom) {
-    throw new AppError("Mã phòng này đã tồn tại trong tòa nhà!", 400);
+    throw new AppError("Số phòng này đã tồn tại trong tòa nhà!", 400);
   }
+
+  const id = generateId(ID_PREFIXES.ROOM);
 
   const newRoom = await prisma.room.create({
     data: {
       id,
+      roomNumber,
       buildingId,
       floor,
       type,
@@ -131,7 +138,7 @@ export const createRoom = async ({
 
 export const updateRoom = async (
   id,
-  { buildingId, floor, type, area, price, status, description, images, maxPeople, confirmPriceChange }
+  { buildingId, roomNumber, floor, type, area, price, status, description, images, maxPeople, confirmPriceChange }
 ) => {
   const room = await prisma.room.findUnique({
     where: { id },
@@ -142,6 +149,22 @@ export const updateRoom = async (
   }
 
   const data = {};
+
+  if (roomNumber !== undefined) {
+    const targetBuildingId = buildingId !== undefined ? buildingId : room.buildingId;
+    const existingRoom = await prisma.room.findFirst({
+      where: {
+        buildingId: targetBuildingId,
+        roomNumber,
+        id: { not: id },
+        deletedAt: null,
+      },
+    });
+    if (existingRoom) {
+      throw new AppError("Số phòng này đã tồn tại trong tòa nhà!", 400);
+    }
+    data.roomNumber = roomNumber;
+  }
 
   if (buildingId !== undefined) {
     const building = await prisma.building.findUnique({

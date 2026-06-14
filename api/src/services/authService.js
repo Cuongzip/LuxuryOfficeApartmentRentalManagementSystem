@@ -54,8 +54,6 @@ export const createPendingUser = async ({
 
   const hashedPassword = await bcrypt.hash(password, AUTH.BCRYPT_SALT_ROUNDS);
 
-
-
   const account = await prisma.account.create({
     data: {
       id: accountId,
