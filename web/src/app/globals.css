@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-brand: #F3502B;
-  --color-brand-hover: #D93F1C;
+  --color-brand: #0B203E;
+  --color-brand-hover: #1D4275;
   --font-sans: 'SF Pro Display', var(--font-geist-sans), 'Helvetica Neue', 'Switzer', sans-serif;
   --font-mono: var(--font-geist-mono);
 }

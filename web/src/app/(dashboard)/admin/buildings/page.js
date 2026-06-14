@@ -24,6 +24,9 @@ export default function BuildingsManagement() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [newImageFiles, setNewImageFiles] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+
   const fetchBuildings = async () => {
     setIsLoading(true);
     try {
@@ -50,6 +53,8 @@ export default function BuildingsManagement() {
       numberOfFloors: '',
       description: '',
     });
+    setNewImageFiles([]);
+    setExistingImages([]);
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -62,6 +67,8 @@ export default function BuildingsManagement() {
       numberOfFloors: String(building.numberOfFloors),
       description: building.description || '',
     });
+    setNewImageFiles([]);
+    setExistingImages(building.images || []);
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -71,6 +78,101 @@ export default function BuildingsManagement() {
     setFormData((prev) => ({ ...prev, [id]: value }));
     if (fieldErrors[id]) {
       setFieldErrors((prev) => ({ ...prev, [id]: '' }));
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const errors = [];
+
+    const validFiles = files.filter(file => {
+      if (!allowedTypes.includes(file.type)) {
+        errors.push(`Tệp ${file.name} không đúng định dạng (chỉ chấp nhận JPEG, JPG, PNG, WEBP)`);
+        return false;
+      }
+      if (file.size > maxSize) {
+        errors.push(`Tệp ${file.name} vượt quá dung lượng cho phép 5MB`);
+        return false;
+      }
+      return true;
+    }).map(file => ({
+      file,
+      isPrimary: false,
+      previewUrl: URL.createObjectURL(file)
+    }));
+
+    if (errors.length > 0) {
+      errors.forEach(err => toast.error(err));
+    }
+
+    if (validFiles.length > 0) {
+      setNewImageFiles(prev => {
+        const hasPrimary = existingImages.some(img => img.isPrimary) || prev.some(img => img.isPrimary);
+        const updated = [...prev, ...validFiles];
+        if (!hasPrimary && updated.length > 0) {
+          updated[0].isPrimary = true;
+        }
+        return updated;
+      });
+    }
+  };
+
+  const handleRemoveNewImage = (index) => {
+    setNewImageFiles(prev => {
+      const target = prev[index];
+      if (target.previewUrl) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+      const updated = prev.filter((_, i) => i !== index);
+      if (target.isPrimary && updated.length > 0) {
+        updated[0].isPrimary = true;
+      } else if (target.isPrimary && existingImages.length > 0) {
+        setExistingImages(existing => {
+          const next = [...existing];
+          if (next.length > 0) next[0].isPrimary = true;
+          return next;
+        });
+      }
+      return updated;
+    });
+  };
+
+  const handleRemoveExistingImage = (index) => {
+    setExistingImages(prev => {
+      const target = prev[index];
+      const updated = prev.filter((_, i) => i !== index);
+      if (target.isPrimary && updated.length > 0) {
+        updated[0].isPrimary = true;
+      } else if (target.isPrimary && newImageFiles.length > 0) {
+        setNewImageFiles(newFiles => {
+          const next = [...newFiles];
+          if (next.length > 0) next[0].isPrimary = true;
+          return next;
+        });
+      }
+      return updated;
+    });
+  };
+
+  const handleSetPrimary = (type, index) => {
+    if (type === 'existing') {
+      setExistingImages(prev =>
+        prev.map((img, i) => ({ ...img, isPrimary: i === index }))
+      );
+      setNewImageFiles(prev =>
+        prev.map(item => ({ ...item, isPrimary: false }))
+      );
+    } else {
+      setExistingImages(prev =>
+        prev.map(img => ({ ...img, isPrimary: false }))
+      );
+      setNewImageFiles(prev =>
+        prev.map((item, i) => ({ ...item, isPrimary: i === index }))
+      );
     }
   };
 
@@ -87,16 +189,32 @@ export default function BuildingsManagement() {
     setIsSubmitting(true);
 
     try {
-      const payload = {
-        ...formData,
-        numberOfFloors: parseInt(formData.numberOfFloors, 10),
-      };
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('address', formData.address);
+      formDataToSend.append('numberOfFloors', parseInt(formData.numberOfFloors, 10));
+      formDataToSend.append('description', formData.description);
+
+      // Append new files
+      newImageFiles.forEach(item => {
+        formDataToSend.append('images', item.file);
+      });
+
+      // Append existing images JSON if editing
+      if (currentBuilding) {
+        const existingImagesPayload = existingImages.map(img => ({
+          imagePath: img.imagePath,
+          displayOrder: img.displayOrder,
+          isPrimary: img.isPrimary,
+        }));
+        formDataToSend.append('existingImages', JSON.stringify(existingImagesPayload));
+      }
 
       if (currentBuilding) {
-        await buildingService.updateBuilding(currentBuilding.id, payload);
+        await buildingService.updateBuilding(currentBuilding.id, formDataToSend);
         toast.success('Cập nhật tòa nhà thành công!');
       } else {
-        await buildingService.createBuilding(payload);
+        await buildingService.createBuilding(formDataToSend);
         toast.success('Thêm mới tòa nhà thành công!');
       }
 
@@ -126,6 +244,32 @@ export default function BuildingsManagement() {
   };
 
   const columns = [
+    {
+      header: 'Hình ảnh',
+      key: 'images',
+      render: (building) => {
+        const primaryImage = building.images?.find(img => img.isPrimary) || building.images?.[0];
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL 
+          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+          : 'http://localhost:3000';
+        
+        return (
+          <div className="w-12 h-12 rounded-lg overflow-hidden border border-neutral-100 bg-neutral-50 flex items-center justify-center">
+            {primaryImage ? (
+              <img 
+                src={`${backendUrl}${primaryImage.imagePath}`} 
+                alt={building.name} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <svg className="w-6 h-6 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 21V18.75m0 0V16.5m0 2.25h2.25m-2.25 0H17.25m-12.5-1.5c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125v3.5c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125v-3.5zM3.75 6v7.5c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V6m-12 0h12m-12 0a1.125 1.125 0 011.125-1.125h9.75c.621 0 1.125.504 1.125 1.125M2.25 21h19.5" />
+              </svg>
+            )}
+          </div>
+        );
+      }
+    },
     { header: 'Mã tòa nhà', key: 'id' },
     { header: 'Tên tòa nhà', key: 'name' },
     { header: 'Địa chỉ', key: 'address' },
@@ -202,7 +346,7 @@ export default function BuildingsManagement() {
             </div>
 
             <form onSubmit={handleSubmit} noValidate>
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-4 max-h-[65vh] overflow-y-auto">
 
                 <Input
                   label="Tên tòa nhà"
@@ -249,6 +393,122 @@ export default function BuildingsManagement() {
                   />
                   {fieldErrors.description && (
                     <span className="text-xs text-red-500 font-medium">{fieldErrors.description}</span>
+                  )}
+                </div>
+
+                {/* Section: Upload images */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-700 block">
+                    Hình ảnh tòa nhà
+                  </label>
+                  
+                  {/* Dropzone */}
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-neutral-200 hover:border-brand rounded-xl cursor-pointer bg-neutral-50 hover:bg-neutral-100/50 transition-all">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg className="w-8 h-8 text-neutral-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-xs font-semibold text-neutral-600">Click hoặc kéo thả ảnh để tải lên</p>
+                        <p className="text-[10px] text-neutral-400 mt-1">JPEG, JPG, PNG, WEBP (Tối đa 5MB/ảnh)</p>
+                      </div>
+                      <input 
+                        type="file" 
+                        multiple 
+                        accept="image/*" 
+                        onChange={handleImageUpload} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
+
+                  {/* Previews grid */}
+                  {(existingImages.length > 0 || newImageFiles.length > 0) && (
+                    <div className="grid grid-cols-3 gap-3 pt-2">
+                      {/* Existing images */}
+                      {existingImages.map((img, index) => {
+                        const backendUrl = process.env.NEXT_PUBLIC_API_URL 
+                          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+                          : 'http://localhost:3000';
+                        const fullUrl = `${backendUrl}${img.imagePath}`;
+
+                        return (
+                          <div key={`existing-${index}`} className="relative aspect-video rounded-lg overflow-hidden border border-neutral-200 group">
+                            <img src={fullUrl} alt="Existing" className="w-full h-full object-cover" />
+                            
+                            {/* Overlay delete */}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveExistingImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+
+                            {/* Badge/Button for primary */}
+                            <div className="absolute bottom-1 left-1 right-1">
+                              {img.isPrimary ? (
+                                <span className="block text-center text-[9px] font-bold bg-brand text-white py-0.5 rounded shadow-sm select-none">
+                                  Ảnh chính
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetPrimary('existing', index)}
+                                  className="w-full text-center text-[9px] font-bold bg-black/60 hover:bg-black/80 text-white py-0.5 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                >
+                                  Đặt làm ảnh chính
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* Newly selected images */}
+                      {newImageFiles.map((item, index) => {
+                        return (
+                          <div key={`new-${index}`} className="relative aspect-video rounded-lg overflow-hidden border border-neutral-200 group ring-1 ring-emerald-500/30">
+                            <img src={item.previewUrl} alt="New upload" className="w-full h-full object-cover" />
+                            
+                            {/* New badge */}
+                            <span className="absolute top-1 left-1 text-[8px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow-sm">
+                              Mới
+                            </span>
+
+                            {/* Overlay delete */}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveNewImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+
+                            {/* Badge/Button for primary */}
+                            <div className="absolute bottom-1 left-1 right-1">
+                              {item.isPrimary ? (
+                                <span className="block text-center text-[9px] font-bold bg-brand text-white py-0.5 rounded shadow-sm select-none">
+                                  Ảnh chính
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetPrimary('new', index)}
+                                  className="w-full text-center text-[9px] font-bold bg-black/60 hover:bg-black/80 text-white py-0.5 rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                >
+                                  Đặt làm ảnh chính
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               </div>
