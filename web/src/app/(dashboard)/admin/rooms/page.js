@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { formatCurrency } from '@/utils/format';
 import { getRoomStatus } from '@/constants';
+import { roomSchema, validateForm } from '@/validators';
 
 export default function RoomsManagement() {
   const [rooms, setRooms] = useState([]);
@@ -29,6 +30,7 @@ export default function RoomsManagement() {
     buildingId: '',
   });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchData = async () => {
@@ -63,6 +65,7 @@ export default function RoomsManagement() {
       buildingId: buildings[0]?.id || '',
     });
     setError('');
+    setFieldErrors({});
     setIsModalOpen(true);
   };
 
@@ -80,17 +83,29 @@ export default function RoomsManagement() {
       buildingId: room.buildingId,
     });
     setError('');
+    setFieldErrors({});
     setIsModalOpen(true);
   };
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+    if (fieldErrors[id]) {
+      setFieldErrors((prev) => ({ ...prev, [id]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
+
+    const validation = validateForm(roomSchema, formData);
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -217,7 +232,7 @@ export default function RoomsManagement() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                 {error && (
                   <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
@@ -233,6 +248,7 @@ export default function RoomsManagement() {
                   placeholder="Ví dụ: P.402"
                   required
                   disabled={!!currentRoom}
+                  error={fieldErrors.id}
                 />
 
                 <div className="flex flex-col gap-1.5">
@@ -244,7 +260,9 @@ export default function RoomsManagement() {
                     value={formData.buildingId}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${
+                      fieldErrors.buildingId ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
                   >
                     {buildings.map((b) => (
                       <option key={b.id} value={b.id}>
@@ -252,6 +270,9 @@ export default function RoomsManagement() {
                       </option>
                     ))}
                   </select>
+                  {fieldErrors.buildingId && (
+                    <span className="text-xs text-red-500 font-medium">{fieldErrors.buildingId}</span>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -264,11 +285,16 @@ export default function RoomsManagement() {
                       value={formData.type}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                      className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${
+                        fieldErrors.type ? 'border-red-500 focus:ring-red-500' : ''
+                      }`}
                     >
                       <option value="Văn phòng">Văn phòng</option>
                       <option value="Căn hộ">Căn hộ</option>
                     </select>
+                    {fieldErrors.type && (
+                      <span className="text-xs text-red-500 font-medium">{fieldErrors.type}</span>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-1.5">
@@ -280,12 +306,17 @@ export default function RoomsManagement() {
                       value={formData.status}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                      className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${
+                        fieldErrors.status ? 'border-red-500 focus:ring-red-500' : ''
+                      }`}
                     >
                       <option value="Trống">Còn trống</option>
                       <option value="Đã thuê">Đã thuê</option>
                       <option value="Bảo trì">Đang bảo trì</option>
                     </select>
+                    {fieldErrors.status && (
+                      <span className="text-xs text-red-500 font-medium">{fieldErrors.status}</span>
+                    )}
                   </div>
                 </div>
 
@@ -296,9 +327,8 @@ export default function RoomsManagement() {
                     type="number"
                     value={formData.floor}
                     onChange={handleInputChange}
-                    placeholder="4"
                     required
-                    min="0"
+                    error={fieldErrors.floor}
                   />
 
                   <Input
@@ -308,9 +338,8 @@ export default function RoomsManagement() {
                     step="0.01"
                     value={formData.area}
                     onChange={handleInputChange}
-                    placeholder="75.5"
                     required
-                    min="1"
+                    error={fieldErrors.area}
                   />
 
                   <Input
@@ -319,9 +348,8 @@ export default function RoomsManagement() {
                     type="number"
                     value={formData.maxPeople}
                     onChange={handleInputChange}
-                    placeholder="4"
                     required
-                    min="1"
+                    error={fieldErrors.maxPeople}
                   />
                 </div>
 
@@ -331,9 +359,8 @@ export default function RoomsManagement() {
                   type="number"
                   value={formData.price}
                   onChange={handleInputChange}
-                  placeholder="15000000"
                   required
-                  min="0"
+                  error={fieldErrors.price}
                 />
 
                 <div className="flex flex-col gap-1.5">
@@ -345,8 +372,13 @@ export default function RoomsManagement() {
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Chi tiết về nội thất, vị trí phòng..."
-                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 h-24 resize-none"
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 h-24 resize-none ${
+                      fieldErrors.description ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
                   />
+                  {fieldErrors.description && (
+                    <span className="text-xs text-red-500 font-medium">{fieldErrors.description}</span>
+                  )}
                 </div>
               </div>
 

@@ -6,6 +6,7 @@ import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { buildingSchema, validateForm } from '@/validators';
 
 export default function BuildingsManagement() {
   const [buildings, setBuildings] = useState([]);
@@ -21,6 +22,7 @@ export default function BuildingsManagement() {
     description: '',
   });
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchBuildings = async () => {
@@ -49,6 +51,7 @@ export default function BuildingsManagement() {
       description: '',
     });
     setError('');
+    setFieldErrors({});
     setIsModalOpen(true);
   };
 
@@ -62,17 +65,29 @@ export default function BuildingsManagement() {
       description: building.description || '',
     });
     setError('');
+    setFieldErrors({});
     setIsModalOpen(true);
   };
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+    if (fieldErrors[id]) {
+      setFieldErrors((prev) => ({ ...prev, [id]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
+
+    const validation = validateForm(buildingSchema, formData);
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -182,7 +197,7 @@ export default function BuildingsManagement() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="p-6 space-y-4">
                 {error && (
                   <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-medium">
@@ -198,6 +213,7 @@ export default function BuildingsManagement() {
                   placeholder="Ví dụ: TOANHA01"
                   required
                   disabled={!!currentBuilding}
+                  error={fieldErrors.id}
                 />
 
                 <Input
@@ -207,6 +223,7 @@ export default function BuildingsManagement() {
                   onChange={handleInputChange}
                   placeholder="Ví dụ: Tòa nhà Landmark 81"
                   required
+                  error={fieldErrors.name}
                 />
 
                 <Input
@@ -216,6 +233,7 @@ export default function BuildingsManagement() {
                   onChange={handleInputChange}
                   placeholder="Ví dụ: 720A Điện Biên Phủ, Phường 22, Bình Thạnh, TP.HCM"
                   required
+                  error={fieldErrors.address}
                 />
 
                 <Input
@@ -226,7 +244,7 @@ export default function BuildingsManagement() {
                   onChange={handleInputChange}
                   placeholder="Ví dụ: 81"
                   required
-                  min="1"
+                  error={fieldErrors.numberOfFloors}
                 />
 
                 <div className="flex flex-col gap-1.5">
@@ -238,8 +256,13 @@ export default function BuildingsManagement() {
                     value={formData.description}
                     onChange={handleInputChange}
                     placeholder="Mô tả các tiện ích của tòa nhà..."
-                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 h-24 resize-none"
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 h-24 resize-none ${
+                      fieldErrors.description ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
                   />
+                  {fieldErrors.description && (
+                    <span className="text-xs text-red-500 font-medium">{fieldErrors.description}</span>
+                  )}
                 </div>
               </div>
 

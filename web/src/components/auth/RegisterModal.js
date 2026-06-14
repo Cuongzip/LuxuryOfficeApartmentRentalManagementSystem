@@ -5,10 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { registerSchema, validateForm } from '@/validators';
 
 export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const { register } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -19,21 +20,27 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   });
 
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+    if (fieldErrors[id]) {
+      setFieldErrors((prev) => ({ ...prev, [id]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setFieldErrors({});
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu nhập lại không khớp.');
+    const validation = validateForm(registerSchema, formData);
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
       return;
     }
 
@@ -58,6 +65,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
           password: '',
           confirmPassword: '',
         });
+        setFieldErrors({});
       } else {
         setError(res.message || 'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.');
       }
@@ -90,7 +98,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
       )}
 
       {!success ? (
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3" noValidate>
           <Input
             label="Họ và tên"
             id="fullName"
@@ -98,6 +106,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             onChange={handleChange}
             placeholder="Nguyễn Văn A"
             required
+            error={fieldErrors.fullName}
           />
 
           <Input
@@ -108,6 +117,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             onChange={handleChange}
             placeholder="nguyenvana@gmail.com"
             required
+            error={fieldErrors.email}
           />
 
           <div className="grid grid-cols-2 gap-3">
@@ -118,6 +128,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
               onChange={handleChange}
               placeholder="0912345678"
               required
+              error={fieldErrors.phone}
             />
 
             <Input
@@ -127,6 +138,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
               onChange={handleChange}
               placeholder="012345678912"
               required
+              error={fieldErrors.nationalId}
             />
           </div>
 
@@ -138,6 +150,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             onChange={handleChange}
             placeholder="Tối thiểu 6 ký tự"
             required
+            error={fieldErrors.password}
           />
 
           <Input
@@ -148,6 +161,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
             onChange={handleChange}
             placeholder="Trùng khớp mật khẩu trên"
             required
+            error={fieldErrors.confirmPassword}
           />
 
           <Button

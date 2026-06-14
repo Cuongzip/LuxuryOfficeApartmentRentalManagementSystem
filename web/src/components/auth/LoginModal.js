@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { ROLES } from '@/constants';
+import { loginSchema, validateForm } from '@/validators';
 
 export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const router = useRouter();
@@ -14,17 +15,26 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
+
+    const validation = validateForm(loginSchema, { email, password });
+    if (!validation.success) {
+      setFieldErrors(validation.errors);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const data = await login(email, password);
       onClose();
-      
+
       if (data.account.role === ROLES.ADMIN || data.account.role === ROLES.EMPLOYEE) {
         router.push('/admin');
       } else {
@@ -52,7 +62,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <Input
           label="Địa chỉ Email"
           id="email"
@@ -61,6 +71,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="admin@luxuryrental.vn"
           required
+          error={fieldErrors.email}
         />
 
         <Input
@@ -71,6 +82,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
           required
+          error={fieldErrors.password}
         />
 
         <div className="flex justify-between items-center text-xs pt-1">
