@@ -8,9 +8,10 @@ export const Header = () => {
   const pathname = usePathname();
 
   const getPageTitle = () => {
-    if (pathname === '/admin') return 'Tổng quan';
+    if (pathname === '/admin' || pathname === '/manager') return 'Tổng quan';
     if (pathname.includes('/admin/buildings')) return 'Quản lý tòa nhà';
     if (pathname.includes('/admin/rooms')) return 'Quản lý phòng';
+    if (pathname.includes('/manager/contracts')) return 'Quản lý hợp đồng';
     return 'Dashboard';
   };
 

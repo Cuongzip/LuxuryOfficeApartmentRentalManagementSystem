@@ -22,7 +22,11 @@ export const UserDropdown = ({ variant = 'light' }) => {
 
   if (!user) return null;
 
-  const dashboardHref = user.role === ROLES.ADMIN || user.role === ROLES.EMPLOYEE ? '/admin' : '/customer/dashboard';
+  const dashboardHref = user.role === ROLES.ADMIN
+    ? '/admin'
+    : user.role === ROLES.RENTAL_MANAGER
+      ? '/manager'
+      : '/customer/dashboard';
   const isDark = variant === 'dark';
 
   return (

@@ -5,7 +5,7 @@
   --foreground: #1A1A1A;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand: #0B203E;

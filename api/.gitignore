@@ -3,3 +3,7 @@ node_modules
 .prettierrc
 nodemon.json
 agent-skills
+
+# Ignore uploads but keep the directory
+src/resources/public/uploads/*
+!src/resources/public/uploads/.gitkeep

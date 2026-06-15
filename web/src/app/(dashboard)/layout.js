@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }) {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.EMPLOYEE))) {
+    if (!loading && (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.RENTAL_MANAGER))) {
       router.push('/?showLogin=true');
     }
   }, [user, loading, router]);
@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }) {
     return <Loading fullScreen />;
   }
 
-  if (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.EMPLOYEE)) {
+  if (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.RENTAL_MANAGER)) {
     return null;
   }
 

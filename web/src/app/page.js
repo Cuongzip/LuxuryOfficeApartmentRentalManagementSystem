@@ -121,7 +121,7 @@ export default function PublicHome() {
           <div className="flex flex-col sm:flex-row gap-4 items-center">
             {user ? (
               <Link
-                href={user.role === ROLES.ADMIN || user.role === ROLES.EMPLOYEE ? '/admin' : '/customer/dashboard'}
+                href={user.role === ROLES.ADMIN ? '/admin' : (user.role === ROLES.RENTAL_MANAGER ? '/manager' : '/customer/dashboard')}
                 className="w-full sm:w-auto px-8 py-4 bg-brand text-white font-semibold rounded-lg hover:bg-brand-hover transition-all text-center shadow-sm"
               >
                 Quản lý hệ thống của bạn

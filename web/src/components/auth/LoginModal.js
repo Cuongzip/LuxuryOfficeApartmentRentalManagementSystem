@@ -35,8 +35,10 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
       toast.success('Đăng nhập thành công!');
       onClose();
 
-      if (data.account.role === ROLES.ADMIN || data.account.role === ROLES.EMPLOYEE) {
+      if (data.account.role === ROLES.ADMIN) {
         router.push('/admin');
+      } else if (data.account.role === ROLES.RENTAL_MANAGER) {
+        router.push('/manager');
       } else {
         router.push('/');
       }
