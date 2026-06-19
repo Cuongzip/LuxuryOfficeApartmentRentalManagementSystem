@@ -59,7 +59,7 @@ export const createPendingUser = async ({
       id: accountId,
       email,
       password: hashedPassword,
-      role: ROLES.CUSTOMER,
+      roleId: ROLES.CUSTOMER,
       status: ACCOUNT_STATUS.PENDING,
       verificationToken: token,
       verificationTokenExpiresAt: expiresAt,
@@ -174,7 +174,7 @@ export const login = async ({ email, password }) => {
     {
       accountId: account.id,
       email: account.email,
-      role: account.role,
+      role: account.roleId,
       customerId: account.customer?.id,
       employeeId: account.employee?.id,
     },

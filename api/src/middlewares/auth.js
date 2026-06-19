@@ -46,7 +46,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
   req.user = {
     accountId: account.id,
     email: account.email,
-    role: account.role,
+    role: account.roleId,
     customerId: account.customer?.id || null,
     employeeId: account.employee?.id || null,
   };

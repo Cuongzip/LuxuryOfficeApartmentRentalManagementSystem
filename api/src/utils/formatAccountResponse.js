@@ -1,7 +1,7 @@
 const formatAccountResponse = (account) => ({
   id: account.id,
   email: account.email,
-  role: account.role,
+  role: account.roleId,
   status: account.status,
   fullName: account.employee?.fullName || account.customer?.fullName || null,
   customer: account.customer
