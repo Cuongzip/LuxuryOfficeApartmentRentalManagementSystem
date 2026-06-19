@@ -6,11 +6,13 @@ import { ROLES } from "../constants/index.js";
 
 const router = Router();
 
+router.get("/", buildingController.getBuildings);
+router.get("/:id", buildingController.getBuildingById);
+
+// Admin-only endpoints for building modifications
 router.use(authenticate);
 router.use(requireRoles(ROLES.ADMIN));
 
-router.get("/", buildingController.getBuildings);
-router.get("/:id", buildingController.getBuildingById);
 router.post("/", upload.array("images", 10), parseMultipartImages, validateBody(buildingSchema), buildingController.createBuilding);
 router.put("/:id", upload.array("images", 10), parseMultipartImages, validateBody(buildingSchema), buildingController.updateBuilding);
 router.delete("/:id", buildingController.deleteBuilding);

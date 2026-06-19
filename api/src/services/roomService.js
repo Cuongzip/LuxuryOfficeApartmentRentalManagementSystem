@@ -82,13 +82,6 @@ export const createRoom = async ({
     throw new AppError("Tòa nhà không tồn tại", 404);
   }
 
-  if (floor > building.numberOfFloors) {
-    throw new AppError(
-      `Tầng vượt quá giới hạn của tòa nhà (tối đa ${building.numberOfFloors} tầng)`,
-      400
-    );
-  }
-
   const existingRoom = await prisma.room.findFirst({
     where: {
       buildingId,
@@ -96,6 +89,13 @@ export const createRoom = async ({
       deletedAt: null,
     },
   });
+
+  if (floor > building.numberOfFloors) {
+    throw new AppError(
+      `Tầng vượt quá giới hạn của tòa nhà (tối đa ${building.numberOfFloors} tầng)`,
+      400
+    );
+  }
 
   if (existingRoom) {
     throw new AppError("Số phòng này đã tồn tại trong tòa nhà!", 400);

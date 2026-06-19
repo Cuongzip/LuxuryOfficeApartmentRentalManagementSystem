@@ -6,12 +6,11 @@ import { ROLES } from "../constants/index.js";
 
 const router = Router();
 
-router.use(authenticate);
-
 router.get("/", roomController.getRooms);
 router.get("/:id", roomController.getRoomById);
 
 // Admin-only endpoints for room modifications
+router.use(authenticate);
 router.use(requireRoles(ROLES.ADMIN));
 
 router.post("/", upload.array("images", 10), parseMultipartImages, validateBody(roomSchema), roomController.createRoom);
