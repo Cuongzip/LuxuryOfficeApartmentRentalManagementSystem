@@ -13,12 +13,12 @@ Key Principles:
 - Use Layouts for shared UI
 
 File Structure:
-- page.tsx: Unique UI for a route
-- layout.tsx: Shared UI for a segment and its children
-- loading.tsx: Loading UI for a segment
-- error.tsx: Error UI for a segment
-- not-found.tsx: Not found UI
-- route.ts: API endpoints
+- page.js: Unique UI for a route
+- layout.js: Shared UI for a segment and its children
+- loading.js: Loading UI for a segment
+- error.js: Error UI for a segment
+- not-found.js: Not found UI
+- route.js: API endpoints
 
 Server vs Client Components:
 - Server Components (Default): Data fetching, backend resources, sensitive info, large dependencies

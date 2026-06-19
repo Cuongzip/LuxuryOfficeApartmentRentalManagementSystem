@@ -5,20 +5,14 @@ import { SearchClient } from './SearchClient';
 
 export default async function SearchPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
-  let buildings = [];
-  let rooms = [];
 
-  try {
-    const [bData, rData] = await Promise.all([
-      buildingService.getBuildings({ limit: 100 }),
-      roomService.getRooms({ limit: 100 }),
-    ]);
+  const [bData, rData] = await Promise.all([
+    buildingService.getBuildings({ limit: 100 }),
+    roomService.getRooms({ limit: 100 }),
+  ]);
 
-    buildings = bData || [];
-    rooms = Array.isArray(rData) ? rData : rData?.data || [];
-  } catch (err) {
-    console.error(err);
-  }
+  const buildings = bData || [];
+  const rooms = Array.isArray(rData) ? rData : rData?.data || [];
 
   return (
     <SearchClient

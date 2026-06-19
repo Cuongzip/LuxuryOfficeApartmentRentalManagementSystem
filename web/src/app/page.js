@@ -9,19 +9,12 @@ export const metadata = {
 };
 
 export default async function PublicHome() {
-  let buildings = [];
-  let rooms = [];
-
-  try {
-    const [bData, rData] = await Promise.all([
-      buildingService.getBuildings({ limit: 1000 }),
-      roomService.getRooms({ limit: 1000 }),
-    ]);
-    buildings = bData || [];
-    rooms = Array.isArray(rData) ? rData : rData?.data || [];
-  } catch (err) {
-    console.error('Lỗi khi tải dữ liệu trang chủ trên server:', err);
-  }
+  const [bData, rData] = await Promise.all([
+    buildingService.getBuildings({ limit: 1000 }),
+    roomService.getRooms({ limit: 1000 }),
+  ]);
+  const buildings = bData || [];
+  const rooms = Array.isArray(rData) ? rData : rData?.data || [];
 
   return (
     <HomeClient

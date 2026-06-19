@@ -23,7 +23,6 @@ export default function ContractsManagement() {
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 1 });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Filters State
   const [filters, setFilters] = useState({
     customerId: '',
     roomId: '',
@@ -32,7 +31,6 @@ export default function ContractsManagement() {
     limit: 10,
   });
 
-  // Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
@@ -40,7 +38,6 @@ export default function ContractsManagement() {
 
   const [selectedContract, setSelectedContract] = useState(null);
 
-  // Stats State
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -48,7 +45,6 @@ export default function ContractsManagement() {
     cancelled: 0,
   });
 
-  // Form States
   const [formData, setFormData] = useState({
     id: '',
     customerId: '',
@@ -70,7 +66,6 @@ export default function ContractsManagement() {
 
   const isRentalManager = user?.role === ROLES.RENTAL_MANAGER;
 
-  // Load contracts and stats
   const fetchContracts = async () => {
     setIsLoading(true);
     try {
@@ -86,7 +81,6 @@ export default function ContractsManagement() {
         setContracts(result.data || []);
         setPagination(result.pagination || { page: 1, limit: 10, total: 0, pages: 1 });
 
-        // Load stats from overall list
         const allResult = await contractService.getContracts({ limit: 1000 });
         if (allResult.success && allResult.data) {
           const list = allResult.data;
@@ -115,7 +109,6 @@ export default function ContractsManagement() {
     }
   };
 
-  // Load rooms
   const fetchRooms = async () => {
     try {
       const roomsData = await roomService.getRooms({ limit: 1000 });
@@ -156,7 +149,6 @@ export default function ContractsManagement() {
     });
   };
 
-  // Create Contract handlers
   const handleOpenAddModal = () => {
     setFormData({
       id: '',
@@ -202,7 +194,7 @@ export default function ContractsManagement() {
       toast.success('Lập hợp đồng mới thành công!');
       setIsAddModalOpen(false);
       fetchContracts();
-      fetchRooms(); // refresh rooms availability status
+      fetchRooms();
     } catch (err) {
       if (err.errors) {
         setFieldErrors(err.errors);
@@ -214,7 +206,6 @@ export default function ContractsManagement() {
     }
   };
 
-  // Extend Contract handlers
   const handleOpenExtendModal = (contract) => {
     setSelectedContract(contract);
     const details = contract.contractDetails?.[0];
@@ -254,7 +245,6 @@ export default function ContractsManagement() {
     }
   };
 
-  // Cancel Contract handlers
   const handleOpenCancelModal = (contract) => {
     setSelectedContract(contract);
     setCancelData({
@@ -272,7 +262,7 @@ export default function ContractsManagement() {
       toast.success('Hủy hợp đồng thành công!');
       setIsCancelModalOpen(false);
       fetchContracts();
-      fetchRooms(); // refresh rooms availability status
+      fetchRooms();
     } catch (err) {
       toast.error(err.message || 'Có lỗi xảy ra khi hủy hợp đồng.');
     } finally {
@@ -408,7 +398,6 @@ export default function ContractsManagement() {
         )}
       </div>
 
-      {/* Contract Count Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4 bg-white border border-neutral-100 flex items-center gap-4">
           <div className="p-3 bg-neutral-50 border border-neutral-100 text-neutral-600 rounded-xl">
@@ -456,7 +445,6 @@ export default function ContractsManagement() {
         </Card>
       </div>
 
-      {/* Filter Bar */}
       <Card className="p-5 bg-white border border-neutral-100">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div className="flex flex-col gap-1.5">
@@ -515,7 +503,6 @@ export default function ContractsManagement() {
         </div>
       </Card>
 
-      {/* Main Table */}
       <Table
         columns={columns}
         data={contracts}
@@ -523,7 +510,6 @@ export default function ContractsManagement() {
         emptyMessage="Không tìm thấy hợp đồng thuê nào."
       />
 
-      {/* Pagination Controls */}
       {pagination.pages > 1 && (
         <div className="flex items-center justify-between border-t border-neutral-100 pt-4">
           <p className="text-xs text-neutral-400 font-medium">
@@ -566,7 +552,6 @@ export default function ContractsManagement() {
         </div>
       )}
 
-      {/* Modal 1: Create Contract */}
       {isAddModalOpen && (
         <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Lập hợp đồng thuê mới" size="md">
           <form onSubmit={handleCreateSubmit} noValidate className="space-y-4">
@@ -669,7 +654,6 @@ export default function ContractsManagement() {
         </Modal>
       )}
 
-      {/* Modal 2: Contract Details */}
       {isDetailModalOpen && selectedContract && (
         <Modal
           isOpen={isDetailModalOpen}
@@ -678,7 +662,6 @@ export default function ContractsManagement() {
           size="lg"
         >
           <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-1">
-            {/* Status Info */}
             <div className="flex items-center justify-between bg-neutral-50 p-4 border border-neutral-100 rounded-xl">
               <div>
                 <span className="text-xs text-neutral-400 font-bold uppercase tracking-wider block">Trạng thái</span>
@@ -695,7 +678,6 @@ export default function ContractsManagement() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Customer Info Card */}
               <div className="p-4 border border-neutral-200/60 rounded-xl space-y-3">
                 <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
                   <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -711,11 +693,10 @@ export default function ContractsManagement() {
                 </div>
               </div>
 
-              {/* Employee Info Card */}
               <div className="p-4 border border-neutral-200/60 rounded-xl space-y-3">
                 <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
                   <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   Nhân viên phụ trách
                 </h4>
@@ -727,7 +708,6 @@ export default function ContractsManagement() {
               </div>
             </div>
 
-            {/* Room Info */}
             <div className="p-4 border border-neutral-200/60 rounded-xl space-y-4">
               <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
                 <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -777,7 +757,6 @@ export default function ContractsManagement() {
               ))}
             </div>
 
-            {/* Invoices List */}
             {selectedContract.invoices && selectedContract.invoices.length > 0 && (
               <div className="p-4 border border-neutral-200/60 rounded-xl space-y-3">
                 <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
@@ -827,7 +806,6 @@ export default function ContractsManagement() {
         </Modal>
       )}
 
-      {/* Modal 3: Extend Contract */}
       {isExtendModalOpen && selectedContract && (
         <Modal
           isOpen={isExtendModalOpen}
@@ -863,7 +841,6 @@ export default function ContractsManagement() {
         </Modal>
       )}
 
-      {/* Modal 4: Cancel Contract */}
       {isCancelModalOpen && selectedContract && (
         <Modal
           isOpen={isCancelModalOpen}

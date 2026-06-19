@@ -53,7 +53,6 @@ export default function ManagerDashboard() {
           availableRooms: available,
         });
 
-        // Get 5 most recent contracts
         const sorted = [...contractsList]
           .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate))
           .slice(0, 5);
@@ -123,7 +122,6 @@ export default function ManagerDashboard() {
         </p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card, idx) => (
           <Card key={idx} className="p-6 bg-white border border-neutral-100 shadow-sm hover:shadow-md transition-shadow">
@@ -147,9 +145,7 @@ export default function ManagerDashboard() {
         ))}
       </div>
 
-      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Contracts */}
         <Card title="Hợp đồng mới thiết lập" className="lg:col-span-2 p-6">
           {isLoading ? (
             <div className="space-y-3">
@@ -190,7 +186,6 @@ export default function ManagerDashboard() {
           )}
         </Card>
 
-        {/* Shortcuts card */}
         <Card title="Phím tắt chức năng" className="p-6">
           <div className="space-y-3">
             <a

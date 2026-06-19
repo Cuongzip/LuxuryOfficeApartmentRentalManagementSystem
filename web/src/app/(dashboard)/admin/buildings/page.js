@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { buildingService } from '@/services/building.service';
 import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { buildingSchema, validateForm } from '@/validators';
 import toast from 'react-hot-toast';
@@ -86,7 +85,7 @@ export default function BuildingsManagement() {
     if (!files.length) return;
 
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     const errors = [];
 
     const validFiles = files.filter(file => {
@@ -195,12 +194,10 @@ export default function BuildingsManagement() {
       formDataToSend.append('numberOfFloors', parseInt(formData.numberOfFloors, 10));
       formDataToSend.append('description', formData.description);
 
-      // Append new files
       newImageFiles.forEach(item => {
         formDataToSend.append('images', item.file);
       });
 
-      // Append existing images JSON if editing
       if (currentBuilding) {
         const existingImagesPayload = existingImages.map(img => ({
           imagePath: img.imagePath,
@@ -249,16 +246,16 @@ export default function BuildingsManagement() {
       key: 'images',
       render: (building) => {
         const primaryImage = building.images?.find(img => img.isPrimary) || building.images?.[0];
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL
+          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
           : 'http://localhost:3000';
-        
+
         return (
           <div className="w-12 h-12 rounded-lg overflow-hidden border border-neutral-100 bg-neutral-50 flex items-center justify-center">
             {primaryImage ? (
-              <img 
-                src={`${backendUrl}${primaryImage.imagePath}`} 
-                alt={building.name} 
+              <img
+                src={`${backendUrl}${primaryImage.imagePath}`}
+                alt={building.name}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -396,13 +393,11 @@ export default function BuildingsManagement() {
                   )}
                 </div>
 
-                {/* Section: Upload images */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700 block">
                     Hình ảnh tòa nhà
                   </label>
-                  
-                  {/* Dropzone */}
+
                   <div className="flex items-center justify-center w-full">
                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-neutral-200 hover:border-brand rounded-xl cursor-pointer bg-neutral-50 hover:bg-neutral-100/50 transition-all">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -412,31 +407,28 @@ export default function BuildingsManagement() {
                         <p className="text-xs font-semibold text-neutral-600">Click hoặc kéo thả ảnh để tải lên</p>
                         <p className="text-[10px] text-neutral-400 mt-1">JPEG, JPG, PNG, WEBP (Tối đa 5MB/ảnh)</p>
                       </div>
-                      <input 
-                        type="file" 
-                        multiple 
-                        accept="image/*" 
-                        onChange={handleImageUpload} 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
                       />
                     </label>
                   </div>
 
-                  {/* Previews grid */}
                   {(existingImages.length > 0 || newImageFiles.length > 0) && (
                     <div className="grid grid-cols-3 gap-3 pt-2">
-                      {/* Existing images */}
                       {existingImages.map((img, index) => {
-                        const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-                          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+                        const backendUrl = process.env.NEXT_PUBLIC_API_URL
+                          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
                           : 'http://localhost:3000';
                         const fullUrl = `${backendUrl}${img.imagePath}`;
 
                         return (
                           <div key={`existing-${index}`} className="relative aspect-video rounded-lg overflow-hidden border border-neutral-200 group">
                             <img src={fullUrl} alt="Existing" className="w-full h-full object-cover" />
-                            
-                            {/* Overlay delete */}
+
                             <button
                               type="button"
                               onClick={() => handleRemoveExistingImage(index)}
@@ -447,7 +439,6 @@ export default function BuildingsManagement() {
                               </svg>
                             </button>
 
-                            {/* Badge/Button for primary */}
                             <div className="absolute bottom-1 left-1 right-1">
                               {img.isPrimary ? (
                                 <span className="block text-center text-[9px] font-bold bg-brand text-white py-0.5 rounded shadow-sm select-none">
@@ -467,18 +458,15 @@ export default function BuildingsManagement() {
                         );
                       })}
 
-                      {/* Newly selected images */}
                       {newImageFiles.map((item, index) => {
                         return (
                           <div key={`new-${index}`} className="relative aspect-video rounded-lg overflow-hidden border border-neutral-200 group ring-1 ring-emerald-500/30">
                             <img src={item.previewUrl} alt="New upload" className="w-full h-full object-cover" />
-                            
-                            {/* New badge */}
+
                             <span className="absolute top-1 left-1 text-[8px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow-sm">
                               Mới
                             </span>
 
-                            {/* Overlay delete */}
                             <button
                               type="button"
                               onClick={() => handleRemoveNewImage(index)}
@@ -489,7 +477,6 @@ export default function BuildingsManagement() {
                               </svg>
                             </button>
 
-                            {/* Badge/Button for primary */}
                             <div className="absolute bottom-1 left-1 right-1">
                               {item.isPrimary ? (
                                 <span className="block text-center text-[9px] font-bold bg-brand text-white py-0.5 rounded shadow-sm select-none">
