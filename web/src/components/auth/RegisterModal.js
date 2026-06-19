@@ -99,10 +99,8 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
       {!success ? (
         <>
           <div className="flex flex-col items-center mb-4">
-            <img src="/images/logo.png" alt="Logo" className="w-45 h-20 object-contain mb-2" />
-            <p className="text-xs text-neutral-500 text-center">
-              Đăng ký tài khoản khách thuê căn hộ & văn phòng dịch vụ
-            </p>
+            <img src="/images/logo.png" alt="Logo" className="w-60  object-contain mb-2" />
+
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3" noValidate>

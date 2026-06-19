@@ -56,10 +56,8 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Đăng nhập hệ thống" size="md">
       <div className="flex flex-col items-center mb-6">
-        <img src="/images/logo.png" alt="Logo" className="w-45 h-20 object-contain mb-2" />
-        <p className="text-xs text-neutral-500 text-center">
-          Quản lý căn hộ & văn phòng dịch vụ cao cấp
-        </p>
+        <img src="/images/logo.png" alt="Logo" className="w-60 object-contain mb-2" />
+
       </div>
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <Input

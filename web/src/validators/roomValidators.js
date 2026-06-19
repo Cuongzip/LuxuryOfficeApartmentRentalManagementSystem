@@ -15,21 +15,20 @@ export const roomSchema = z.object({
     .trim()
     .min(1, "Loại phòng không được để trống"),
   floor: z.coerce
-    .number({ invalid_type_error: "Tầng phải là số nguyên dương" })
-    .int("Tầng phải là số nguyên")
-    .nonnegative("Tầng không được nhỏ hơn 0"),
+    .number("Tầng phải là số nguyên dương")
+    .positive("Diện tích phải là số dương"),
   area: z.coerce
-    .number({ invalid_type_error: "Diện tích phải là số dương" })
+    .number("Diện tích phải là số dương")
     .positive("Diện tích phải là số dương"),
   price: z.coerce
-    .number({ invalid_type_error: "Đơn giá thuê phải là số dương" })
+    .number("Đơn giá thuê phải là số dương")
     .positive("Đơn giá thuê phải là số dương"),
   status: z
     .string()
     .trim()
     .min(1, "Trạng thái không được để trống"),
   maxPeople: z.coerce
-    .number({ invalid_type_error: "Số người tối đa phải là số nguyên dương" })
+    .number("Số người tối đa phải là số nguyên dương")
     .int("Số người tối đa phải là số nguyên")
     .positive("Số người tối đa phải là số nguyên dương"),
   description: z

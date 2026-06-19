@@ -12,7 +12,7 @@ export const buildingSchema = z.object({
     .min(1, "Địa chỉ không được để trống")
     .max(500, "Địa chỉ không được vượt quá 500 ký tự"),
   numberOfFloors: z.coerce
-    .number({ invalid_type_error: "Số tầng phải là số nguyên dương" })
+    .number("Số tầng phải là số nguyên dương")
     .int("Số tầng phải là số nguyên dương")
     .positive("Số tầng phải là số nguyên dương"),
   description: z
