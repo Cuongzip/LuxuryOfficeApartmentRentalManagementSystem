@@ -60,18 +60,24 @@ export const UserDropdown = ({ variant = 'light' }) => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl border border-neutral-100 shadow-xl py-2 z-50">
-          {/* Header */}
           <div className="px-4 py-3 border-b border-neutral-100 flex items-center gap-3 bg-neutral-50/50">
             <div className="w-10 h-10 rounded-full bg-neutral-100 text-neutral-600 flex items-center justify-center font-bold text-base shrink-0 select-none">
               {user.fullName?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="overflow-hidden">
               <h4 className="text-sm font-semibold text-neutral-900 truncate leading-snug">{user.fullName}</h4>
-              <p className="text-xs text-neutral-500 truncate capitalize mt-0.5">{user.role}</p>
+              <p className="text-xs text-neutral-500 truncate mt-0.5">
+                {user.role === ROLES.ADMIN
+                  ? 'Quản lý'
+                  : user.role === ROLES.RENTAL_MANAGER
+                    ? 'Quản lý thuê'
+                    : user.role === ROLES.SECURITY
+                      ? 'An ninh'
+                      : 'Khách hàng'}
+              </p>
             </div>
           </div>
 
-          {/* Body Links */}
           <div className="p-1.5 space-y-0.5">
             <Link
               href={dashboardHref}
@@ -96,7 +102,6 @@ export const UserDropdown = ({ variant = 'light' }) => {
             </Link>
           </div>
 
-          {/* Footer logout */}
           <div className="border-t border-neutral-50 p-1.5 mt-1">
             <button
               onClick={() => {

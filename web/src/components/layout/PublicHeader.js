@@ -1,16 +1,22 @@
 import React from 'react';
 import Link from 'next/link';
 import { UserDropdown } from './UserDropdown';
+import { SearchBar } from '../ui/SearchBar';
 
 export const PublicHeader = ({
   user,
   onLoginClick,
   onRegisterClick,
+  showSearch = false,
+  searchProps = {},
 }) => {
   return (
-    <header className="min-h-16 py-3 md:py-0 md:h-20 border-b border-white/10 bg-brand flex flex-col md:flex-row items-center justify-between px-4 md:px-16 sticky top-0 z-50 text-white gap-4 shadow-md">
-      {/* Logo and Mobile Auth Row */}
-      <div className="w-full flex items-center justify-between md:w-auto">
+    <header className={
+      showSearch
+        ? "min-h-16 py-3 md:py-0 md:h-20 border-b border-white/10 bg-brand flex flex-col md:grid md:grid-cols-3 items-center px-4 md:px-16 sticky top-0 z-50 text-white gap-4 shadow-md"
+        : "min-h-16 py-3 md:py-0 md:h-20 border-b border-white/10 bg-brand flex flex-col md:flex-row items-center justify-between px-4 md:px-16 sticky top-0 z-50 text-white gap-4 shadow-md"
+    }>
+      <div className="w-full flex items-center justify-between md:justify-start md:w-auto shrink-0">
         <Link href="/">
           <img src="/images/logo.png" alt="Logo" className="w-36 md:w-45 object-contain" />
         </Link>
@@ -28,9 +34,22 @@ export const PublicHeader = ({
         </div>
       </div>
 
-      {/* Desktop Auth / Nav */}
-      <nav className="hidden md:flex items-center gap-6">
-        <a href="#features" className="text-sm text-white/80 hover:text-white transition-all font-medium">Dịch vụ</a>
+      {showSearch ? (
+        <div className="w-full flex justify-center">
+          <div className="w-full md:max-w-2xl px-2 md:px-0">
+            <SearchBar variant="header" {...searchProps} />
+          </div>
+        </div>
+      ) : (
+        <div className="hidden md:block"></div>
+      )}
+
+      <nav className={
+        showSearch
+          ? "hidden md:flex items-center justify-end gap-6 shrink-0"
+          : "hidden md:flex items-center gap-6 shrink-0"
+      }>
+        <Link href="/#features" className="text-sm text-white/80 hover:text-white transition-all font-medium">Dịch vụ</Link>
         <span className="h-4 w-px bg-white/20"></span>
         {user ? (
           <UserDropdown variant="dark" />
