@@ -7,6 +7,7 @@ import { ROLES, getRoomStatus } from '@/constants';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { RegisterModal } from '@/components/auth/RegisterModal';
 import { PublicHeader } from '@/components/layout/PublicHeader';
+import { HomeBanner } from '@/components/home/HomeBanner';
 import { buildingService } from '@/services/building.service';
 import { roomService } from '@/services/room.service';
 import { Modal } from '@/components/ui/Modal';
@@ -19,15 +20,14 @@ export default function PublicHome() {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [buildings, setBuildings] = useState([]);
   const [isLoadingBuildings, setIsLoadingBuildings] = useState(true);
-  
+
   const [rooms, setRooms] = useState([]);
-  
+
   // Draft filter states (updated in inputs/popovers immediately)
   const [searchKeyword, setSearchKeyword] = useState('');
   const [draftCity, setDraftCity] = useState('');
   const [draftDistrict, setDraftDistrict] = useState('');
   const [draftWard, setDraftWard] = useState('');
-  const [draftRoomType, setDraftRoomType] = useState('');
 
   // Temporary location inputs (inside location popover before clicking "Áp dụng")
   const [tempCity, setTempCity] = useState('');
@@ -39,11 +39,6 @@ export default function PublicHome() {
   const [appliedCity, setAppliedCity] = useState('');
   const [appliedDistrict, setAppliedDistrict] = useState('');
   const [appliedWard, setAppliedWard] = useState('');
-  const [appliedRoomType, setAppliedRoomType] = useState('');
-
-  // Dropdown toggles
-  const [isLocationOpen, setIsLocationOpen] = useState(false);
-  const [isRoomTypeOpen, setIsRoomTypeOpen] = useState(false);
 
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [buildingRooms, setBuildingRooms] = useState([]);
@@ -64,7 +59,7 @@ export default function PublicHome() {
         setIsLoadingBuildings(false);
       }
     };
-    
+
     Promise.resolve().then(() => {
       fetchHomeData();
     });
@@ -138,7 +133,7 @@ export default function PublicHome() {
   }));
 
   const cities = Array.from(new Set(parsedAddresses.map((a) => a.city).filter(Boolean)));
-  
+
   const districts = Array.from(new Set(
     parsedAddresses
       .filter((a) => !tempCity || a.city === tempCity)
@@ -153,8 +148,6 @@ export default function PublicHome() {
       .filter(Boolean)
   ));
 
-  const uniqueRoomTypes = Array.from(new Set(rooms.map((r) => r.type).filter(Boolean)));
-
   const filteredBuildings = buildings.filter((building) => {
     if (appliedKeyword.trim()) {
       const kw = appliedKeyword.toLowerCase();
@@ -162,20 +155,12 @@ export default function PublicHome() {
       const matchAddress = building.address.toLowerCase().includes(kw);
       if (!matchName && !matchAddress) return false;
     }
-    
+
     const parsed = parseAddress(building.address);
     if (appliedCity && parsed.city !== appliedCity) return false;
     if (appliedDistrict && parsed.district !== appliedDistrict) return false;
     if (appliedWard && parsed.ward !== appliedWard) return false;
 
-    if (appliedRoomType) {
-      const hasMatchingRoom = rooms.some(
-        (room) => room.buildingId === building.id && room.type === appliedRoomType
-      );
-      if (!hasMatchingRoom) {
-        return false;
-      }
-    }
     return true;
   });
 
@@ -202,13 +187,10 @@ export default function PublicHome() {
   };
 
   const handleSearch = () => {
-    setIsLocationOpen(false);
-    setIsRoomTypeOpen(false);
     setAppliedKeyword(searchKeyword);
     setAppliedCity(draftCity);
     setAppliedDistrict(draftDistrict);
     setAppliedWard(draftWard);
-    setAppliedRoomType(draftRoomType);
 
     // Scroll to product listings section
     setTimeout(() => {
@@ -224,12 +206,10 @@ export default function PublicHome() {
     setDraftCity('');
     setDraftDistrict('');
     setDraftWard('');
-    setDraftRoomType('');
     setAppliedKeyword('');
     setAppliedCity('');
     setAppliedDistrict('');
     setAppliedWard('');
-    setAppliedRoomType('');
   };
 
   return (
@@ -249,45 +229,34 @@ export default function PublicHome() {
             window.history.replaceState(null, '', `${window.location.pathname}?showRegister=true`);
           }
         }}
-        // Search states
-        searchKeyword={searchKeyword}
-        setSearchKeyword={setSearchKeyword}
-        draftCity={draftCity}
-        setDraftCity={setDraftCity}
-        draftDistrict={draftDistrict}
-        setDraftDistrict={setDraftDistrict}
-        draftWard={draftWard}
-        setDraftWard={setDraftWard}
-        draftRoomType={draftRoomType}
-        setDraftRoomType={setDraftRoomType}
-        tempCity={tempCity}
-        setTempCity={setTempCity}
-        tempDistrict={tempDistrict}
-        setTempDistrict={setTempDistrict}
-        tempWard={tempWard}
-        setTempWard={setTempWard}
-        isLocationOpen={isLocationOpen}
-        setIsLocationOpen={setIsLocationOpen}
-        isRoomTypeOpen={isRoomTypeOpen}
-        setIsRoomTypeOpen={setIsRoomTypeOpen}
-        handleSearch={handleSearch}
-        cities={cities}
-        districts={districts}
-        wards={wards}
-        uniqueRoomTypes={uniqueRoomTypes}
-        appliedKeyword={appliedKeyword}
-        appliedCity={appliedCity}
-        appliedDistrict={appliedDistrict}
-        appliedWard={appliedWard}
-        appliedRoomType={appliedRoomType}
-        handleClearFilters={handleClearFilters}
       />
 
       <main className="flex-1 flex flex-col">
+        <HomeBanner
+          searchKeyword={searchKeyword}
+          setSearchKeyword={setSearchKeyword}
+          draftCity={draftCity}
+          setDraftCity={setDraftCity}
+          draftDistrict={draftDistrict}
+          setDraftDistrict={setDraftDistrict}
+          draftWard={draftWard}
+          setDraftWard={setDraftWard}
+          tempCity={tempCity}
+          setTempCity={setTempCity}
+          tempDistrict={tempDistrict}
+          setTempDistrict={setTempDistrict}
+          tempWard={tempWard}
+          setTempWard={setTempWard}
+          cities={cities}
+          districts={districts}
+          wards={wards}
+          handleSearch={handleSearch}
+        />
+
         {/* Buildings Section */}
         <section id="buildings" className="py-16 px-8 md:px-16 bg-neutral-50/50 border-b border-neutral-100">
-          <div className="max-w-6xl mx-auto space-y-12">
-            
+          <div className="space-y-12">
+
             {/* Header info with Reset Filters option */}
             <div className="flex flex-col md:flex-row items-center md:items-end justify-between border-b border-neutral-200 pb-6">
               <div className="space-y-2 text-center md:text-left">
@@ -295,7 +264,7 @@ export default function PublicHome() {
                 <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900">Danh sách Tòa nhà & Phòng trống</h2>
                 <p className="text-neutral-500 text-sm">Xem chi tiết thông tin các tòa nhà và toàn bộ danh sách phòng tương ứng bên dưới.</p>
               </div>
-              {(appliedKeyword || appliedCity || appliedDistrict || appliedWard || appliedRoomType) && (
+              {(appliedKeyword || appliedCity || appliedDistrict || appliedWard) && (
                 <button
                   onClick={handleClearFilters}
                   className="mt-4 md:mt-0 text-xs font-bold text-neutral-500 hover:text-neutral-900 transition-colors flex items-center gap-1.5 cursor-pointer bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-full"
@@ -320,13 +289,13 @@ export default function PublicHome() {
               <div className="space-y-12">
                 {filteredBuildings.map((building) => {
                   const primaryImage = building.images?.find(img => img.isPrimary) || building.images?.[0];
-                  const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-                    ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+                  const backendUrl = process.env.NEXT_PUBLIC_API_URL
+                    ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
                     : 'http://localhost:3000';
-                  
-                  // Filter rooms belonging to this building and matching room type filter (if set)
+
+                  // Filter rooms belonging to this building
                   const displayedRooms = rooms.filter(
-                    (room) => room.buildingId === building.id && (!appliedRoomType || room.type === appliedRoomType)
+                    (room) => room.buildingId === building.id
                   );
 
                   return (
@@ -336,9 +305,9 @@ export default function PublicHome() {
                         {/* Building Image */}
                         <div className="w-full lg:w-1/4 aspect-[4/3] rounded-xl overflow-hidden bg-neutral-100 relative shrink-0">
                           {primaryImage ? (
-                            <img 
-                              src={`${backendUrl}${primaryImage.imagePath}`} 
-                              alt={building.name} 
+                            <img
+                              src={`${backendUrl}${primaryImage.imagePath}`}
+                              alt={building.name}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -373,11 +342,11 @@ export default function PublicHome() {
                           </div>
 
                           <div className="flex items-center justify-between pt-2">
-                            <button 
+                            <button
                               onClick={() => handleViewDetail(building)}
                               className="text-xs font-bold text-brand hover:text-brand-hover flex items-center gap-1.5 group/btn cursor-pointer"
                             >
-                              Xem chi tiết tòa nhà 
+                              Xem chi tiết tòa nhà
                               <svg className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                               </svg>
@@ -407,9 +376,9 @@ export default function PublicHome() {
                                   <div className="space-y-2">
                                     <div className="aspect-[4/3] rounded-lg overflow-hidden border border-neutral-200/50 bg-neutral-200 shrink-0 relative">
                                       {roomPrimaryImage ? (
-                                        <img 
-                                          src={`${backendUrl}${roomPrimaryImage.imagePath}`} 
-                                          alt="" 
+                                        <img
+                                          src={`${backendUrl}${roomPrimaryImage.imagePath}`}
+                                          alt=""
                                           className="w-full h-full object-cover group-hover/room:scale-105 transition-transform duration-300"
                                         />
                                       ) : (
@@ -429,7 +398,7 @@ export default function PublicHome() {
                                         <span className="font-bold text-neutral-900 text-sm">Phòng {room.roomNumber}</span>
                                         <span className="text-[10px] bg-brand/10 text-brand px-2 py-0.5 rounded font-semibold">{room.type}</span>
                                       </div>
-                                      
+
                                       <div className="grid grid-cols-3 gap-1 text-[10px] text-neutral-500 pt-1.5 border-t border-neutral-200/40">
                                         <div>Tầng {room.floor}</div>
                                         <div className="text-center">{room.area} m²</div>
@@ -461,7 +430,7 @@ export default function PublicHome() {
           </div>
         </section>
 
-        <section id="features" className="py-24 px-8 md:px-16 max-w-6xl mx-auto space-y-16">
+        <section id="features" className="py-24 px-8 md:px-16 space-y-16">
           <div className="text-center max-w-xl mx-auto space-y-3">
             <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900">Dịch vụ quản lý tinh giản</h2>
             <p className="text-neutral-500 text-sm">Cung cấp các công cụ cần thiết cho cả người thuê và ban quản lý vận hành tòa nhà.</p>
@@ -508,7 +477,7 @@ export default function PublicHome() {
       </main>
 
       <footer className="border-t border-neutral-200 py-12 px-8 md:px-16 bg-neutral-50 text-center text-sm text-neutral-500">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <p>© 2026 Luxury Rental Management. Bảo lưu mọi quyền.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-neutral-900 transition-colors">Điều khoản</a>
@@ -552,7 +521,7 @@ export default function PublicHome() {
                   <strong className="text-neutral-900 font-semibold">Số tầng:</strong> {selectedBuilding.numberOfFloors} tầng
                 </p>
                 <p className="text-sm text-slate-600 leading-relaxed">
-                  <strong className="text-neutral-900 font-semibold block mb-1">Mô tả:</strong> 
+                  <strong className="text-neutral-900 font-semibold block mb-1">Mô tả:</strong>
                   {selectedBuilding.description || 'Không có mô tả.'}
                 </p>
               </div>
@@ -563,8 +532,8 @@ export default function PublicHome() {
                   <p className="text-sm font-bold text-neutral-950">Hình ảnh tòa nhà:</p>
                   <div className="grid grid-cols-2 gap-2">
                     {selectedBuilding.images.map((img, idx) => {
-                      const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-                        ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+                      const backendUrl = process.env.NEXT_PUBLIC_API_URL
+                        ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
                         : 'http://localhost:3000';
                       return (
                         <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-neutral-200">
@@ -580,7 +549,7 @@ export default function PublicHome() {
             {/* Rooms list */}
             <div className="space-y-4 pt-4 border-t border-neutral-100">
               <h4 className="font-bold text-neutral-900 text-base">Danh sách phòng của tòa nhà</h4>
-              
+
               {isLoadingRooms ? (
                 <div className="flex justify-center py-8">
                   <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
@@ -605,8 +574,8 @@ export default function PublicHome() {
                     <tbody className="divide-y divide-neutral-200 bg-white">
                       {buildingRooms.map((room) => {
                         const roomPrimaryImage = room.images?.find(img => img.isPrimary) || room.images?.[0];
-                        const backendUrl = process.env.NEXT_PUBLIC_API_URL 
-                          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+                        const backendUrl = process.env.NEXT_PUBLIC_API_URL
+                          ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
                           : 'http://localhost:3000';
                         const statusCfg = getRoomStatus(room.status);
 
@@ -615,9 +584,9 @@ export default function PublicHome() {
                             <td className="px-4 py-3 whitespace-nowrap">
                               <div className="w-10 h-10 rounded overflow-hidden border border-neutral-100 bg-neutral-50 flex items-center justify-center">
                                 {roomPrimaryImage ? (
-                                  <img 
-                                    src={`${backendUrl}${roomPrimaryImage.imagePath}`} 
-                                    alt="" 
+                                  <img
+                                    src={`${backendUrl}${roomPrimaryImage.imagePath}`}
+                                    alt=""
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
