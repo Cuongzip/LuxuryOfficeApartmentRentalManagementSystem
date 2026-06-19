@@ -6,4 +6,5 @@ export const ID_PREFIXES = {
   INVOICE: "INV",
   IMAGE: "IMG",
   ROOM: "P",
+  ADDRESS: "DC",
 };

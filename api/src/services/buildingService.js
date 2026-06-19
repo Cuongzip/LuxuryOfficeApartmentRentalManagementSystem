@@ -15,7 +15,15 @@ export const getBuildings = async ({ keyword, page = 1, limit = 10 }) => {
     where.OR = [
       { id: { contains: trimmedKeyword } },
       { name: { contains: trimmedKeyword } },
-      { address: { contains: trimmedKeyword } },
+      {
+        address: {
+          OR: [
+            { detailAddress: { contains: trimmedKeyword } },
+            { ward: { name: { contains: trimmedKeyword } } },
+            { ward: { province: { name: { contains: trimmedKeyword } } } },
+          ],
+        },
+      },
     ];
   }
 
@@ -26,6 +34,15 @@ export const getBuildings = async ({ keyword, page = 1, limit = 10 }) => {
       take: limitNum,
       orderBy: { id: "asc" },
       include: {
+        address: {
+          include: {
+            ward: {
+              include: {
+                province: true,
+              },
+            },
+          },
+        },
         images: {
           orderBy: { displayOrder: "asc" },
         },
@@ -49,6 +66,15 @@ export const getBuildingById = async (id) => {
   const building = await prisma.building.findUnique({
     where: { id },
     include: {
+      address: {
+        include: {
+          ward: {
+            include: {
+              province: true,
+            },
+          },
+        },
+      },
       images: {
         orderBy: { displayOrder: "asc" },
       },
@@ -64,22 +90,37 @@ export const getBuildingById = async (id) => {
 
 export const createBuilding = async ({
   name,
-  address,
+  wardId,
+  detailAddress,
   numberOfFloors,
   description,
   images,
 }) => {
-  const [existingName, existingAddress] = await Promise.all([
+  const ward = await prisma.ward.findUnique({ where: { id: wardId } });
+  if (!ward) {
+    throw new AppError("Thông tin tòa nhà không hợp lệ", 400, {
+      wardId: "Phường/xã không tồn tại!",
+    });
+  }
+
+  const [existingName, existingBuildingWithAddress] = await Promise.all([
     prisma.building.findFirst({ where: { name } }),
-    prisma.building.findFirst({ where: { address } }),
+    prisma.building.findFirst({
+      where: {
+        address: {
+          wardId,
+          detailAddress,
+        },
+      },
+    }),
   ]);
 
   const errors = {};
   if (existingName) {
     errors.name = "Tên tòa nhà đã tồn tại!";
   }
-  if (existingAddress) {
-    errors.address = "Địa chỉ này đã được đăng ký cho tòa nhà khác!";
+  if (existingBuildingWithAddress) {
+    errors.detailAddress = "Địa chỉ này đã được đăng ký cho tòa nhà khác!";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -87,14 +128,21 @@ export const createBuilding = async ({
   }
 
   const id = generateId(ID_PREFIXES.BUILDING);
+  const addressId = generateId(ID_PREFIXES.ADDRESS);
 
   const newBuilding = await prisma.building.create({
     data: {
       id,
       name,
-      address,
       numberOfFloors,
       description: description || null,
+      address: {
+        create: {
+          id: addressId,
+          detailAddress,
+          wardId,
+        },
+      },
       images: images && images.length > 0 ? {
         create: images.map((img, index) => {
           const imgObj = typeof img === "string" ? { imagePath: img } : img;
@@ -108,6 +156,15 @@ export const createBuilding = async ({
       } : undefined,
     },
     include: {
+      address: {
+        include: {
+          ward: {
+            include: {
+              province: true,
+            },
+          },
+        },
+      },
       images: {
         orderBy: { displayOrder: "asc" },
       },
@@ -119,28 +176,46 @@ export const createBuilding = async ({
 
 export const updateBuilding = async (
   id,
-  { name, address, numberOfFloors, description, images }
+  { name, wardId, detailAddress, numberOfFloors, description, images }
 ) => {
   const building = await prisma.building.findUnique({
     where: { id },
-    include: { images: true },
+    include: { images: true, address: true },
   });
 
   if (!building) {
     throw new AppError("Tòa nhà không tồn tại", 404);
   }
 
-  const [existingName, existingAddress] = await Promise.all([
+  if (wardId !== undefined) {
+    const ward = await prisma.ward.findUnique({ where: { id: wardId } });
+    if (!ward) {
+      throw new AppError("Thông tin chỉnh sửa không hợp lệ", 400, {
+        wardId: "Phường/xã không tồn tại!",
+      });
+    }
+  }
+
+  const [existingName, existingBuildingWithAddress] = await Promise.all([
     name !== undefined ? prisma.building.findFirst({ where: { name } }) : null,
-    address !== undefined ? prisma.building.findFirst({ where: { address } }) : null,
+    (wardId !== undefined || detailAddress !== undefined)
+      ? prisma.building.findFirst({
+          where: {
+            address: {
+              wardId: wardId !== undefined ? wardId : building.address.wardId,
+              detailAddress: detailAddress !== undefined ? detailAddress : building.address.detailAddress,
+            },
+          },
+        })
+      : null,
   ]);
 
   const errors = {};
   if (existingName && existingName.id !== id) {
     errors.name = "Tên tòa nhà đã tồn tại!";
   }
-  if (existingAddress && existingAddress.id !== id) {
-    errors.address = "Địa chỉ này đã được đăng ký cho tòa nhà khác!";
+  if (existingBuildingWithAddress && existingBuildingWithAddress.id !== id) {
+    errors.detailAddress = "Địa chỉ này đã được đăng ký cho tòa nhà khác!";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -149,9 +224,17 @@ export const updateBuilding = async (
 
   const data = {};
   if (name !== undefined) data.name = name;
-  if (address !== undefined) data.address = address;
   if (numberOfFloors !== undefined) data.numberOfFloors = numberOfFloors;
   if (description !== undefined) data.description = description;
+
+  if (wardId !== undefined || detailAddress !== undefined) {
+    data.address = {
+      update: {
+        wardId: wardId !== undefined ? wardId : undefined,
+        detailAddress: detailAddress !== undefined ? detailAddress : undefined,
+      },
+    };
+  }
 
   let filesToDelete = [];
 
@@ -178,6 +261,15 @@ export const updateBuilding = async (
     where: { id },
     data,
     include: {
+      address: {
+        include: {
+          ward: {
+            include: {
+              province: true,
+            },
+          },
+        },
+      },
       images: {
         orderBy: { displayOrder: "asc" },
       },
@@ -218,7 +310,19 @@ export const deleteBuilding = async (id) => {
     );
   }
 
+  const addressId = building.addressId;
+
   await prisma.building.delete({
     where: { id },
   });
+
+  if (addressId) {
+    try {
+      await prisma.address.delete({
+        where: { id: addressId },
+      });
+    } catch (err) {
+      // Ignore if referenced elsewhere
+    }
+  }
 };

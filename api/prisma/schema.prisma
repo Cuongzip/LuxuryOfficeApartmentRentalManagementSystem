@@ -10,13 +10,14 @@ datasource db {
 model Building {
   id             String    @id @map("MaToaNha") @db.VarChar(10)
   name           String    @map("TenToaNha") @db.NVarChar(100)
-  address        String    @map("DiaChi") @db.NVarChar(255)
+  addressId      String    @map("MaDiaChi") @db.VarChar(10)
   numberOfFloors Int       @map("SoTang")
   description    String?   @map("MoTa") @db.NVarChar(1000)
   deletedAt      DateTime? @map("NgayXoa") // Keep soft delete
 
-  rooms  Room[]
-  images BuildingImage[]
+  address Address         @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  rooms   Room[]
+  images  BuildingImage[]
 
   @@map("ToaNha")
 }
@@ -47,12 +48,13 @@ model Customer {
   fullName    String    @map("HoTen") @db.NVarChar(100)
   nationalId  String    @unique @map("CCCD") @db.Char(12)
   phoneNumber String    @unique @map("SoDienThoai") @db.VarChar(10)
-  address     String?   @map("DiaChi") @db.NVarChar(255)
+  addressId   String?   @map("MaDiaChi") @db.VarChar(10)
   gender      String?   @map("GioiTinh") @db.NVarChar(20)
   dateOfBirth DateTime? @map("NgaySinh") @db.DateTime
 
-  accountId String  @unique @map("MaTaiKhoan") @db.VarChar(10)
-  account   Account @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  accountId String   @unique @map("MaTaiKhoan") @db.VarChar(10)
+  address   Address? @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   contracts Contract[]
   requests  Request[]
@@ -68,8 +70,9 @@ model Employee {
   nationalId  String    @unique @map("CCCD") @db.Char(12)
   gender      String?   @map("GioiTinh") @db.NVarChar(10)
   dateOfBirth DateTime? @map("NgaySinh") @db.DateTime
-  address     String?   @map("DiaChi") @db.NVarChar(255)
+  addressId   String?   @map("MaDiaChi") @db.VarChar(10)
 
+  address   Address?   @relation(fields: [addressId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   account   Account    @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   contracts Contract[]
   requests  Request[]
@@ -295,4 +298,37 @@ model BlacklistedToken {
   createdAt DateTime @default(now()) @map("NgayTao") @db.DateTime
 
   @@map("DanhSachDenToken")
+}
+
+model Province {
+  id   String @id @map("MaTinhThanh") @db.VarChar(10)
+  name String @map("TenTinhThanh") @db.NVarChar(100)
+
+  wards Ward[]
+
+  @@map("TinhThanh")
+}
+
+model Ward {
+  id         String @id @map("MaPhuongXa") @db.VarChar(10)
+  name       String @map("TenPhuongXa") @db.NVarChar(100)
+  provinceId String @map("MaTinhThanh") @db.VarChar(10)
+
+  province  Province  @relation(fields: [provinceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  addresses Address[]
+
+  @@map("PhuongXa")
+}
+
+model Address {
+  id            String @id @map("MaDiaChi") @db.VarChar(10)
+  detailAddress String @map("DiaChiChiTiet") @db.NVarChar(255)
+  wardId        String @map("MaPhuongXa") @db.VarChar(10)
+
+  ward      Ward       @relation(fields: [wardId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  buildings Building[]
+  customers Customer[]
+  employees Employee[]
+
+  @@map("DiaChi")
 }
