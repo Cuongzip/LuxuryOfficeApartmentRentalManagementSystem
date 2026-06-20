@@ -8,4 +8,7 @@ export const ID_PREFIXES = {
   ROOM: "P",
   ADDRESS: "DC",
   REQUEST: "YC",
+  PAYMENT: "PAY",
+  SERVICE: "DV",
 };
+

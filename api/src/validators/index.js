@@ -4,5 +4,7 @@ export { buildingSchema } from "./buildingValidators.js";
 export { roomSchema, updateRoomSchema, roomStatusSchema } from "./roomValidators.js";
 export { createContractSchema, extendContractSchema, cancelContractSchema } from "./contractValidators.js";
 export { createRequestSchema, updateRequestStatusSchema } from "./requestValidators.js";
+export { createInvoiceSchema, recordPaymentSchema, submitPaymentRequestSchema } from "./invoiceValidators.js";
+
 
 

@@ -7,4 +7,6 @@ export * as contractService from "./contractService.js";
 export * as locationService from "./locationService.js";
 export * as requestService from "./requestService.js";
 export * as customerService from "./customerService.js";
+export * as invoiceService from "./invoiceService.js";
+
 

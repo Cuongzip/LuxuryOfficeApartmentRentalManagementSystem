@@ -6,6 +6,7 @@ import contractRouter from './contract.js';
 import locationRouter from './location.js';
 import requestRouter from './request.js';
 import customerRouter from './customer.js';
+import invoiceRouter from './invoice.js';
 
 const routes = (app) => {
     app.use('/', siteRouter);
@@ -13,9 +14,11 @@ const routes = (app) => {
     app.use('/api/buildings', buildingRouter);
     app.use('/api/rooms', roomRouter);
     app.use('/api/contracts', contractRouter);
+    app.use('/api/invoices', invoiceRouter);
     app.use('/api', locationRouter);
     app.use('/api/requests', requestRouter);
     app.use('/api/customers', customerRouter);
 };
+
 
 export default routes;
