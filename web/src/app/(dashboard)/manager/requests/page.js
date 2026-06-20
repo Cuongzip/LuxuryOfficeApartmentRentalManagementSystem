@@ -415,10 +415,6 @@ export default function RequestsManagement() {
                     <span className="text-neutral-400 font-medium">Số điện thoại:</span>
                     <span className="font-bold text-neutral-800">{selectedRequest.customer?.phoneNumber || 'N/A'}</span>
                   </div>
-                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
-                    <span className="text-neutral-400 font-medium">Email:</span>
-                    <span className="font-bold text-neutral-800">{selectedRequest.customer?.account?.email || selectedRequest.customer?.email || 'N/A'}</span>
-                  </div>
                 </div>
               </div>
 
