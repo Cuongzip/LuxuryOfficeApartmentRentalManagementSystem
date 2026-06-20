@@ -41,7 +41,15 @@ export const createContractSchema = z.object({
 });
 
 export const extendContractSchema = z.object({
-  endDate: z.coerce.date("Ngày hết hạn mới không được để trống"),
+  endDate: z.coerce.date("Ngày hết hạn mới không được để trống").optional(),
+  rooms: z
+    .array(
+      z.object({
+        roomId: z.string().trim().min(1),
+        endDate: z.coerce.date("Ngày gia hạn của phòng không được để trống"),
+      })
+    )
+    .optional(),
 });
 
 export const cancelContractSchema = z.object({

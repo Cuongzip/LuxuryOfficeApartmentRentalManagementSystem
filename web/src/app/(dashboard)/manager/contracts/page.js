@@ -159,6 +159,18 @@ export default function ContractsManagement() {
 
   const isRentalManager = user?.role === ROLES.RENTAL_MANAGER;
 
+  const getContractStart = (c) => {
+    if (!c || !c.contractDetails || c.contractDetails.length === 0) return null;
+    const dates = c.contractDetails.map(d => new Date(d.startDate).getTime());
+    return new Date(Math.min(...dates));
+  };
+
+  const getContractEnd = (c) => {
+    if (!c || !c.contractDetails || c.contractDetails.length === 0) return null;
+    const dates = c.contractDetails.map(d => new Date(d.endDate).getTime());
+    return new Date(Math.max(...dates));
+  };
+
   const fetchContracts = async () => {
     setIsLoading(true);
     try {
@@ -357,28 +369,72 @@ export default function ContractsManagement() {
 
   const handleOpenExtendModal = (contract) => {
     setSelectedContract(contract);
-    const details = contract.contractDetails?.[0];
+    const rooms = (contract.contractDetails || []).map((detail) => ({
+      roomId: detail.roomId,
+      roomNumber: detail.room?.roomNumber || detail.roomId,
+      currentEndDate: detail.endDate,
+      endDate: formatDateInput(detail.endDate),
+    }));
     setExtendData({
-      endDate: details ? formatDateInput(details.endDate) : '',
+      rooms,
     });
     setFieldErrors({});
     setIsExtendModalOpen(true);
+  };
+
+  const handleRoomExtDateChange = (roomId, value) => {
+    setExtendData((prev) => ({
+      ...prev,
+      rooms: prev.rooms.map((r) => (r.roomId === roomId ? { ...r, endDate: value } : r)),
+    }));
+    if (fieldErrors[roomId]) {
+      setFieldErrors((prev) => ({ ...prev, [roomId]: null }));
+    }
   };
 
   const handleExtendSubmit = async (e) => {
     e.preventDefault();
     setFieldErrors({});
 
-    const validation = validateForm(extendContractSchema, extendData);
-    if (!validation.success) {
-      setFieldErrors(validation.errors);
+    let errors = {};
+    let hasExtension = false;
+
+    extendData.rooms.forEach((r) => {
+      if (!r.endDate) {
+        errors[r.roomId] = 'Vui lòng chọn ngày gia hạn mới';
+      } else {
+        const curTime = new Date(r.currentEndDate).getTime();
+        const newTime = new Date(r.endDate).getTime();
+        if (newTime < curTime) {
+          errors[r.roomId] = 'Ngày gia hạn mới không được trước ngày hết hạn hiện tại';
+        } else if (newTime > curTime) {
+          hasExtension = true;
+        }
+      }
+    });
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      toast.error('Vui lòng kiểm tra lại thông tin nhập liệu');
+      return;
+    }
+
+    if (!hasExtension) {
+      toast.error('Vui lòng chọn ngày gia hạn mới sau ngày hết hạn của ít nhất một phòng.');
       return;
     }
 
     setIsSubmitting(true);
     try {
+      const roomsToExtend = extendData.rooms
+        .filter((r) => new Date(r.endDate).getTime() > new Date(r.currentEndDate).getTime())
+        .map((r) => ({
+          roomId: r.roomId,
+          endDate: new Date(r.endDate),
+        }));
+
       await contractService.extendContract(selectedContract.id, {
-        endDate: new Date(extendData.endDate),
+        rooms: roomsToExtend,
       });
       toast.success('Gia hạn hợp đồng thành công!');
       setIsExtendModalOpen(false);
@@ -473,12 +529,13 @@ export default function ContractsManagement() {
       header: 'Thời Hạn',
       key: 'dates',
       render: (c) => {
-        const detail = c.contractDetails?.[0];
-        if (!detail) return '-';
+        const start = getContractStart(c);
+        const end = getContractEnd(c);
+        if (!start || !end) return '-';
         return (
           <div className="text-xs space-y-0.5">
-            <div><span className="text-neutral-400">Bắt đầu:</span> {formatDate(detail.startDate)}</div>
-            <div><span className="text-neutral-400">Hết hạn:</span> {formatDate(detail.endDate)}</div>
+            <div><span className="text-neutral-400">Bắt đầu:</span> {formatDate(start)}</div>
+            <div><span className="text-neutral-400">Hết hạn:</span> {formatDate(end)}</div>
           </div>
         );
       },
@@ -947,131 +1004,190 @@ export default function ContractsManagement() {
         <Modal
           isOpen={isDetailModalOpen}
           onClose={() => setIsDetailModalOpen(false)}
-          title={`Chi tiết Hợp đồng ${selectedContract.id}`}
+          title={`Chi tiết hợp đồng: ${selectedContract.id}`}
           size="lg"
         >
           <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-1">
-            <div className="flex items-center justify-between bg-neutral-50 p-4 border border-neutral-100 rounded-xl">
-              <div>
-                <span className="text-xs text-neutral-400 font-bold uppercase tracking-wider block">Trạng thái</span>
-                <span className={`inline-block mt-1 px-3 py-1 text-xs rounded-full font-semibold border ${CONTRACT_STATUS_COLORS[selectedContract.status] || 'bg-zinc-100 text-zinc-800 border-zinc-200'}`}>
-                  {selectedContract.status}
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs text-neutral-400 font-bold uppercase tracking-wider block">Ngày lập hợp đồng</span>
-                <span className="text-sm font-semibold text-neutral-800 mt-1 block">
-                  {formatDate(selectedContract.createdDate)}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-4 border border-neutral-200/60 rounded-xl space-y-3">
-                <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  Thông tin khách hàng
-                </h4>
-                <div className="text-sm space-y-2">
-                  <div className="flex justify-between"><span className="text-neutral-500">Mã khách hàng:</span> <span className="font-semibold text-neutral-800">{selectedContract.customer?.id || selectedContract.customerId}</span></div>
-                  <div className="flex justify-between"><span className="text-neutral-500">Họ và tên:</span> <span className="font-semibold text-neutral-800">{selectedContract.customer?.fullName || '-'}</span></div>
-                  <div className="flex justify-between"><span className="text-neutral-500">Số điện thoại:</span> <span className="font-semibold text-neutral-800">{selectedContract.customer?.phoneNumber || '-'}</span></div>
-                  <div className="flex justify-between"><span className="text-neutral-500">CCCD/CMND:</span> <span className="font-semibold text-neutral-800">{selectedContract.customer?.nationalId || '-'}</span></div>
+            {/* General details grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 bg-neutral-50/50 p-5 rounded-2xl border border-neutral-200/50">
+              <div className="space-y-2.5 text-xs text-left">
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Ngày bắt đầu thuê (Tổng):</span>
+                  <span className="font-semibold text-neutral-800">{formatDate(getContractStart(selectedContract))}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Ngày kết thúc thuê (Tổng):</span>
+                  <span className="font-semibold text-neutral-800">{formatDate(getContractEnd(selectedContract))}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Ngày lập hợp đồng:</span>
+                  <span className="font-semibold text-neutral-800">{formatDate(selectedContract.createdDate || selectedContract.createdAt)}</span>
                 </div>
               </div>
-
-              <div className="p-4 border border-neutral-200/60 rounded-xl space-y-3">
-                <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  Nhân viên phụ trách
-                </h4>
-                <div className="text-sm space-y-2">
-                  <div className="flex justify-between"><span className="text-neutral-500">Mã nhân viên:</span> <span className="font-semibold text-neutral-800">{selectedContract.employee?.id || selectedContract.employeeId}</span></div>
-                  <div className="flex justify-between"><span className="text-neutral-500">Họ và tên:</span> <span className="font-semibold text-neutral-800">{selectedContract.employee?.fullName || '-'}</span></div>
-                  <div className="flex justify-between"><span className="text-neutral-500">Số điện thoại:</span> <span className="font-semibold text-neutral-800">{selectedContract.employee?.phoneNumber || '-'}</span></div>
+              <div className="space-y-2.5 text-xs text-left">
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Tiền đặt cọc:</span>
+                  <span className="font-bold text-neutral-900">{formatCurrency(selectedContract.deposit)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-500">Trạng thái hợp đồng:</span>
+                  <span className={`px-2 py-0.5 rounded-full font-bold border text-[10px] ${CONTRACT_STATUS_COLORS[selectedContract.status]}`}>
+                    {selectedContract.status}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 border border-neutral-200/60 rounded-xl space-y-4">
-              <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
-                <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                Chi tiết phòng thuê & Điều khoản tài chính
-              </h4>
-
-              {selectedContract.contractDetails?.map((detail, idx) => (
-                <div key={idx} className="space-y-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm bg-neutral-50/50 p-3.5 rounded-lg border border-neutral-100">
-                    <div><span className="text-neutral-500 block text-xs font-medium uppercase tracking-wider">Số phòng</span> <span className="font-bold text-neutral-800 text-base">Phòng {detail.room?.roomNumber || detail.roomId}</span></div>
-                    <div><span className="text-neutral-500 block text-xs font-medium uppercase tracking-wider">Tòa nhà</span> <span className="font-semibold text-neutral-800">{detail.room?.building?.name || 'Vãng lai'}</span></div>
-                    <div><span className="text-neutral-500 block text-xs font-medium uppercase tracking-wider">Loại phòng</span> <span className="font-semibold text-neutral-800">{detail.room?.type || '-'}</span></div>
+            {/* Customer & Employee Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-5 border border-neutral-200/50 bg-white rounded-2xl shadow-xs space-y-3">
+                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider text-left">Thông tin khách hàng</h3>
+                <div className="space-y-2.5 text-xs text-neutral-600 text-left">
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Mã khách hàng:</span>
+                    <span className="font-semibold text-neutral-800">{selectedContract.customer?.id || selectedContract.customerId}</span>
                   </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div className="p-3 border border-neutral-100 rounded-lg">
-                      <span className="text-neutral-500 block text-xs">Giá thuê thỏa thuận</span>
-                      <span className="font-bold text-neutral-900 mt-1 block">{formatCurrency(detail.agreedPrice)}</span>
-                    </div>
-                    <div className="p-3 border border-neutral-100 rounded-lg">
-                      <span className="text-neutral-500 block text-xs">Tiền đặt cọc</span>
-                      <span className="font-bold text-neutral-900 mt-1 block">{formatCurrency(selectedContract.deposit)}</span>
-                    </div>
-                    <div className="p-3 border border-neutral-100 rounded-lg">
-                      <span className="text-neutral-500 block text-xs">Diện tích phòng</span>
-                      <span className="font-semibold text-neutral-800 mt-1 block">{detail.room?.area ? `${detail.room.area} m²` : '-'}</span>
-                    </div>
-                    <div className="p-3 border border-neutral-100 rounded-lg">
-                      <span className="text-neutral-500 block text-xs">Vị trí tầng</span>
-                      <span className="font-semibold text-neutral-800 mt-1 block">Tầng {detail.room?.floor || '-'}</span>
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Họ và tên:</span>
+                    <span className="font-bold text-neutral-900">{selectedContract.customer?.fullName || '-'}</span>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border-t border-neutral-100 pt-3">
-                    <div className="flex justify-between items-center py-1">
-                      <span className="text-neutral-500">Ngày bắt đầu hiệu lực:</span>
-                      <span className="font-bold text-neutral-800">{formatDate(detail.startDate)}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1">
-                      <span className="text-neutral-500">Ngày hết hạn dự kiến:</span>
-                      <span className="font-bold text-neutral-800">{formatDate(detail.endDate)}</span>
-                    </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Số điện thoại:</span>
+                    <span className="font-semibold text-neutral-800">{selectedContract.customer?.phoneNumber || '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">CCCD/CMND:</span>
+                    <span className="font-semibold text-neutral-800">{selectedContract.customer?.nationalId || '-'}</span>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="p-5 border border-neutral-200/50 bg-white rounded-2xl shadow-xs space-y-3">
+                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider text-left">Nhân viên phụ trách</h3>
+                <div className="space-y-2.5 text-xs text-neutral-600 text-left">
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Mã nhân viên:</span>
+                    <span className="font-semibold text-neutral-800">{selectedContract.employee?.id || selectedContract.employeeId}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Họ và tên:</span>
+                    <span className="font-bold text-neutral-900">{selectedContract.employee?.fullName || '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-500">Số điện thoại:</span>
+                    <span className="font-semibold text-neutral-800">{selectedContract.employee?.phoneNumber || '-'}</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
+            {/* Rented room specs */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider text-left">Danh sách bất động sản thuê</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(selectedContract.contractDetails || []).map((detail, idx) => (
+                  <div key={idx} className="p-4 border border-neutral-200/80 bg-white rounded-xl shadow-xs space-y-4 text-left">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-bold text-neutral-950 text-base">Phòng {detail.room?.roomNumber}</h4>
+                        <p className="text-xs text-neutral-500 leading-snug">{detail.room?.building?.name || 'Tòa nhà'}</p>
+                      </div>
+                      <span className="px-2.5 py-0.5 bg-brand/5 border border-brand/10 text-brand text-[10px] font-bold rounded">
+                        {detail.room?.type || 'Văn phòng'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5 text-xs text-neutral-600 mt-2 border-t border-neutral-100 pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-500 font-medium">Giá thỏa thuận:</span>
+                        <strong className="text-neutral-900 font-bold text-sm">
+                          {formatCurrency(detail.agreedPrice)} <span className="text-[10px] text-neutral-400 font-normal">/ tháng</span>
+                        </strong>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-500 font-medium">Diện tích:</span>
+                        <span className="font-semibold text-neutral-800">{detail.room?.area} m²</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5 mt-1 pt-2 border-t border-dashed border-neutral-100">
+                        <span className="text-neutral-500 font-medium">Thời hạn thuê phòng:</span>
+                        <span className="font-semibold text-neutral-800 bg-neutral-50 border border-neutral-200/60 rounded px-2.5 py-1.5 text-center font-mono inline-block">
+                          {formatDate(detail.startDate)} &mdash; {formatDate(detail.endDate)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Service checklist */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider text-left">Dịch vụ đang đăng ký</h3>
+              <div className="border border-neutral-200 rounded-xl overflow-hidden text-xs text-left">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-700 font-semibold">
+                      <th className="px-4 py-2.5">Tên dịch vụ</th>
+                      <th className="px-4 py-2.5">Phòng sử dụng</th>
+                      <th className="px-4 py-2.5">Đơn giá</th>
+                      <th className="px-4 py-2.5">Số lượng</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 text-neutral-600 bg-white">
+                    {(selectedContract.contractDetails || []).flatMap(detail => 
+                      (detail.room?.roomServices || []).map((rs, rsIdx) => (
+                        <tr key={`${detail.roomId}-${rsIdx}`}>
+                          <td className="px-4 py-2.5 font-medium text-neutral-800">{rs.service?.name}</td>
+                          <td className="px-4 py-2.5">Phòng {detail.room?.roomNumber}</td>
+                          <td className="px-4 py-2.5">{formatCurrency(rs.service?.currentPrice)} / {rs.service?.unit}</td>
+                          <td className="px-4 py-2.5">{rs.quantity}</td>
+                        </tr>
+                      ))
+                    ).length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="px-4 py-4 text-center text-neutral-400 italic bg-white">
+                          Chỉ sử dụng Điện, Nước và các dịch vụ cơ bản của tòa nhà.
+                        </td>
+                      </tr>
+                    ) : (
+                      (selectedContract.contractDetails || []).flatMap(detail => 
+                        (detail.room?.roomServices || []).map((rs, rsIdx) => (
+                          <tr key={`${detail.roomId}-${rsIdx}`}>
+                            <td className="px-4 py-2.5 font-medium text-neutral-800">{rs.service?.name}</td>
+                            <td className="px-4 py-2.5">Phòng {detail.room?.roomNumber}</td>
+                            <td className="px-4 py-2.5">{formatCurrency(rs.service?.currentPrice)} / {rs.service?.unit}</td>
+                            <td className="px-4 py-2.5">{rs.quantity}</td>
+                          </tr>
+                        ))
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Invoices related */}
             {selectedContract.invoices && selectedContract.invoices.length > 0 && (
-              <div className="p-4 border border-neutral-200/60 rounded-xl space-y-3">
-                <h4 className="font-bold text-neutral-900 border-b border-neutral-100 pb-2 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Hóa đơn liên quan ({selectedContract.invoices.length})
-                </h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider text-left">Hóa đơn liên quan ({selectedContract.invoices.length})</h3>
+                <div className="border border-neutral-200 rounded-xl overflow-hidden text-xs text-left">
+                  <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-neutral-100 bg-neutral-50 font-semibold text-neutral-600">
-                        <th className="px-3 py-2">Mã Hóa Đơn</th>
-                        <th className="px-3 py-2">Kỳ Thanh Toán</th>
-                        <th className="px-3 py-2">Hạn Thanh Toán</th>
-                        <th className="px-3 py-2">Trạng Thái</th>
+                      <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-700 font-semibold">
+                        <th className="px-4 py-2.5">Mã Hóa Đơn</th>
+                        <th className="px-4 py-2.5">Kỳ Thanh Toán</th>
+                        <th className="px-4 py-2.5">Hạn Thanh Toán</th>
+                        <th className="px-4 py-2.5">Trạng Thái</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-neutral-100">
+                    <tbody className="divide-y divide-neutral-100 text-neutral-600 bg-white">
                       {selectedContract.invoices.map((invoice) => (
                         <tr key={invoice.id}>
-                          <td className="px-3 py-2 font-semibold text-neutral-800">{invoice.id}</td>
-                          <td className="px-3 py-2">Tháng {invoice.paymentMonth}/{invoice.paymentYear}</td>
-                          <td className="px-3 py-2">{formatDate(invoice.dueDate)}</td>
-                          <td className="px-3 py-2">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
+                          <td className="px-4 py-2.5 font-medium text-neutral-800">{invoice.id}</td>
+                          <td className="px-4 py-2.5">Tháng {invoice.paymentMonth}/{invoice.paymentYear}</td>
+                          <td className="px-4 py-2.5">{formatDate(invoice.dueDate)}</td>
+                          <td className="px-4 py-2.5">
+                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${
                               invoice.paymentStatus.toLowerCase().includes('đã') || invoice.paymentStatus.toLowerCase().includes('paid')
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : 'bg-red-50 text-red-700 border-red-200'
@@ -1100,23 +1216,36 @@ export default function ContractsManagement() {
           isOpen={isExtendModalOpen}
           onClose={() => setIsExtendModalOpen(false)}
           title={`Gia hạn Hợp đồng ${selectedContract.id}`}
-          size="sm"
+          className="!max-w-xl"
         >
-          <form onSubmit={handleExtendSubmit} noValidate className="space-y-4">
-            <div className="bg-neutral-50 p-3 border border-neutral-100 rounded-lg text-xs space-y-1 text-neutral-600">
-              <div><span className="font-semibold">Phòng thuê:</span> Phòng {selectedContract.contractDetails?.[0]?.room?.roomNumber}</div>
-              <div><span className="font-semibold">Hạn hiện tại:</span> {formatDate(selectedContract.contractDetails?.[0]?.endDate)}</div>
+          <form onSubmit={handleExtendSubmit} noValidate className="space-y-4 text-left">
+            <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+              <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
+                Chọn ngày hết hạn mới cho từng phòng:
+              </span>
+              {extendData.rooms?.map((roomItem) => (
+                <div key={roomItem.roomId} className="bg-neutral-50 border border-neutral-200/80 p-3 rounded-xl space-y-2.5">
+                  <div className="flex justify-between items-center text-xs border-b border-neutral-200 pb-1.5">
+                    <strong className="text-neutral-800 font-bold">Phòng {roomItem.roomNumber}</strong>
+                    <span className="text-neutral-500">Hạn cũ: {formatDate(roomItem.currentEndDate)}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <input
+                      type="date"
+                      value={roomItem.endDate}
+                      onChange={(e) => handleRoomExtDateChange(roomItem.roomId, e.target.value)}
+                      className={`w-full px-3 py-2 text-xs border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand bg-white text-neutral-800 ${
+                        fieldErrors[roomItem.roomId] ? 'border-red-500 ring-red-500' : ''
+                      }`}
+                      min={formatDateInput(roomItem.currentEndDate)}
+                    />
+                    {fieldErrors[roomItem.roomId] && (
+                      <span className="text-[10px] text-red-500 font-semibold">{fieldErrors[roomItem.roomId]}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-
-            <Input
-              label="Ngày hết hạn mới"
-              id="endDate"
-              type="date"
-              value={extendData.endDate}
-              onChange={(e) => setExtendData({ endDate: e.target.value })}
-              required
-              error={fieldErrors.endDate}
-            />
 
             <div className="border-t border-neutral-100 pt-4 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setIsExtendModalOpen(false)}>

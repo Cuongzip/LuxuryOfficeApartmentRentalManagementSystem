@@ -244,17 +244,17 @@ export const createContract = async ({
   return newContract;
 };
 
-export const extendContract = async (id, { endDate }) => {
+export const extendContract = async (id, { endDate, rooms }) => {
   const contract = await prisma.contract.findUnique({
     where: { id },
   });
 
   if (!contract) {
-    throw new AppError("Hợp đồng không tồn tại", 404);
+    throw new AppError("Hợp đồng không tồn tại hoặc đã bị xóa.", 404);
   }
 
   if (contract.status !== CONTRACT_STATUS.ACTIVE) {
-    throw new AppError("Chỉ có thể gia hạn hợp đồng đang hiệu lực", 400);
+    throw new AppError("Hợp đồng này không ở trạng thái hoạt động để có thể gia hạn.", 400);
   }
 
   const details = await prisma.contractDetail.findMany({
@@ -265,31 +265,122 @@ export const extendContract = async (id, { endDate }) => {
     throw new AppError("Chi tiết hợp đồng không tồn tại", 404);
   }
 
-  const maxEndDate = new Date(Math.max(...details.map((d) => new Date(d.endDate).getTime())));
-  if (new Date(endDate) <= maxEndDate) {
-    throw new AppError("Ngày hết hạn mới phải sau ngày hết hạn hiện tại", 400);
+  // Parse rooms to extend
+  let extensionItems = [];
+  if (rooms && rooms.length > 0) {
+    extensionItems = rooms.map(r => ({
+      roomId: r.roomId,
+      newEndDate: new Date(r.endDate),
+    }));
+  } else if (endDate) {
+    extensionItems = details.map(d => ({
+      roomId: d.roomId,
+      newEndDate: new Date(endDate),
+    }));
+  } else {
+    throw new AppError("Thiếu thông tin ngày gia hạn.", 400);
   }
 
-  await prisma.contractDetail.updateMany({
-    where: { contractId: id },
-    data: { endDate: new Date(endDate) },
-  });
+  const extendedDetails = [];
 
-  const updatedContract = await prisma.contract.findUnique({
-    where: { id },
-    include: {
-      contractDetails: {
-        include: {
-          room: {
-            include: {
-              building: true,
+  // Check and validate each extension item
+  for (const item of extensionItems) {
+    const detail = details.find(d => d.roomId === item.roomId);
+    if (!detail) {
+      throw new AppError(`Phòng [${item.roomId}] không nằm trong hợp đồng này.`, 400);
+    }
+
+    if (item.newEndDate <= detail.endDate) {
+      throw new AppError(
+        `Ngày gia hạn mới cho phòng ${detail.roomId} phải sau ngày hết hạn hiện tại của phòng (${formatDate(detail.endDate)}).`,
+        400
+      );
+    }
+
+    // Check for overlapping active contracts during the extended period
+    const overlappingContract = await prisma.contractDetail.findFirst({
+      where: {
+        roomId: item.roomId,
+        contractId: { not: id },
+        contract: {
+          status: CONTRACT_STATUS.ACTIVE,
+        },
+        startDate: { lte: item.newEndDate },
+        endDate: { gte: detail.endDate },
+      },
+      include: {
+        room: true,
+      },
+    });
+
+    if (overlappingContract) {
+      throw new AppError(
+        `Phòng [${overlappingContract.room.roomNumber}] hiện đang có hợp đồng thuê khác còn hiệu lực trong khoảng thời gian gia hạn này!`,
+        400
+      );
+    }
+
+    extendedDetails.push(item);
+  }
+
+  if (extendedDetails.length === 0) {
+    throw new AppError("Không có phòng nào được gia hạn.", 400);
+  }
+
+  const updatedContract = await prisma.$transaction(async (tx) => {
+    // 1. Update contract detail end dates
+    for (const item of extendedDetails) {
+      await tx.contractDetail.update({
+        where: {
+          contractId_roomId: {
+            contractId: id,
+            roomId: item.roomId,
+          },
+        },
+        data: { endDate: item.newEndDate },
+      });
+
+      // 2. Create a contract extension record
+      let extensionId = generateId("GH");
+      let existingExtension = await tx.contractExtension.findUnique({
+        where: { id: extensionId },
+      });
+
+      while (existingExtension) {
+        extensionId = generateId("GH");
+        existingExtension = await tx.contractExtension.findUnique({
+          where: { id: extensionId },
+        });
+      }
+
+      await tx.contractExtension.create({
+        data: {
+          id: extensionId,
+          contractId: id,
+          roomId: item.roomId,
+          newEndDate: item.newEndDate,
+          createdDate: new Date(),
+        },
+      });
+    }
+
+    // 3. Return the updated contract
+    return tx.contract.findUnique({
+      where: { id },
+      include: {
+        contractDetails: {
+          include: {
+            room: {
+              include: {
+                building: true,
+              },
             },
           },
         },
+        customer: true,
+        employee: true,
       },
-      customer: true,
-      employee: true,
-    },
+    });
   });
 
   return updatedContract;
