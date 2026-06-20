@@ -7,4 +7,5 @@ export const ID_PREFIXES = {
   IMAGE: "IMG",
   ROOM: "P",
   ADDRESS: "DC",
+  REQUEST: "YC",
 };

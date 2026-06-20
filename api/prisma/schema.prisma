@@ -29,10 +29,10 @@ model Room {
   floor       Int       @map("Tang")
   area        Decimal   @map("DienTich") @db.Decimal(8, 2)
   price       Decimal   @map("GiaThue") @db.Decimal(18, 2)
-  status      String    @default("Trong") @map("TrangThai") @db.NVarChar(20)
+  status      String?    @default("Còn Trống") @map("TrangThai") @db.NVarChar(20)
   description String?   @map("MoTa") @db.NVarChar(1000)
   maxPeople   Int       @default(2) @map("SoNguoiToiDa") @db.TinyInt
-  deletedAt   DateTime? @map("NgayXoa") // Keep soft delete
+  deletedAt   DateTime? @map("NgayXoa") 
   buildingId  String    @map("MaToaNha") @db.VarChar(10)
 
   building        Building         @relation(fields: [buildingId], references: [id], onDelete: NoAction, onUpdate: NoAction)

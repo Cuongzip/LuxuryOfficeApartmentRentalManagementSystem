@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ROOM_STATUS } from "../constants/index.js";
+import { ROOM_STATUS, ROOM_TYPES } from "../constants/index.js";
 
 export const roomSchema = z.object({
   roomNumber: z
@@ -16,11 +16,9 @@ export const roomSchema = z.object({
     .number("Tầng phải là số nguyên không âm")
     .int("Tầng phải là số nguyên")
     .nonnegative("Tầng phải là số nguyên không âm"),
-  type: z
-    .string("Loại phòng không được để trống")
-    .trim()
-    .min(1, "Loại phòng không được để trống")
-    .max(20, "Loại phòng không được vượt quá 20 ký tự"),
+  type: z.enum([ROOM_TYPES.OFFICE, ROOM_TYPES.APARTMENT], {
+    message: `Loại phòng phải là: ${Object.values(ROOM_TYPES).join(", ")}`,
+  }),
   area: z.coerce
     .number("Diện tích phải là số dương")
     .positive("Diện tích phải là số dương"),

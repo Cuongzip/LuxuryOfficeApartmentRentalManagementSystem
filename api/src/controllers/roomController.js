@@ -2,12 +2,28 @@ import { roomService } from "../services/index.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const getRooms = asyncHandler(async (req, res) => {
-  const { buildingId, floor, status, page, limit } = req.query;
+  const {
+    buildingId,
+    floor,
+    status,
+    type,
+    minArea,
+    maxArea,
+    minPrice,
+    maxPrice,
+    page,
+    limit,
+  } = req.query;
 
   const result = await roomService.getRooms({
     buildingId,
     floor,
     status,
+    type,
+    minArea,
+    maxArea,
+    minPrice,
+    maxPrice,
     page: page ? parseInt(page, 10) : undefined,
     limit: limit ? parseInt(limit, 10) : undefined,
   });

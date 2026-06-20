@@ -4,4 +4,5 @@ export * as buildingController from "./buildingController.js";
 export * as roomController from "./roomController.js";
 export * as contractController from "./contractController.js";
 export * as locationController from "./locationController.js";
+export * as requestController from "./requestController.js";
 

@@ -4,8 +4,26 @@ import { ROOM_STATUS, CONTRACT_STATUS, ID_PREFIXES } from "../constants/index.js
 import fs from "fs";
 import path from "path";
 
-export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10 }) => {
+export const getRooms = async ({
+  buildingId,
+  floor,
+  status,
+  type,
+  minArea,
+  maxArea,
+  minPrice,
+  maxPrice,
+  page = 1,
+  limit = 10,
+}) => {
   const where = {};
+  const isValidParam = (val) =>
+    val !== undefined &&
+    val !== null &&
+    String(val) !== "undefined" &&
+    String(val) !== "null" &&
+    String(val).trim() !== "";
+
   if (buildingId) {
     where.buildingId = buildingId;
   }
@@ -15,14 +33,37 @@ export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10
   if (status) {
     where.status = status;
   }
+  if (isValidParam(type)) {
+    where.type = type;
+  }
+  if (isValidParam(minArea) || isValidParam(maxArea)) {
+    where.area = {};
+    if (isValidParam(minArea)) {
+      where.area.gte = parseFloat(minArea);
+    }
+    if (isValidParam(maxArea)) {
+      where.area.lte = parseFloat(maxArea);
+    }
+  }
+  if (isValidParam(minPrice) || isValidParam(maxPrice)) {
+    where.price = {};
+    if (isValidParam(minPrice)) {
+      where.price.gte = parseFloat(minPrice);
+    }
+    if (isValidParam(maxPrice)) {
+      where.price.lte = parseFloat(maxPrice);
+    }
+  }
 
-  const skip = (page - 1) * limit;
+  const pageNum = parseInt(page, 10) || 1;
+  const limitNum = parseInt(limit, 10) || 10;
+  const skip = (pageNum - 1) * limitNum;
 
   const [rooms, total] = await Promise.all([
     prisma.room.findMany({
       where,
       skip,
-      take: limit,
+      take: limitNum,
       include: {
         building: true,
         images: {
@@ -36,10 +77,10 @@ export const getRooms = async ({ buildingId, floor, status, page = 1, limit = 10
   return {
     data: rooms,
     pagination: {
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
+      page: pageNum,
+      limit: limitNum,
       total,
-      pages: Math.ceil(total / limit),
+      pages: Math.ceil(total / limitNum),
     },
   };
 };
