@@ -180,10 +180,11 @@ export default function RequestsManagement() {
       header: 'Thao Tác',
       key: 'actions',
       render: (req) => (
-        <div className="flex items-center gap-2 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-1.5 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
           <Button
             variant="outline"
             size="sm"
+            className="border-neutral-200 text-neutral-700 hover:bg-neutral-50"
             onClick={() => {
               setSelectedRequest(req);
               setIsDetailModalOpen(true);
@@ -195,16 +196,18 @@ export default function RequestsManagement() {
           {req.status === REQUEST_STATUS.PENDING && (
             <>
               <Button
-                variant="primary"
+                variant="outline"
                 size="sm"
+                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
                 onClick={() => handleUpdateStatus(req.id, REQUEST_STATUS.APPROVED)}
                 disabled={isUpdatingStatus}
               >
                 Chấp nhận
               </Button>
               <Button
-                variant="danger"
+                variant="outline"
                 size="sm"
+                className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
                 onClick={() => handleUpdateStatus(req.id, REQUEST_STATUS.REJECTED)}
                 disabled={isUpdatingStatus}
               >
@@ -216,16 +219,18 @@ export default function RequestsManagement() {
           {req.status === REQUEST_STATUS.APPROVED && (
             <>
               <Button
-                variant="primary"
+                variant="outline"
                 size="sm"
+                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
                 onClick={() => handleUpdateStatus(req.id, REQUEST_STATUS.COMPLETED)}
                 disabled={isUpdatingStatus}
               >
                 Hoàn tất
               </Button>
               <Button
-                variant="danger"
+                variant="outline"
                 size="sm"
+                className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
                 onClick={() => handleUpdateStatus(req.id, REQUEST_STATUS.REJECTED)}
                 disabled={isUpdatingStatus}
               >

@@ -337,10 +337,11 @@ export default function BuildingsManagement() {
       header: 'Thao tác',
       key: 'actions',
       render: (building) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button
             variant="outline"
             size="sm"
+            className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
             onClick={(e) => {
               e.stopPropagation();
               handleOpenEditModal(building);
@@ -349,8 +350,9 @@ export default function BuildingsManagement() {
             Sửa
           </Button>
           <Button
-            variant="danger"
+            variant="outline"
             size="sm"
+            className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete(building.id);

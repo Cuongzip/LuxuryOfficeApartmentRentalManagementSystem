@@ -33,27 +33,23 @@ export const UserDropdown = ({ variant = 'light' }) => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2.5 p-1.5 pr-3 transition-all cursor-pointer border rounded-full ${
-          isDark
-            ? 'hover:bg-white/10 border-white/10 bg-white/5 text-white'
-            : 'hover:bg-neutral-50 border-neutral-200 bg-white text-neutral-800'
-        }`}
+        className={`flex items-center gap-2.5 p-1.5 pr-3 transition-all cursor-pointer border rounded-full ${isDark
+          ? 'hover:bg-white/10 border-white/10 bg-white/5 text-white'
+          : 'hover:bg-neutral-50 border-neutral-200 bg-white text-neutral-800'
+          }`}
       >
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm select-none ${
-          isDark
-            ? 'bg-white text-brand'
-            : 'bg-brand text-white'
-        }`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shadow-sm select-none ${isDark
+          ? 'bg-white text-brand'
+          : 'bg-brand text-white'
+          }`}>
           {user.fullName?.charAt(0).toUpperCase() || 'U'}
         </div>
-        <span className={`hidden md:inline text-sm font-semibold leading-tight ${
-          isDark ? 'text-white/95' : 'text-neutral-800'
-        }`}>
+        <span className={`hidden md:inline text-sm font-semibold leading-tight ${isDark ? 'text-white/95' : 'text-neutral-800'
+          }`}>
           {user.fullName}
         </span>
-        <svg className={`w-4 h-4 transition-transform ${
-          isDark ? 'text-white/70' : 'text-neutral-500'
-        } ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+        <svg className={`w-4 h-4 transition-transform ${isDark ? 'text-white/70' : 'text-neutral-500'
+          } ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -87,9 +83,9 @@ export const UserDropdown = ({ variant = 'light' }) => {
               <svg className="w-4.5 h-4.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
               </svg>
-              Vào Dashboard
+              Dashboard
             </Link>
-            
+
             <Link
               href={dashboardHref}
               onClick={() => setIsOpen(false)}

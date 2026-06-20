@@ -308,7 +308,7 @@ export default function RoomsManagement() {
         const label = room.status || 'Chưa rõ';
         const colorClass = ROOM_STATUS_COLORS[label] || 'bg-zinc-100 text-zinc-800 border-zinc-200';
         return (
-          <span className={`px-2.5 py-1 text-xs rounded-full font-medium border ${colorClass}`}>
+          <span className={`px-2.5 py-1 text-xs rounded-full font-medium border whitespace-nowrap ${colorClass}`}>
             {label}
           </span>
         );
@@ -318,10 +318,11 @@ export default function RoomsManagement() {
       header: 'Thao tác',
       key: 'actions',
       render: (room) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button
             variant="outline"
             size="sm"
+            className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
             onClick={(e) => {
               e.stopPropagation();
               handleOpenEditModal(room);
@@ -330,8 +331,9 @@ export default function RoomsManagement() {
             Sửa
           </Button>
           <Button
-            variant="danger"
+            variant="outline"
             size="sm"
+            className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete(room.id);

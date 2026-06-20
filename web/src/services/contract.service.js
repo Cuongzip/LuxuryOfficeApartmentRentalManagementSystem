@@ -2,7 +2,13 @@ import { apiClient } from './apiClient';
 
 export const contractService = {
   async getContracts(params = {}) {
-    const query = new URLSearchParams(params).toString();
+    const cleanParams = {};
+    Object.keys(params).forEach(key => {
+      if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+        cleanParams[key] = params[key];
+      }
+    });
+    const query = new URLSearchParams(cleanParams).toString();
     const response = await apiClient.get(`/contracts${query ? `?${query}` : ''}`);
     return response;
   },

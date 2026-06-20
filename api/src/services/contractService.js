@@ -85,6 +85,7 @@ export const createContract = async ({
   customerId,
   employeeId,
   roomIds,
+  rooms: contractRooms,
   startDate,
   endDate,
   deposit,
@@ -117,11 +118,40 @@ export const createContract = async ({
     throw new AppError("Nhân viên không tồn tại", 404);
   }
 
+  // Parse room lease data
+  let roomsData = [];
+  if (contractRooms && contractRooms.length > 0) {
+    roomsData = contractRooms.map(item => ({
+      roomId: item.roomId,
+      agreedPrice: Number(item.agreedPrice),
+      startDate: new Date(item.startDate),
+      endDate: new Date(item.endDate),
+    }));
+  } else if (roomIds && roomIds.length > 0) {
+    if (!startDate || !endDate) {
+      throw new AppError("Thiếu thông tin ngày thuê", 400);
+    }
+    const roomsFromDb = await prisma.room.findMany({
+      where: { id: { in: roomIds } },
+    });
+    roomsData = roomsFromDb.map(r => ({
+      roomId: r.id,
+      agreedPrice: Number(r.price),
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+    }));
+  }
+
+  if (roomsData.length === 0) {
+    throw new AppError("Hợp đồng phải có ít nhất một phòng", 400);
+  }
+
+  const targetRoomIds = roomsData.map(r => r.roomId);
   const rooms = await prisma.room.findMany({
-    where: { id: { in: roomIds } },
+    where: { id: { in: targetRoomIds } },
   });
 
-  if (rooms.length !== roomIds.length) {
+  if (rooms.length !== targetRoomIds.length) {
     throw new AppError("Một hoặc nhiều phòng không tồn tại", 404);
   }
 
@@ -131,25 +161,42 @@ export const createContract = async ({
     throw new AppError(`Phòng [${numbers}] hiện không ở trạng thái sẵn sàng để cho thuê!`, 400);
   }
 
-  if (new Date(startDate) >= new Date(endDate)) {
-    throw new AppError("Ngày kết thúc phải sau ngày bắt đầu", 400);
-  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const activeContract = await prisma.contractDetail.findFirst({
-    where: {
-      roomId: { in: roomIds },
-      contract: {
-        status: CONTRACT_STATUS.ACTIVE,
+  // Check dates and overlaps for each room
+  for (const item of roomsData) {
+    if (isNaN(item.startDate.getTime()) || isNaN(item.endDate.getTime())) {
+      throw new AppError("Ngày bắt đầu hoặc ngày kết thúc không hợp lệ", 400);
+    }
+    const itemStartDateOnly = new Date(item.startDate);
+    itemStartDateOnly.setHours(0, 0, 0, 0);
+    if (itemStartDateOnly < today) {
+      const room = rooms.find(r => r.id === item.roomId);
+      throw new AppError(`Ngày bắt đầu thuê của phòng ${room?.roomNumber || item.roomId} không được trước ngày hiện tại`, 400);
+    }
+    if (item.startDate >= item.endDate) {
+      const room = rooms.find(r => r.id === item.roomId);
+      throw new AppError(`Ngày kết thúc phải sau ngày bắt đầu đối với phòng ${room?.roomNumber || item.roomId}`, 400);
+    }
+
+    const activeContract = await prisma.contractDetail.findFirst({
+      where: {
+        roomId: item.roomId,
+        contract: {
+          status: CONTRACT_STATUS.ACTIVE,
+        },
+        startDate: { lte: item.endDate },
+        endDate: { gte: item.startDate },
       },
-      endDate: { gte: new Date() },
-    },
-    include: {
-      room: true,
-    },
-  });
+      include: {
+        room: true,
+      },
+    });
 
-  if (activeContract) {
-    throw new AppError(`Phòng [${activeContract.room.roomNumber}] hiện đang có hợp đồng thuê còn hiệu lực!`, 400);
+    if (activeContract) {
+      throw new AppError(`Phòng [${activeContract.room.roomNumber}] hiện đang có hợp đồng thuê còn hiệu lực trong khoảng thời gian này!`, 400);
+    }
   }
 
   const newContract = await prisma.$transaction(async (tx) => {
@@ -163,11 +210,11 @@ export const createContract = async ({
         createdDate: new Date(),
         contractImage: "",
         contractDetails: {
-          create: rooms.map((room) => ({
-            roomId: room.id,
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-            agreedPrice: room.price,
+          create: roomsData.map((item) => ({
+            roomId: item.roomId,
+            startDate: item.startDate,
+            endDate: item.endDate,
+            agreedPrice: item.agreedPrice,
           })),
         },
       },
@@ -187,7 +234,7 @@ export const createContract = async ({
     });
 
     await tx.room.updateMany({
-      where: { id: { in: roomIds } },
+      where: { id: { in: targetRoomIds } },
       data: { status: ROOM_STATUS.RENTED },
     });
 

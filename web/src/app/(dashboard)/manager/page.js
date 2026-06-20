@@ -5,7 +5,7 @@ import { contractService } from '@/services/contract.service';
 import { roomService } from '@/services/room.service';
 import { Card } from '@/components/ui/Card';
 import { formatCurrency, formatDate } from '@/utils/format';
-import { getContractStatus, CONTRACT_STATUS } from '@/constants/contracts';
+import { CONTRACT_STATUS } from '@/constants/contracts';
 import { ROOM_STATUS } from '@/constants/rooms';
 
 export default function ManagerDashboard() {
@@ -30,10 +30,9 @@ export default function ManagerDashboard() {
         let active = 0;
         let expired = 0;
         contractsList.forEach(c => {
-          const statusCfg = getContractStatus(c.status);
-          if (statusCfg.value === CONTRACT_STATUS.ACTIVE.value) {
+          if (c.status === CONTRACT_STATUS.ACTIVE) {
             active++;
-          } else if (statusCfg.value === CONTRACT_STATUS.EXPIRED.value) {
+          } else if (c.status === CONTRACT_STATUS.EXPIRED) {
             expired++;
           }
         });

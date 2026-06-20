@@ -19,9 +19,21 @@ export const createContractSchema = z.object({
         .min(1, "Mã phòng không được để trống")
         .max(10, "Mã phòng không được vượt quá 10 ký tự")
     )
-    .min(1, "Hợp đồng phải có ít nhất một phòng"),
-  startDate: z.coerce.date("Ngày bắt đầu không được để trống"),
-  endDate: z.coerce.date("Ngày kết thúc không được để trống"),
+    .min(1, "Hợp đồng phải có ít nhất một phòng")
+    .optional(),
+  rooms: z
+    .array(
+      z.object({
+        roomId: z.string("Mã phòng không được để trống").trim().min(1),
+        agreedPrice: z.coerce.number("Giá thỏa thuận phải là số").nonnegative(),
+        startDate: z.coerce.date("Ngày bắt đầu không được để trống"),
+        endDate: z.coerce.date("Ngày kết thúc không được để trống"),
+      })
+    )
+    .min(1, "Hợp đồng phải có ít nhất một phòng")
+    .optional(),
+  startDate: z.coerce.date("Ngày bắt đầu không được để trống").optional(),
+  endDate: z.coerce.date("Ngày kết thúc không được để trống").optional(),
   deposit: z
     .number("Tiền cọc không được để trống")
     .nonnegative("Tiền cọc không được âm")

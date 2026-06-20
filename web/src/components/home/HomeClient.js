@@ -190,7 +190,7 @@ export function HomeClient({ initialBuildings, initialRooms }) {
                         <div className="space-y-2">
                           <h3
                             onClick={() => handleViewDetail(building)}
-                            className="font-extrabold text-neutral-900 text-base md:text-lg hover:text-brand transition-colors cursor-pointer line-clamp-1"
+                            className="font-extrabold text-neutral-900 text-lg md:text-xl hover:text-brand transition-colors cursor-pointer line-clamp-1"
                           >
                             {building.name}
                           </h3>
@@ -201,7 +201,7 @@ export function HomeClient({ initialBuildings, initialRooms }) {
                             </svg>
                             <span className="truncate">{formatAddress(building.address)}</span>
                           </p>
-                          <p className="text-neutral-600 text-xs line-clamp-3 leading-relaxed">
+                          <p className="text-neutral-600 text-sm line-clamp-3 leading-relaxed">
                             {building.description || 'Tòa nhà cho thuê cao cấp sở hữu vị trí đắc địa, giao thông thuận tiện và các dịch vụ quản lý tiện ích chuẩn quốc tế.'}
                           </p>
                         </div>
