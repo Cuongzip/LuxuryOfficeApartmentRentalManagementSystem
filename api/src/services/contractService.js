@@ -1,6 +1,6 @@
 import prisma from "../config/database.js";
-import { AppError } from "../utils/index.js";
-import { CONTRACT_STATUS, ROOM_STATUS, PAYMENT_STATUS } from "../constants/index.js";
+import { AppError, generateId } from "../utils/index.js";
+import { CONTRACT_STATUS, ROOM_STATUS, PAYMENT_STATUS, ID_PREFIXES } from "../constants/index.js";
 
 export const getContracts = async ({ customerId, roomId, employeeId, status, page = 1, limit = 10 }) => {
   const where = {};
@@ -82,20 +82,23 @@ export const getContractById = async (id) => {
 };
 
 export const createContract = async ({
-  id,
   customerId,
   employeeId,
-  roomId,
+  roomIds,
   startDate,
   endDate,
   deposit,
 }) => {
-  const existingContract = await prisma.contract.findUnique({
+  let id = generateId(ID_PREFIXES.CONTRACT);
+  let existingContract = await prisma.contract.findUnique({
     where: { id },
   });
 
-  if (existingContract) {
-    throw new AppError("Mã hợp đồng này đã tồn tại!", 400);
+  while (existingContract) {
+    id = generateId(ID_PREFIXES.CONTRACT);
+    existingContract = await prisma.contract.findUnique({
+      where: { id },
+    });
   }
 
   const customer = await prisma.customer.findUnique({
@@ -114,16 +117,18 @@ export const createContract = async ({
     throw new AppError("Nhân viên không tồn tại", 404);
   }
 
-  const room = await prisma.room.findUnique({
-    where: { id: roomId },
+  const rooms = await prisma.room.findMany({
+    where: { id: { in: roomIds } },
   });
 
-  if (!room) {
-    throw new AppError("Phòng không tồn tại", 404);
+  if (rooms.length !== roomIds.length) {
+    throw new AppError("Một hoặc nhiều phòng không tồn tại", 404);
   }
 
-  if (room.status !== ROOM_STATUS.AVAILABLE) {
-    throw new AppError("Phòng hiện không ở trạng thái sẵn sàng để cho thuê!", 400);
+  const unavailableRooms = rooms.filter((r) => r.status !== ROOM_STATUS.AVAILABLE);
+  if (unavailableRooms.length > 0) {
+    const numbers = unavailableRooms.map((r) => r.roomNumber).join(", ");
+    throw new AppError(`Phòng [${numbers}] hiện không ở trạng thái sẵn sàng để cho thuê!`, 400);
   }
 
   if (new Date(startDate) >= new Date(endDate)) {
@@ -132,16 +137,19 @@ export const createContract = async ({
 
   const activeContract = await prisma.contractDetail.findFirst({
     where: {
-      roomId,
+      roomId: { in: roomIds },
       contract: {
         status: CONTRACT_STATUS.ACTIVE,
       },
       endDate: { gte: new Date() },
     },
+    include: {
+      room: true,
+    },
   });
 
   if (activeContract) {
-    throw new AppError("Phòng này hiện đang có hợp đồng thuê còn hiệu lực!", 400);
+    throw new AppError(`Phòng [${activeContract.room.roomNumber}] hiện đang có hợp đồng thuê còn hiệu lực!`, 400);
   }
 
   const newContract = await prisma.$transaction(async (tx) => {
@@ -155,12 +163,12 @@ export const createContract = async ({
         createdDate: new Date(),
         contractImage: "",
         contractDetails: {
-          create: {
-            roomId,
+          create: rooms.map((room) => ({
+            roomId: room.id,
             startDate: new Date(startDate),
             endDate: new Date(endDate),
             agreedPrice: room.price,
-          },
+          })),
         },
       },
       include: {
@@ -178,8 +186,8 @@ export const createContract = async ({
       },
     });
 
-    await tx.room.update({
-      where: { id: roomId },
+    await tx.room.updateMany({
+      where: { id: { in: roomIds } },
       data: { status: ROOM_STATUS.RENTED },
     });
 

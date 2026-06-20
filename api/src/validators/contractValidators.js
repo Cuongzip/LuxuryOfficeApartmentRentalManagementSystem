@@ -1,12 +1,6 @@
 import { z } from "zod";
 
 export const createContractSchema = z.object({
-  id: z
-    .string("Mã hợp đồng không được để trống")
-    .trim()
-    .min(1, "Mã hợp đồng không được để trống")
-    .max(10, "Mã hợp đồng không được vượt quá 10 ký tự")
-    .toUpperCase(),
   customerId: z
     .string("Mã khách hàng không được để trống")
     .trim()
@@ -17,11 +11,15 @@ export const createContractSchema = z.object({
     .trim()
     .min(1, "Mã nhân viên không được để trống")
     .max(10, "Mã nhân viên không được vượt quá 10 ký tự"),
-  roomId: z
-    .string("Mã phòng không được để trống")
-    .trim()
-    .min(1, "Mã phòng không được để trống")
-    .max(10, "Mã phòng không được vượt quá 10 ký tự"),
+  roomIds: z
+    .array(
+      z
+        .string("Mã phòng không được để trống")
+        .trim()
+        .min(1, "Mã phòng không được để trống")
+        .max(10, "Mã phòng không được vượt quá 10 ký tự")
+    )
+    .min(1, "Hợp đồng phải có ít nhất một phòng"),
   startDate: z.coerce.date("Ngày bắt đầu không được để trống"),
   endDate: z.coerce.date("Ngày kết thúc không được để trống"),
   deposit: z
