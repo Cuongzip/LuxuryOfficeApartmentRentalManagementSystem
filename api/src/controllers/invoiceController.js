@@ -2,7 +2,7 @@ import { invoiceService } from "../services/index.js";
 import { asyncHandler } from "../utils/index.js";
 
 export const getInvoices = asyncHandler(async (req, res) => {
-  const { page, limit, status, month, year, keyword } = req.query;
+  const { page, limit, status, month, year, keyword, contractId } = req.query;
 
   const result = await invoiceService.getInvoices(
     {
@@ -12,6 +12,7 @@ export const getInvoices = asyncHandler(async (req, res) => {
       month: month ? parseInt(month, 10) : undefined,
       year: year ? parseInt(year, 10) : undefined,
       keyword,
+      contractId,
     },
     req.user
   );

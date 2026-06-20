@@ -305,7 +305,7 @@ export default function InvoicesManagement() {
     // Fetch previous invoice detailed settings for contract to autofill previous indices
     toast.loading('Đang tải chỉ số điện nước cũ...', { id: 'fetch-readings' });
     try {
-      const prevInvoicesRes = await invoiceService.getInvoices({ keyword: contractId, limit: 1 });
+      const prevInvoicesRes = await invoiceService.getInvoices({ contractId: contractId, limit: 1 });
       let roomIndicesMap = {};
 
       if (prevInvoicesRes.success && prevInvoicesRes.data?.length > 0) {

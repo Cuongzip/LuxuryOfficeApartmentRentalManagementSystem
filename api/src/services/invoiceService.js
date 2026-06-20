@@ -55,8 +55,13 @@ export const getInvoices = async ({
   month,
   year,
   keyword,
+  contractId,
 }, user) => {
   const where = {};
+
+  if (contractId) {
+    where.contractId = contractId;
+  }
 
   if (user.role === ROLES.CUSTOMER) {
     const customer = await prisma.customer.findUnique({
