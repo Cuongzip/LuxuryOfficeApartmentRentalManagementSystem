@@ -989,7 +989,7 @@ export default function InvoicesManagement() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         title="Chi tiết hóa đơn dịch vụ"
-        size="lg"
+        className="!max-w-3xl"
       >
         {selectedInvoice && (
           <div className="space-y-5 text-neutral-900 text-left max-h-[78vh] overflow-y-auto pr-1">
@@ -1048,10 +1048,10 @@ export default function InvoicesManagement() {
                     Chi tiết phí dịch vụ
                   </h4>
 
-                  <div className="border border-neutral-200 rounded-xl overflow-hidden text-xs">
-                    <table className="w-full text-left border-collapse">
+                  <div className="border border-neutral-200 rounded-xl overflow-x-auto text-xs">
+                    <table className="w-full text-left border-collapse min-w-[650px]">
                       <thead>
-                        <tr className="bg-neutral-50 border-b border-neutral-200 font-semibold text-neutral-600">
+                        <tr className="bg-neutral-50 border-b border-neutral-200 font-semibold text-neutral-600 whitespace-nowrap">
                           <th className="px-4 py-2.5">Tên phí / Dịch vụ</th>
                           <th className="px-4 py-2.5">Phòng</th>
                           <th className="px-4 py-2.5 text-right">Chỉ số cũ/mới</th>
@@ -1127,10 +1127,10 @@ export default function InvoicesManagement() {
                   {(!invoiceDetailsData.payments || invoiceDetailsData.payments.length === 0) ? (
                     <p className="text-xs text-neutral-400 italic">Chưa có giao dịch thanh toán nào được ghi nhận cho hóa đơn này.</p>
                   ) : (
-                    <div className="border border-neutral-200 rounded-xl overflow-hidden text-xs">
-                      <table className="w-full text-left border-collapse">
+                    <div className="border border-neutral-200 rounded-xl overflow-x-auto text-xs">
+                      <table className="w-full text-left border-collapse min-w-[650px]">
                         <thead>
-                          <tr className="bg-neutral-50 border-b border-neutral-200 font-semibold text-neutral-600">
+                          <tr className="bg-neutral-50 border-b border-neutral-200 font-semibold text-neutral-600 whitespace-nowrap">
                             <th className="px-4 py-2.5">Thời gian</th>
                             <th className="px-4 py-2.5">Người nộp</th>
                             <th className="px-4 py-2.5">Phương thức</th>
