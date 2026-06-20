@@ -5,9 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { PublicHeader } from '@/components/layout/PublicHeader';
-import { roomService } from '@/services/room.service';
 import { locationService } from '@/services/location.service';
-import { BuildingDetailModal } from '@/components/building/BuildingDetailModal';
 import { formatAddress } from '@/utils/format';
 import toast from 'react-hot-toast';
 
@@ -15,9 +13,7 @@ export function SearchClient({ initialBuildings, searchParams }) {
   const { user, logout, openLogin, openRegister } = useAuth();
   const router = useRouter();
 
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [buildingRooms, setBuildingRooms] = useState([]);
-  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+
 
   const [searchKeyword, setSearchKeyword] = useState('');
   const [draftCity, setDraftCity] = useState('');
@@ -125,25 +121,8 @@ export function SearchClient({ initialBuildings, searchParams }) {
     fetchWards();
   }, [tempCity]);
 
-  const handleViewDetail = async (building) => {
-    if (!user) {
-      openLogin();
-      updateURLParams({ showLogin: 'true' });
-      return;
-    }
-
-    setSelectedBuilding(building);
-    setIsLoadingRooms(true);
-    try {
-      const roomsData = await roomService.getRooms({ buildingId: building.id, limit: 1000 });
-      const roomsArr = Array.isArray(roomsData) ? roomsData : roomsData?.data || [];
-      setBuildingRooms(roomsArr || []);
-    } catch (err) {
-      console.error(err);
-      toast.error('Không thể tải thông tin chi tiết.');
-    } finally {
-      setIsLoadingRooms(false);
-    }
+  const handleViewDetail = (building) => {
+    router.push(`/buildings/${building.id}`);
   };
 
   const filteredBuildings = initialBuildings || [];
@@ -326,16 +305,7 @@ export function SearchClient({ initialBuildings, searchParams }) {
         )}
       </main>
 
-      <BuildingDetailModal
-        isOpen={!!selectedBuilding}
-        onClose={() => {
-          setSelectedBuilding(null);
-          setBuildingRooms([]);
-        }}
-        building={selectedBuilding}
-        buildingRooms={buildingRooms}
-        isLoadingRooms={isLoadingRooms}
-      />
+
     </div>
   );
 }

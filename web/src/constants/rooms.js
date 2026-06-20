@@ -1,36 +1,17 @@
 export const ROOM_STATUS = {
-  AVAILABLE: {
-    value: 'Còn trống',
-    label: 'Còn trống',
-    colorClass: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-  },
-  RENTED: {
-    value: 'Đang thuê',
-    label: 'Đang thuê',
-    colorClass: 'bg-blue-100 text-blue-800 border-blue-200',
-  },
-  MAINTENANCE: {
-    value: 'Đang bảo trì',
-    label: 'Đang bảo trì',
-    colorClass: 'bg-amber-100 text-amber-800 border-amber-200',
-  },
+  AVAILABLE: 'Còn trống',
+  RENTED: 'Đang thuê',
+  MAINTENANCE: 'Đang bảo trì',
 };
 
-export const getRoomStatus = (statusStr) => {
-  if (!statusStr) return { value: '', label: 'Chưa rõ', colorClass: 'bg-zinc-100 text-zinc-800 border-zinc-200' };
-  const lower = statusStr.toLowerCase();
-  if (lower.includes('trống') || lower.includes('avail') || lower.includes('trong')) {
-    return ROOM_STATUS.AVAILABLE;
-  }
-  if (lower.includes('thuê') || lower.includes('rent') || lower.includes('thue')) {
-    return ROOM_STATUS.RENTED;
-  }
-  if (lower.includes('trì') || lower.includes('maint') || lower.includes('tri')) {
-    return ROOM_STATUS.MAINTENANCE;
-  }
-  return {
-    value: statusStr,
-    label: statusStr,
-    colorClass: 'bg-zinc-100 text-zinc-800 border-zinc-200',
-  };
+export const ROOM_STATUS_COLORS = {
+  'Còn trống': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  'Đang thuê': 'bg-blue-100 text-blue-800 border-blue-200',
+  'Đã thuê': 'bg-blue-100 text-blue-800 border-blue-200',
+  'Đang bảo trì': 'bg-amber-100 text-amber-800 border-amber-200',
+};
+
+export const ROOM_TYPES = {
+  OFFICE: "Văn phòng",
+  APARTMENT: "Căn hộ",
 };

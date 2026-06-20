@@ -4,11 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { getRoomStatus } from '@/constants';
 import { PublicHeader } from '@/components/layout/PublicHeader';
 import { HomeBanner } from '@/components/home/HomeBanner';
-import { BuildingDetailModal } from '@/components/building/BuildingDetailModal';
-import { roomService } from '@/services/room.service';
 import { locationService } from '@/services/location.service';
 import { formatCurrency, formatAddress } from '@/utils/format';
 import toast from 'react-hot-toast';
@@ -28,9 +25,7 @@ export function HomeClient({ initialBuildings, initialRooms }) {
   const [appliedCity, setAppliedCity] = useState('');
   const [appliedWard, setAppliedWard] = useState('');
 
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [buildingRooms, setBuildingRooms] = useState([]);
-  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+
 
 
 
@@ -82,26 +77,8 @@ export function HomeClient({ initialBuildings, initialRooms }) {
     return true;
   });
 
-  const handleViewDetail = async (building) => {
-    if (!user) {
-      openLogin();
-      if (typeof window !== 'undefined') {
-        window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
-      }
-      return;
-    }
-
-    setSelectedBuilding(building);
-    setIsLoadingRooms(true);
-    try {
-      const roomsData = await roomService.getRooms({ buildingId: building.id, limit: 1000 });
-      setBuildingRooms(roomsData || []);
-    } catch (err) {
-      console.error('Lỗi khi tải danh sách phòng của tòa nhà:', err);
-      toast.error('Không thể tải danh sách phòng.');
-    } finally {
-      setIsLoadingRooms(false);
-    }
+  const handleViewDetail = (building) => {
+    router.push(`/buildings/${building.id}`);
   };
 
   const handleSearch = (overrideCity, overrideWard) => {
@@ -300,16 +277,7 @@ export function HomeClient({ initialBuildings, initialRooms }) {
         </div>
       </footer>
 
-      <BuildingDetailModal
-        isOpen={!!selectedBuilding}
-        onClose={() => {
-          setSelectedBuilding(null);
-          setBuildingRooms([]);
-        }}
-        building={selectedBuilding}
-        buildingRooms={buildingRooms}
-        isLoadingRooms={isLoadingRooms}
-      />
+
     </div>
   );
 }

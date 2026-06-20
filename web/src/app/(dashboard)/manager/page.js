@@ -6,7 +6,7 @@ import { roomService } from '@/services/room.service';
 import { Card } from '@/components/ui/Card';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { getContractStatus, CONTRACT_STATUS } from '@/constants/contracts';
-import { getRoomStatus, ROOM_STATUS } from '@/constants/rooms';
+import { ROOM_STATUS } from '@/constants/rooms';
 
 export default function ManagerDashboard() {
   const [stats, setStats] = useState({
@@ -40,8 +40,7 @@ export default function ManagerDashboard() {
 
         let available = 0;
         roomsList.forEach(r => {
-          const statusCfg = getRoomStatus(r.status);
-          if (statusCfg.value === ROOM_STATUS.AVAILABLE.value) {
+          if (r.status === ROOM_STATUS.AVAILABLE) {
             available++;
           }
         });

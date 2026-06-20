@@ -7,7 +7,7 @@ import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { formatCurrency } from '@/utils/format';
-import { getRoomStatus } from '@/constants';
+import { ROOM_STATUS, ROOM_STATUS_COLORS, ROOM_TYPES } from '@/constants';
 import { roomSchema, validateForm } from '@/validators';
 import toast from 'react-hot-toast';
 
@@ -20,12 +20,12 @@ export default function RoomsManagement() {
   const [currentRoom, setCurrentRoom] = useState(null);
   const [formData, setFormData] = useState({
     roomNumber: '',
-    type: 'Văn phòng',
+    type: ROOM_TYPES.OFFICE,
     floor: '',
     area: '',
     price: '',
-    status: 'Còn trống',
-    maxPeople: '2',
+    maxPeople: 2,
+    status: ROOM_STATUS.AVAILABLE,
     description: '',
     buildingId: '',
   });
@@ -60,11 +60,11 @@ export default function RoomsManagement() {
     setCurrentRoom(null);
     setFormData({
       roomNumber: '',
-      type: 'Văn phòng',
+      type: ROOM_TYPES.OFFICE,
       floor: '',
       area: '',
       price: '',
-      status: 'Còn trống',
+      status: ROOM_STATUS.AVAILABLE,
       maxPeople: '2',
       description: '',
       buildingId: buildings[0]?.id || '',
@@ -305,10 +305,11 @@ export default function RoomsManagement() {
       header: 'Trạng thái',
       key: 'status',
       render: (room) => {
-        const statusCfg = getRoomStatus(room.status);
+        const label = room.status || 'Chưa rõ';
+        const colorClass = ROOM_STATUS_COLORS[label] || 'bg-zinc-100 text-zinc-800 border-zinc-200';
         return (
-          <span className={`px-2.5 py-1 text-xs rounded-full font-medium border ${statusCfg.colorClass}`}>
-            {statusCfg.label}
+          <span className={`px-2.5 py-1 text-xs rounded-full font-medium border ${colorClass}`}>
+            {label}
           </span>
         );
       },
@@ -432,8 +433,9 @@ export default function RoomsManagement() {
                       className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${fieldErrors.type ? 'border-red-500 focus:ring-red-500' : ''
                         }`}
                     >
-                      <option value="Văn phòng">Văn phòng</option>
-                      <option value="Căn hộ">Căn hộ</option>
+                      {Object.values(ROOM_TYPES).map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
                     </select>
                     {fieldErrors.type && (
                       <span className="text-xs text-red-500 font-medium">{fieldErrors.type}</span>
@@ -452,9 +454,9 @@ export default function RoomsManagement() {
                       className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${fieldErrors.status ? 'border-red-500 focus:ring-red-500' : ''
                         }`}
                     >
-                      <option value="Còn trống">Còn trống</option>
-                      <option value="Đang thuê">Đang thuê</option>
-                      <option value="Đang bảo trì">Đang bảo trì</option>
+                      {Object.values(ROOM_STATUS).map((status) => (
+                        <option key={status} value={status}>{status}</option>
+                      ))}
                     </select>
                     {fieldErrors.status && (
                       <span className="text-xs text-red-500 font-medium">{fieldErrors.status}</span>

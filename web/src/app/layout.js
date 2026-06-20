@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#F5F5F7] text-neutral-900 font-sans text-sm">
+      <body className="min-h-full flex flex-col bg-[#F5F5F7] text-neutral-900 font-sans text-sm" suppressHydrationWarning>
         <AuthProvider>
           {children}
           <Toaster position="top-right" toastOptions={{ duration: 3000 }} />

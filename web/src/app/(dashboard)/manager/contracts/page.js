@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { formatCurrency, formatDate, formatDateInput } from '@/utils/format';
 import { getContractStatus, CONTRACT_STATUS } from '@/constants/contracts';
-import { getRoomStatus, ROOM_STATUS } from '@/constants/rooms';
+import { ROOM_STATUS } from '@/constants/rooms';
 import { ROLES } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { createContractSchema, extendContractSchema, validateForm } from '@/validators';
@@ -277,10 +277,7 @@ export default function ContractsManagement() {
   };
 
   // Filter available rooms for creation dropdown
-  const availableRooms = rooms.filter(room => {
-    const statusCfg = getRoomStatus(room.status);
-    return statusCfg.value === ROOM_STATUS.AVAILABLE.value;
-  });
+  const availableRooms = rooms.filter(room => room.status === ROOM_STATUS.AVAILABLE);
 
   const columns = [
     { header: 'Mã Hợp Đồng', key: 'id' },
