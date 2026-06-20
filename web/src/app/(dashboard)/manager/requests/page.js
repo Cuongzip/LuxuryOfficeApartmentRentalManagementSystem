@@ -402,64 +402,64 @@ export default function RequestsManagement() {
               </div>
 
               {/* Customer Details */}
-              <div className="space-y-2">
-                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
+              <div className="space-y-3">
+                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1.5 text-left">
                   Thông tin khách hàng
                 </h4>
-                <div className="grid grid-cols-2 gap-y-2 text-xs">
-                  <div>
-                    <span className="text-neutral-400 block">Họ và tên:</span>
+                <div className="bg-slate-50/50 border border-neutral-200/80 p-4 rounded-xl space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Họ và tên:</span>
                     <span className="font-bold text-neutral-800">{selectedRequest.customer?.fullName}</span>
                   </div>
-                  <div>
-                    <span className="text-neutral-400 block">Số điện thoại:</span>
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Số điện thoại:</span>
                     <span className="font-bold text-neutral-800">{selectedRequest.customer?.phoneNumber || 'N/A'}</span>
                   </div>
-                  <div className="col-span-2">
-                    <span className="text-neutral-400 block">Email:</span>
-                    <span className="font-bold text-neutral-800">{selectedRequest.customer?.email}</span>
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Email:</span>
+                    <span className="font-bold text-neutral-800">{selectedRequest.customer?.account?.email || selectedRequest.customer?.email || 'N/A'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Room Details */}
-              <div className="space-y-2">
-                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
+              <div className="space-y-3">
+                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1.5 text-left">
                   Thông tin phòng đặt xem
                 </h4>
-                <div className="grid grid-cols-2 gap-y-2 text-xs">
-                  <div>
-                    <span className="text-neutral-400 block">Số phòng:</span>
+                <div className="bg-slate-50/50 border border-neutral-200/80 p-4 rounded-xl space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Số phòng:</span>
                     <span className="font-bold text-neutral-800">Phòng {selectedRequest.room?.roomNumber}</span>
                   </div>
-                  <div>
-                    <span className="text-neutral-400 block">Thuộc tòa nhà:</span>
-                    <span className="font-bold text-neutral-800">{selectedRequest.room?.building?.name}</span>
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Thuộc tòa nhà:</span>
+                    <span className="font-bold text-neutral-800">{selectedRequest.room?.building?.name || 'N/A'}</span>
                   </div>
-                  <div>
-                    <span className="text-neutral-400 block">Loại phòng:</span>
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Loại phòng:</span>
                     <span className="font-bold text-neutral-800">{selectedRequest.room?.type}</span>
                   </div>
-                  <div>
-                    <span className="text-neutral-400 block">Đơn giá thuê:</span>
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Đơn giá thuê:</span>
                     <span className="font-bold text-brand">{formatCurrency(selectedRequest.room?.price)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Appointment Details */}
-              <div className="space-y-2">
-                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
+              <div className="space-y-3">
+                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1.5 text-left">
                   Lịch hẹn & Ghi chú
                 </h4>
-                <div className="space-y-2 text-xs">
-                  <div>
-                    <span className="text-neutral-400 block">Ngày giờ hẹn xem:</span>
-                    <span className="font-extrabold text-neutral-800">{formatDateTime(selectedRequest.appointmentDate)}</span>
+                <div className="bg-slate-50/50 border border-neutral-200/80 p-4 rounded-xl space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center pb-2 border-b border-neutral-200/50 last:pb-0 last:border-0">
+                    <span className="text-neutral-400 font-medium">Ngày giờ hẹn xem:</span>
+                    <span className="font-bold text-neutral-850">{formatDateTime(selectedRequest.appointmentDate)}</span>
                   </div>
-                  <div>
-                    <span className="text-neutral-400 block">Ghi chú của khách hàng:</span>
-                    <p className="bg-neutral-50 border border-neutral-200/60 p-3 rounded-xl text-neutral-700 italic mt-1 whitespace-pre-line leading-relaxed">
+                  <div className="flex flex-col gap-1.5 pt-1.5 text-left">
+                    <span className="text-neutral-400 font-medium">Ghi chú của khách hàng:</span>
+                    <p className="bg-white border border-neutral-200/60 p-3 rounded-lg text-neutral-700 italic whitespace-pre-line leading-relaxed mt-0.5">
                       {selectedRequest.content || 'Không có ghi chú nào.'}
                     </p>
                   </div>
@@ -468,9 +468,9 @@ export default function RequestsManagement() {
 
               {/* Manager In Charge */}
               {selectedRequest.employee && (
-                <div className="space-y-2 bg-slate-50 border border-slate-100 p-4 rounded-2xl">
-                  <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">Nhân viên phụ trách:</span>
-                  <span className="font-bold text-neutral-800 text-xs">{selectedRequest.employee.fullName}</span>
+                <div className="space-y-2.5 bg-slate-50 border border-slate-100 p-4 rounded-xl text-xs flex justify-between items-center">
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Nhân viên phụ trách:</span>
+                  <span className="font-bold text-neutral-800">{selectedRequest.employee.fullName}</span>
                 </div>
               )}
             </div>

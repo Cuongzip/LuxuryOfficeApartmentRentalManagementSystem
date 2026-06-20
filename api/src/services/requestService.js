@@ -57,7 +57,11 @@ export const createRequest = async ({ customerId, roomId, appointmentDate, conte
           building: true,
         },
       },
-      customer: true,
+      customer: {
+        include: {
+          account: true,
+        },
+      },
     },
   });
 
@@ -113,7 +117,11 @@ export const getRequests = async ({
             building: true,
           },
         },
-        customer: true,
+        customer: {
+          include: {
+            account: true,
+          },
+        },
         employee: true,
       },
     }),
@@ -152,7 +160,11 @@ export const updateRequestStatus = async (id, { status, employeeId }) => {
           building: true,
         },
       },
-      customer: true,
+      customer: {
+        include: {
+          account: true,
+        },
+      },
       employee: true,
     },
   });
