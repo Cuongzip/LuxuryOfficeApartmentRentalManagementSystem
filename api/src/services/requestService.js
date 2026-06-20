@@ -1,6 +1,6 @@
 import prisma from "../config/database.js";
 import { AppError, generateId } from "../utils/index.js";
-import { ROOM_STATUS, REQUEST_STATUS, REQUEST_TYPES, ID_PREFIXES } from "../constants/index.js";
+import { ROOM_STATUS, REQUEST_STATUS, REQUEST_TYPES, ID_PREFIXES, ROLES } from "../constants/index.js";
 
 export const createRequest = async ({ customerId, roomId, appointmentDate, content }) => {
   const room = await prisma.room.findUnique({
@@ -139,7 +139,7 @@ export const getRequests = async ({
   };
 };
 
-export const updateRequestStatus = async (id, { status, employeeId }) => {
+export const updateRequestStatus = async (id, { status, employeeId }, user) => {
   const request = await prisma.request.findUnique({
     where: { id },
   });
@@ -148,11 +148,20 @@ export const updateRequestStatus = async (id, { status, employeeId }) => {
     throw new AppError("Yêu cầu không tồn tại", 404);
   }
 
+  if (user && user.role === ROLES.CUSTOMER) {
+    if (request.customerId !== user.customerId) {
+      throw new AppError("Bạn không có quyền cập nhật yêu cầu này", 403);
+    }
+    if (status !== REQUEST_STATUS.CANCELLED) {
+      throw new AppError("Khách hàng chỉ có quyền hủy yêu cầu của chính mình", 403);
+    }
+  }
+
   const updatedRequest = await prisma.request.update({
     where: { id },
     data: {
       status,
-      employeeId,
+      employeeId: user?.role === ROLES.CUSTOMER ? null : employeeId,
     },
     include: {
       room: {
@@ -171,3 +180,4 @@ export const updateRequestStatus = async (id, { status, employeeId }) => {
 
   return updatedRequest;
 };
+

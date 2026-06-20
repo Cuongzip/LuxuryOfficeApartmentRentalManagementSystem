@@ -15,14 +15,19 @@ router.post(
   requestController.createRequest
 );
 
-router.use(requireRoles(ROLES.RENTAL_MANAGER));
-
-router.get("/", requestController.getRequests);
+// Both RENTAL_MANAGER and CUSTOMER can get requests and update status
+router.get(
+  "/",
+  requireRoles(ROLES.RENTAL_MANAGER, ROLES.CUSTOMER),
+  requestController.getRequests
+);
 
 router.patch(
   "/:id/status",
+  requireRoles(ROLES.RENTAL_MANAGER, ROLES.CUSTOMER),
   validateBody(updateRequestStatusSchema),
   requestController.updateRequestStatus
 );
 
 export default router;
+

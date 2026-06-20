@@ -535,13 +535,13 @@ export default function InvoicesManagement() {
     {
       header: 'Mã Hóa Đơn',
       key: 'id',
-      render: (inv) => <span className="font-bold text-neutral-900">{inv.id}</span>,
+      render: (inv) => <span className="font-bold text-neutral-900 whitespace-nowrap">{inv.id}</span>,
     },
     {
       header: 'Khách Hàng & Hợp Đồng',
       key: 'customer',
       render: (inv) => (
-        <div className="space-y-0.5">
+        <div className="space-y-0.5 whitespace-nowrap">
           <p className="font-bold text-neutral-900">{inv.contract?.customer?.fullName || '-'}</p>
           <p className="text-xs text-slate-500">Mã hợp đồng: {inv.contractId}</p>
         </div>
@@ -552,9 +552,10 @@ export default function InvoicesManagement() {
       key: 'rooms',
       render: (inv) => {
         const details = inv.contract?.contractDetails || [];
+        const roomNumbers = details.map(d => d.room?.roomNumber || d.roomId).join(', ');
         return (
-          <span className="font-medium text-neutral-800">
-            {details.map(d => `Phòng ${d.room?.roomNumber || d.roomId}`).join(', ')}
+          <span className="font-medium text-neutral-800 whitespace-nowrap">
+            {roomNumbers ? `Phòng ${roomNumbers}` : '-'}
           </span>
         );
       },
@@ -563,7 +564,7 @@ export default function InvoicesManagement() {
       header: 'Kỳ Thanh Toán',
       key: 'period',
       render: (inv) => (
-        <span className="font-medium text-neutral-800">
+        <span className="font-medium text-neutral-800 whitespace-nowrap">
           Tháng {inv.paymentMonth}/{inv.paymentYear}
         </span>
       ),
@@ -571,12 +572,12 @@ export default function InvoicesManagement() {
     {
       header: 'Tổng Tiền',
       key: 'totalAmount',
-      render: (inv) => <span className="font-bold text-neutral-950">{formatCurrency(inv.totalAmount)}</span>,
+      render: (inv) => <span className="font-bold text-neutral-950 whitespace-nowrap">{formatCurrency(inv.totalAmount)}</span>,
     },
     {
       header: 'Ngày Hết Hạn',
       key: 'dueDate',
-      render: (inv) => <span>{formatDate(inv.dueDate)}</span>,
+      render: (inv) => <span className="whitespace-nowrap">{formatDate(inv.dueDate)}</span>,
     },
     {
       header: 'Trạng Thái',
@@ -595,7 +596,7 @@ export default function InvoicesManagement() {
       render: (inv) => {
         const isPaid = inv.paymentStatus === PAYMENT_STATUS.PAID;
         return (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
             <Button
               variant="outline"
               size="sm"
