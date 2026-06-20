@@ -10,7 +10,7 @@ export const getProvinces = asyncHandler(async (req, res) => {
 });
 
 export const getWards = asyncHandler(async (req, res) => {
-  const provinceId = req.params.provinceId || req.query.provinceId;
+  const provinceId = req.query.provinceId;
   const wards = await locationService.getWards(provinceId);
   res.json({
     success: true,

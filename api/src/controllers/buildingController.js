@@ -2,10 +2,12 @@ import { buildingService } from "../services/index.js";
 import { asyncHandler } from "../utils/index.js";
 
 export const getBuildings = asyncHandler(async (req, res) => {
-  const { keyword, page, limit } = req.query;
+  const { keyword, provinceId, wardId, page, limit } = req.query;
 
   const result = await buildingService.getBuildings({
     keyword,
+    provinceId,
+    wardId,
     page: page ? parseInt(page) : undefined,
     limit: limit ? parseInt(limit) : undefined,
   });

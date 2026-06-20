@@ -4,13 +4,15 @@ import { ID_PREFIXES } from "../constants/index.js";
 import fs from "fs";
 import path from "path";
 
-export const getBuildings = async ({ keyword, page = 1, limit = 10 }) => {
+export const getBuildings = async ({ keyword, provinceId, wardId, page = 1, limit = 10 }) => {
   const pageNum = parseInt(page) || 1;
   const limitNum = parseInt(limit) || 10;
   const skip = (pageNum - 1) * limitNum;
 
+  const isValidParam = (val) => val && val !== "undefined" && val !== "null" && val.trim() !== "";
+
   const where = {};
-  if (keyword) {
+  if (isValidParam(keyword)) {
     const trimmedKeyword = keyword.trim();
     where.OR = [
       { id: { contains: trimmedKeyword } },
@@ -25,6 +27,18 @@ export const getBuildings = async ({ keyword, page = 1, limit = 10 }) => {
         },
       },
     ];
+  }
+
+  if (isValidParam(provinceId) || isValidParam(wardId)) {
+    where.address = {};
+    if (isValidParam(wardId)) {
+      where.address.wardId = wardId;
+    }
+    if (isValidParam(provinceId)) {
+      where.address.ward = {
+        provinceId: provinceId,
+      };
+    }
   }
 
   const [buildings, total] = await Promise.all([
@@ -200,13 +214,13 @@ export const updateBuilding = async (
     name !== undefined ? prisma.building.findFirst({ where: { name } }) : null,
     (wardId !== undefined || detailAddress !== undefined)
       ? prisma.building.findFirst({
-          where: {
-            address: {
-              wardId: wardId !== undefined ? wardId : building.address.wardId,
-              detailAddress: detailAddress !== undefined ? detailAddress : building.address.detailAddress,
-            },
+        where: {
+          address: {
+            wardId: wardId !== undefined ? wardId : building.address.wardId,
+            detailAddress: detailAddress !== undefined ? detailAddress : building.address.detailAddress,
           },
-        })
+        },
+      })
       : null,
   ]);
 
