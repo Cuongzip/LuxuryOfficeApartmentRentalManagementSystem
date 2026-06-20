@@ -18,3 +18,40 @@ export const createRequest = asyncHandler(async (req, res) => {
     data: newRequest,
   });
 });
+
+export const getRequests = asyncHandler(async (req, res) => {
+  const { status, requestType, roomId, customerId, employeeId, page, limit } = req.query;
+
+  const result = await requestService.getRequests({
+    status,
+    requestType,
+    roomId,
+    customerId,
+    employeeId,
+    page: page ? parseInt(page, 10) : undefined,
+    limit: limit ? parseInt(limit, 10) : undefined,
+  });
+
+  res.json({
+    success: true,
+    data: result.data,
+    pagination: result.pagination,
+  });
+});
+
+export const updateRequestStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const employeeId = req.user.employeeId;
+
+  const updatedRequest = await requestService.updateRequestStatus(id, {
+    status,
+    employeeId,
+  });
+
+  res.json({
+    success: true,
+    message: "Cập nhật trạng thái yêu cầu thành công.",
+    data: updatedRequest,
+  });
+});

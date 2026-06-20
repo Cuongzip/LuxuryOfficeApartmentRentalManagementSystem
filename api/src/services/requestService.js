@@ -63,3 +63,99 @@ export const createRequest = async ({ customerId, roomId, appointmentDate, conte
 
   return newRequest;
 };
+
+export const getRequests = async ({
+  status,
+  requestType,
+  roomId,
+  customerId,
+  employeeId,
+  page = 1,
+  limit = 10,
+}) => {
+  const where = {};
+  const isValidParam = (val) =>
+    val !== undefined &&
+    val !== null &&
+    String(val) !== "undefined" &&
+    String(val) !== "null" &&
+    String(val).trim() !== "";
+
+  if (isValidParam(status)) {
+    where.status = status;
+  }
+  if (isValidParam(requestType)) {
+    where.requestType = requestType;
+  }
+  if (isValidParam(roomId)) {
+    where.roomId = roomId;
+  }
+  if (isValidParam(customerId)) {
+    where.customerId = customerId;
+  }
+  if (isValidParam(employeeId)) {
+    where.employeeId = employeeId;
+  }
+
+  const pageNum = parseInt(page, 10) || 1;
+  const limitNum = parseInt(limit, 10) || 10;
+  const skip = (pageNum - 1) * limitNum;
+
+  const [requests, total] = await Promise.all([
+    prisma.request.findMany({
+      where,
+      skip,
+      take: limitNum,
+      orderBy: { createdAt: "desc" },
+      include: {
+        room: {
+          include: {
+            building: true,
+          },
+        },
+        customer: true,
+        employee: true,
+      },
+    }),
+    prisma.request.count({ where }),
+  ]);
+
+  return {
+    data: requests,
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      pages: Math.ceil(total / limitNum),
+    },
+  };
+};
+
+export const updateRequestStatus = async (id, { status, employeeId }) => {
+  const request = await prisma.request.findUnique({
+    where: { id },
+  });
+
+  if (!request) {
+    throw new AppError("Yêu cầu không tồn tại", 404);
+  }
+
+  const updatedRequest = await prisma.request.update({
+    where: { id },
+    data: {
+      status,
+      employeeId,
+    },
+    include: {
+      room: {
+        include: {
+          building: true,
+        },
+      },
+      customer: true,
+      employee: true,
+    },
+  });
+
+  return updatedRequest;
+};
