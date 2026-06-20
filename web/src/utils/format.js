@@ -39,6 +39,29 @@ export const formatDate = (dateVal) => {
 };
 
 /**
+ * Format Date to standard Vietnamese display date & time format (HH:mm dd/MM/yyyy)
+ * @param {string|Date} dateVal 
+ * @returns {string}
+ */
+export const formatDateTime = (dateVal) => {
+  if (!dateVal) return '-';
+  try {
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '-';
+    
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
+  } catch (e) {
+    return '-';
+  }
+};
+
+/**
  * Format Date to ISO string format for input value (yyyy-MM-dd)
  * @param {string|Date} dateVal 
  * @returns {string}

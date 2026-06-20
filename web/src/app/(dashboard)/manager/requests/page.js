@@ -6,7 +6,7 @@ import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatDateTime } from '@/utils/format';
 import { REQUEST_STATUS, REQUEST_STATUS_COLORS, REQUEST_TYPES } from '@/constants/requests';
 import toast from 'react-hot-toast';
 
@@ -381,96 +381,99 @@ export default function RequestsManagement() {
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         title="Chi tiết yêu cầu xem phòng"
+        size="lg"
       >
         {selectedRequest && (
           <div className="space-y-6 text-neutral-900 text-left">
-            <div className="grid grid-cols-2 gap-4 border-b border-neutral-100 pb-4">
-              <div>
-                <span className="block text-xs text-neutral-400 font-bold uppercase tracking-wider">Mã yêu cầu:</span>
-                <span className="font-extrabold text-neutral-800 text-base">{selectedRequest.id}</span>
+            <div className="max-h-[60vh] overflow-y-auto pr-1.5 space-y-5">
+              <div className="grid grid-cols-2 gap-4 border-b border-neutral-100 pb-4">
+                <div>
+                  <span className="block text-xs text-neutral-400 font-bold uppercase tracking-wider">Mã yêu cầu:</span>
+                  <span className="font-extrabold text-neutral-800 text-base">{selectedRequest.id}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-neutral-400 font-bold uppercase tracking-wider">Trạng thái:</span>
+                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border mt-1 ${
+                    REQUEST_STATUS_COLORS[selectedRequest.status]
+                  }`}>
+                    {selectedRequest.status}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="block text-xs text-neutral-400 font-bold uppercase tracking-wider">Trạng thái:</span>
-                <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border mt-1 ${
-                  REQUEST_STATUS_COLORS[selectedRequest.status]
-                }`}>
-                  {selectedRequest.status}
-                </span>
-              </div>
-            </div>
 
-            {/* Customer Details */}
-            <div className="space-y-2">
-              <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
-                Thông tin khách hàng
-              </h4>
-              <div className="grid grid-cols-2 gap-y-2 text-xs">
-                <div>
-                  <span className="text-neutral-400 block">Họ và tên:</span>
-                  <span className="font-bold text-neutral-800">{selectedRequest.customer?.fullName}</span>
-                </div>
-                <div>
-                  <span className="text-neutral-400 block">Số điện thoại:</span>
-                  <span className="font-bold text-neutral-800">{selectedRequest.customer?.phoneNumber || 'N/A'}</span>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-neutral-400 block">Email:</span>
-                  <span className="font-bold text-neutral-800">{selectedRequest.customer?.email}</span>
+              {/* Customer Details */}
+              <div className="space-y-2">
+                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
+                  Thông tin khách hàng
+                </h4>
+                <div className="grid grid-cols-2 gap-y-2 text-xs">
+                  <div>
+                    <span className="text-neutral-400 block">Họ và tên:</span>
+                    <span className="font-bold text-neutral-800">{selectedRequest.customer?.fullName}</span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-400 block">Số điện thoại:</span>
+                    <span className="font-bold text-neutral-800">{selectedRequest.customer?.phoneNumber || 'N/A'}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-neutral-400 block">Email:</span>
+                    <span className="font-bold text-neutral-800">{selectedRequest.customer?.email}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Room Details */}
-            <div className="space-y-2">
-              <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
-                Thông tin phòng đặt xem
-              </h4>
-              <div className="grid grid-cols-2 gap-y-2 text-xs">
-                <div>
-                  <span className="text-neutral-400 block">Số phòng:</span>
-                  <span className="font-bold text-neutral-800">Phòng {selectedRequest.room?.roomNumber}</span>
-                </div>
-                <div>
-                  <span className="text-neutral-400 block">Thuộc tòa nhà:</span>
-                  <span className="font-bold text-neutral-800">{selectedRequest.room?.building?.name}</span>
-                </div>
-                <div>
-                  <span className="text-neutral-400 block">Loại phòng:</span>
-                  <span className="font-bold text-neutral-800">{selectedRequest.room?.type}</span>
-                </div>
-                <div>
-                  <span className="text-neutral-400 block">Đơn giá thuê:</span>
-                  <span className="font-bold text-brand">{formatCurrency(selectedRequest.room?.price)}</span>
+              {/* Room Details */}
+              <div className="space-y-2">
+                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
+                  Thông tin phòng đặt xem
+                </h4>
+                <div className="grid grid-cols-2 gap-y-2 text-xs">
+                  <div>
+                    <span className="text-neutral-400 block">Số phòng:</span>
+                    <span className="font-bold text-neutral-800">Phòng {selectedRequest.room?.roomNumber}</span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-400 block">Thuộc tòa nhà:</span>
+                    <span className="font-bold text-neutral-800">{selectedRequest.room?.building?.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-400 block">Loại phòng:</span>
+                    <span className="font-bold text-neutral-800">{selectedRequest.room?.type}</span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-400 block">Đơn giá thuê:</span>
+                    <span className="font-bold text-brand">{formatCurrency(selectedRequest.room?.price)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Appointment Details */}
-            <div className="space-y-2">
-              <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
-                Lịch hẹn & Ghi chú
-              </h4>
-              <div className="space-y-2 text-xs">
-                <div>
-                  <span className="text-neutral-400 block">Ngày giờ hẹn xem:</span>
-                  <span className="font-extrabold text-neutral-800">{formatDate(selectedRequest.appointmentDate)}</span>
-                </div>
-                <div>
-                  <span className="text-neutral-400 block">Ghi chú của khách hàng:</span>
-                  <p className="bg-neutral-50 border border-neutral-200/60 p-3 rounded-xl text-neutral-700 italic mt-1 whitespace-pre-line leading-relaxed">
-                    {selectedRequest.content || 'Không có ghi chú nào.'}
-                  </p>
+              {/* Appointment Details */}
+              <div className="space-y-2">
+                <h4 className="font-bold text-sm text-neutral-800 uppercase tracking-wide border-b border-neutral-100 pb-1">
+                  Lịch hẹn & Ghi chú
+                </h4>
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <span className="text-neutral-400 block">Ngày giờ hẹn xem:</span>
+                    <span className="font-extrabold text-neutral-800">{formatDateTime(selectedRequest.appointmentDate)}</span>
+                  </div>
+                  <div>
+                    <span className="text-neutral-400 block">Ghi chú của khách hàng:</span>
+                    <p className="bg-neutral-50 border border-neutral-200/60 p-3 rounded-xl text-neutral-700 italic mt-1 whitespace-pre-line leading-relaxed">
+                      {selectedRequest.content || 'Không có ghi chú nào.'}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Manager In Charge */}
-            {selectedRequest.employee && (
-              <div className="space-y-2 bg-slate-50 border border-slate-100 p-4 rounded-2xl">
-                <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">Nhân viên phụ trách:</span>
-                <span className="font-bold text-neutral-800 text-xs">{selectedRequest.employee.fullName}</span>
-              </div>
-            )}
+              {/* Manager In Charge */}
+              {selectedRequest.employee && (
+                <div className="space-y-2 bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                  <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">Nhân viên phụ trách:</span>
+                  <span className="font-bold text-neutral-800 text-xs">{selectedRequest.employee.fullName}</span>
+                </div>
+              )}
+            </div>
 
             {/* Modal Actions */}
             <div className="flex justify-end gap-2.5 pt-4 border-t border-neutral-100">
