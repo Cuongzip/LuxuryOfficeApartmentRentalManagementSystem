@@ -227,15 +227,13 @@ export function BuildingDetailClient({ initialBuilding, initialRooms = [], build
 
     setIsSubmitting(true);
     try {
-      await Promise.all(
-        selectedRoomIds.map((roomId) =>
-          requestService.createRequest({
-            roomId,
-            appointmentDate: apptDate.toISOString(),
-            content: requestContent,
-          })
-        )
-      );
+      for (const roomId of selectedRoomIds) {
+        await requestService.createRequest({
+          roomId,
+          appointmentDate: apptDate.toISOString(),
+          content: requestContent,
+        });
+      }
 
       toast.success('Gửi yêu cầu xem phòng thành công! Đang chờ Nhân viên quản lý xác nhận.');
       setSelectedRoomIds([]);

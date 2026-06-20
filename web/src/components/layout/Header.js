@@ -12,6 +12,7 @@ export const Header = () => {
     if (pathname.includes('/admin/buildings')) return 'Quản lý tòa nhà';
     if (pathname.includes('/admin/rooms')) return 'Quản lý phòng';
     if (pathname.includes('/manager/contracts')) return 'Quản lý hợp đồng';
+    if (pathname.includes('/manager/requests')) return 'Quản lý yêu cầu';
     return 'Dashboard';
   };
 
