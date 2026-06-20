@@ -3,6 +3,7 @@ import authRouter from './auth.js';
 import buildingRouter from './building.js';
 import roomRouter from './room.js';
 import contractRouter from './contract.js';
+import locationRouter from './location.js';
 
 const routes = (app) => {
     app.use('/', siteRouter);
@@ -10,6 +11,7 @@ const routes = (app) => {
     app.use('/api/buildings', buildingRouter);
     app.use('/api/rooms', roomRouter);
     app.use('/api/contracts', contractRouter);
+    app.use('/api', locationRouter);
 };
 
 export default routes;
