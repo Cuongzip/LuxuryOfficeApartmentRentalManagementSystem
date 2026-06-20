@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { getRoomStatus } from '@/constants';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatAddress } from '@/utils/format';
 
 export const BuildingDetailModal = ({
   isOpen,
@@ -28,7 +28,7 @@ export const BuildingDetailModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
             <p className="text-sm text-slate-600">
-              <strong className="text-neutral-900 font-semibold">Địa chỉ:</strong> {building.address}
+              <strong className="text-neutral-900 font-semibold">Địa chỉ:</strong> {formatAddress(building.address)}
             </p>
             <p className="text-sm text-slate-600">
               <strong className="text-neutral-900 font-semibold">Số tầng:</strong> {building.numberOfFloors} tầng

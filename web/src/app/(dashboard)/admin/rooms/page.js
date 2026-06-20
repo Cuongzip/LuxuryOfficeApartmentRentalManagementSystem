@@ -44,6 +44,7 @@ export default function RoomsManagement() {
       setRooms(rData || []);
     } catch (err) {
       console.error('Lỗi khi tải dữ liệu phòng & tòa nhà:', err);
+      toast.error('Lỗi khi tải dữ liệu phòng & tòa nhà.');
     } finally {
       setIsLoading(false);
     }

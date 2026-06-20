@@ -115,6 +115,7 @@ export default function ContractsManagement() {
       setRooms(roomsData || []);
     } catch (err) {
       console.error('Lỗi khi tải danh sách phòng:', err);
+      toast.error('Lỗi khi tải danh sách phòng.');
     }
   };
 

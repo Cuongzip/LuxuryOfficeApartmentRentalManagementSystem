@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { buildingService } from '@/services/building.service';
+import { locationService } from '@/services/location.service';
 import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { buildingSchema, validateForm } from '@/validators';
+import { formatAddress } from '@/utils/format';
 import toast from 'react-hot-toast';
 
 export default function BuildingsManagement() {
@@ -16,12 +18,17 @@ export default function BuildingsManagement() {
   const [currentBuilding, setCurrentBuilding] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    address: '',
+    provinceId: '',
+    wardId: '',
+    detailAddress: '',
     numberOfFloors: '',
     description: '',
   });
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [provinces, setProvinces] = useState([]);
+  const [wards, setWards] = useState([]);
 
   const [newImageFiles, setNewImageFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
@@ -33,6 +40,7 @@ export default function BuildingsManagement() {
       setBuildings(data || []);
     } catch (err) {
       console.error('Lỗi khi tải danh sách tòa nhà:', err);
+      toast.error('Lỗi khi tải danh sách tòa nhà.');
     } finally {
       setIsLoading(false);
     }
@@ -44,11 +52,58 @@ export default function BuildingsManagement() {
     });
   }, []);
 
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const data = await locationService.getProvinces();
+        setProvinces(data || []);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách tỉnh thành:', err);
+        toast.error('Lỗi khi tải danh sách tỉnh thành.');
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!formData.provinceId) {
+        setWards([]);
+        return;
+      }
+      try {
+        const data = await locationService.getWards(formData.provinceId);
+        setWards(data || []);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách phường xã:', err);
+        toast.error('Lỗi khi tải danh sách phường xã.');
+      }
+    };
+    fetchWards();
+  }, [formData.provinceId]);
+
+  const handleProvinceChange = (e) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      provinceId: value,
+      wardId: '',
+    }));
+    if (fieldErrors.provinceId) {
+      setFieldErrors((prev) => ({ ...prev, provinceId: '' }));
+    }
+    if (fieldErrors.wardId) {
+      setFieldErrors((prev) => ({ ...prev, wardId: '' }));
+    }
+  };
+
   const handleOpenAddModal = () => {
     setCurrentBuilding(null);
     setFormData({
       name: '',
-      address: '',
+      provinceId: '',
+      wardId: '',
+      detailAddress: '',
       numberOfFloors: '',
       description: '',
     });
@@ -62,7 +117,9 @@ export default function BuildingsManagement() {
     setCurrentBuilding(building);
     setFormData({
       name: building.name,
-      address: building.address,
+      provinceId: building.address?.ward?.provinceId || '',
+      wardId: building.address?.wardId || '',
+      detailAddress: building.address?.detailAddress || '',
       numberOfFloors: String(building.numberOfFloors),
       description: building.description || '',
     });
@@ -190,9 +247,10 @@ export default function BuildingsManagement() {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
-      formDataToSend.append('address', formData.address);
+      formDataToSend.append('wardId', formData.wardId);
+      formDataToSend.append('detailAddress', formData.detailAddress);
       formDataToSend.append('numberOfFloors', parseInt(formData.numberOfFloors, 10));
-      formDataToSend.append('description', formData.description);
+      formDataToSend.append('description', formData.description || '');
 
       newImageFiles.forEach(item => {
         formDataToSend.append('images', item.file);
@@ -269,7 +327,11 @@ export default function BuildingsManagement() {
     },
     { header: 'Mã tòa nhà', key: 'id' },
     { header: 'Tên tòa nhà', key: 'name' },
-    { header: 'Địa chỉ', key: 'address' },
+    {
+      header: 'Địa chỉ',
+      key: 'address',
+      render: (building) => formatAddress(building.address),
+    },
     { header: 'Số tầng', key: 'numberOfFloors' },
     {
       header: 'Thao tác',
@@ -355,14 +417,63 @@ export default function BuildingsManagement() {
                   error={fieldErrors.name}
                 />
 
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label htmlFor="provinceId" className="text-sm font-medium text-slate-700">
+                    Tỉnh / Thành phố *
+                  </label>
+                  <select
+                    id="provinceId"
+                    value={formData.provinceId}
+                    onChange={handleProvinceChange}
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${
+                      fieldErrors.provinceId ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
+                  >
+                    <option value="">Chọn Tỉnh / Thành phố</option>
+                    {provinces.map((prov) => (
+                      <option key={prov.id} value={prov.id}>
+                        {prov.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.provinceId && (
+                    <span className="text-xs text-red-500 font-medium">{fieldErrors.provinceId}</span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label htmlFor="wardId" className="text-sm font-medium text-slate-700">
+                    Phường / Xã *
+                  </label>
+                  <select
+                    id="wardId"
+                    value={formData.wardId}
+                    onChange={handleInputChange}
+                    disabled={!formData.provinceId}
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all disabled:bg-neutral-50 disabled:text-neutral-400 ${
+                      fieldErrors.wardId ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
+                  >
+                    <option value="">Chọn Phường / Xã</option>
+                    {wards.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.wardId && (
+                    <span className="text-xs text-red-500 font-medium">{fieldErrors.wardId}</span>
+                  )}
+                </div>
+
                 <Input
-                  label="Địa chỉ tòa nhà"
-                  id="address"
-                  value={formData.address}
+                  label="Địa chỉ chi tiết (Số nhà, tên đường...) *"
+                  id="detailAddress"
+                  value={formData.detailAddress}
                   onChange={handleInputChange}
-                  placeholder="Ví dụ: 720A Điện Biên Phủ, Phường 22, Bình Thạnh, TP.HCM"
+                  placeholder="Ví dụ: 720A Điện Biên Phủ"
                   required
-                  error={fieldErrors.address}
+                  error={fieldErrors.detailAddress}
                 />
 
                 <Input

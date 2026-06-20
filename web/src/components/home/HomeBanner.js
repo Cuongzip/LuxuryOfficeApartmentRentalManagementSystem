@@ -6,18 +6,13 @@ export const HomeBanner = ({
   setSearchKeyword,
   draftCity,
   setDraftCity,
-  draftDistrict,
-  setDraftDistrict,
   draftWard,
   setDraftWard,
   tempCity,
   setTempCity,
-  tempDistrict,
-  setTempDistrict,
   tempWard,
   setTempWard,
   cities,
-  districts,
   wards,
   handleSearch,
 }) => {
@@ -28,7 +23,7 @@ export const HomeBanner = ({
         <div className="relative w-full h-[580px] hidden md:block">
           <div className="absolute top-0 left-0 w-[39%] h-[44%] bg-[#e2ebfc] rounded-tl-[1.5rem] rounded-tr-[1.5rem] p-8 flex flex-col justify-center select-none z-20">
             <h1 className="text-[2.5rem] lg:text-[3.1rem] font-extrabold text-neutral-900 leading-tight">
-              Tìm Phòng
+              Tìm Tòa Nhà
               Thuê Lý Tưởng
 
               Thật <span className="inline-block bg-white text-neutral-900 px-4 py-1.5 rounded-full border border-neutral-200/80 shadow-sm text-[1.85rem] lg:text-[2.5rem] font-black mt-2">Dễ Dàng</span>
@@ -45,7 +40,7 @@ export const HomeBanner = ({
           </svg>
 
           <div className="absolute top-[41%] left-0 w-[57%] h-[40%] bg-[#e2ebfc] rounded-tr-[1.5rem] rounded-br-[1.5rem] rounded-bl-[1.5rem] px-8 py-7 flex flex-col justify-between z-20">
-            <p className="text-base lg:text-lg leading-relaxed max-w-[520px] mb-5">
+            <p className="text-base lg:text-lg leading-relaxed  mb-5">
               PrimeSpace định nghĩa lại trải nghiệm thuê nhà và văn phòng một cách liền mạch, mang đến giải pháp tối ưu được thiết kế riêng cho nhu cầu của bạn.
             </p>
 
@@ -55,24 +50,19 @@ export const HomeBanner = ({
               setSearchKeyword={setSearchKeyword}
               draftCity={draftCity}
               setDraftCity={setDraftCity}
-              draftDistrict={draftDistrict}
-              setDraftDistrict={setDraftDistrict}
               draftWard={draftWard}
               setDraftWard={setDraftWard}
               tempCity={tempCity}
               setTempCity={setTempCity}
-              tempDistrict={tempDistrict}
-              setTempDistrict={setTempDistrict}
               tempWard={tempWard}
               setTempWard={setTempWard}
               cities={cities}
-              districts={districts}
               wards={wards}
               handleSearch={handleSearch}
             />
           </div>
 
-          <div className="absolute top-[85%] bottom-0 left-0 w-[57%] h-[15%] bg-[#1c1c1c] rounded-[1.5rem] px-10 py-6 shadow-sm z-20">
+          <div className="absolute top-[85%] bottom-0 left-0 w-[57%] h-[15%] bg-[#1c1c1c] rounded-[1.5rem] px-10 py-6 shadow-sm z-15">
             <div className="h-full flex items-center justify-between">
               <div className="space-y-1">
                 <h4 className="text-3xl lg:text-4xl font-extrabold text-white">15K+</h4>
@@ -122,7 +112,7 @@ export const HomeBanner = ({
         <div className="block md:hidden space-y-4">
           <div className="bg-[#e2ebfc] rounded-3xl p-6 space-y-5 shadow-sm">
             <h1 className="text-4xl font-extrabold text-neutral-900 leading-tight">
-              Tìm <span className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-neutral-300 bg-white mx-0.5 text-neutral-800 text-base">↗</span> Phòng
+              Tìm <span className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-neutral-300 bg-white mx-0.5 text-neutral-800 text-base">↗</span> Tòa Nhà
               <br />
               Thuê Lý Tưởng
               <br />
@@ -139,18 +129,13 @@ export const HomeBanner = ({
               setSearchKeyword={setSearchKeyword}
               draftCity={draftCity}
               setDraftCity={setDraftCity}
-              draftDistrict={draftDistrict}
-              setDraftDistrict={setDraftDistrict}
               draftWard={draftWard}
               setDraftWard={setDraftWard}
               tempCity={tempCity}
               setTempCity={setTempCity}
-              tempDistrict={tempDistrict}
-              setTempDistrict={setTempDistrict}
               tempWard={tempWard}
               setTempWard={setTempWard}
               cities={cities}
-              districts={districts}
               wards={wards}
               handleSearch={handleSearch}
             />

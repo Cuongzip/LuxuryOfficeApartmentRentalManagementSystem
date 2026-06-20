@@ -6,11 +6,19 @@ export const buildingSchema = z.object({
     .trim()
     .min(1, "Tên tòa nhà không được để trống")
     .max(100, "Tên tòa nhà không được vượt quá 100 ký tự"),
-  address: z
+  provinceId: z
     .string()
     .trim()
-    .min(1, "Địa chỉ không được để trống")
-    .max(500, "Địa chỉ không được vượt quá 500 ký tự"),
+    .min(1, "Vui lòng chọn tỉnh thành"),
+  wardId: z
+    .string()
+    .trim()
+    .min(1, "Vui lòng chọn phường xã"),
+  detailAddress: z
+    .string()
+    .trim()
+    .min(1, "Địa chỉ chi tiết không được để trống")
+    .max(255, "Địa chỉ chi tiết không được vượt quá 255 ký tự"),
   numberOfFloors: z.coerce
     .number("Số tầng phải là số nguyên dương")
     .int("Số tầng phải là số nguyên dương")
@@ -22,3 +30,4 @@ export const buildingSchema = z.object({
     .optional()
     .or(z.literal('')),
 });
+

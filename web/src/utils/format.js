@@ -53,3 +53,18 @@ export const formatDateInput = (dateVal) => {
     return '';
   }
 };
+
+/**
+ * Format address object to string
+ * @param {object|string} addressObj
+ * @returns {string}
+ */
+export const formatAddress = (addressObj) => {
+  if (!addressObj) return '';
+  if (typeof addressObj === 'string') return addressObj;
+  const { detailAddress, ward } = addressObj;
+  const wardName = ward?.name || '';
+  const provinceName = ward?.province?.name || '';
+  return [detailAddress, wardName, provinceName].filter(Boolean).join(', ');
+};
+

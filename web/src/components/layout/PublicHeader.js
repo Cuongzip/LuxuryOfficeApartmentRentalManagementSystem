@@ -13,7 +13,7 @@ export const PublicHeader = ({
   return (
     <header className={
       showSearch
-        ? "min-h-16 py-3 md:py-0 md:h-20 border-b border-white/10 bg-brand flex flex-col md:grid md:grid-cols-3 items-center px-4 md:px-16 sticky top-0 z-50 text-white gap-4 shadow-md"
+        ? "min-h-16 py-3 md:py-0 md:h-20 border-b border-white/10 bg-brand flex flex-col md:grid md:grid-cols-[1fr_2fr_1fr] items-center px-4 md:px-16 sticky top-0 z-50 text-white gap-4 shadow-md"
         : "min-h-16 py-3 md:py-0 md:h-20 border-b border-white/10 bg-brand flex flex-col md:flex-row items-center justify-between px-4 md:px-16 sticky top-0 z-50 text-white gap-4 shadow-md"
     }>
       <div className="w-full flex items-center justify-between md:justify-start md:w-auto shrink-0">

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { buildingService } from '@/services/building.service';
 import { roomService } from '@/services/room.service';
 import { Card } from '@/components/ui/Card';
+import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -43,6 +44,7 @@ export default function AdminDashboard() {
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
+        toast.error('Lỗi khi tải dữ liệu thống kê hệ thống.');
       } finally {
         setIsLoading(false);
       }
