@@ -1025,7 +1025,6 @@ export default function InvoicesManagement() {
                     <div className="space-y-1">
                       <p><span className="text-neutral-400">Họ tên:</span> <strong className="text-neutral-800">{invoiceDetailsData.contract?.customer?.fullName}</strong></p>
                       <p><span className="text-neutral-400">Số điện thoại:</span> <strong className="text-neutral-800">{invoiceDetailsData.contract?.customer?.phoneNumber}</strong></p>
-                      <p><span className="text-neutral-400">Email:</span> <strong className="text-neutral-800">{invoiceDetailsData.contract?.customer?.email || 'N/A'}</strong></p>
                     </div>
                   </div>
 
