@@ -224,6 +224,27 @@ export const createInvoice = async ({
     throw new AppError(`Hợp đồng không khả dụng (Trạng thái: ${contract.status})`, 400);
   }
 
+  const billingMonthStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
+  const billingMonthEnd = new Date(year, month, 0, 23, 59, 59, 999);
+
+  let hasValidLease = false;
+  for (const detail of contract.contractDetails) {
+    const sDate = new Date(detail.startDate);
+    const eDate = new Date(detail.endDate);
+
+    if (sDate <= billingMonthEnd && eDate >= billingMonthStart) {
+      hasValidLease = true;
+      break;
+    }
+  }
+
+  if (!hasValidLease) {
+    throw new AppError(
+      `Kỳ thanh toán ${month}/${year} không nằm trong thời hạn thuê của bất kỳ phòng nào trong hợp đồng này!`,
+      400
+    );
+  }
+
   const existingInvoice = await prisma.invoice.findFirst({
     where: {
       contractId,

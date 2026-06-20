@@ -379,6 +379,29 @@ export default function InvoicesManagement() {
       errors.dueDate = 'Vui lòng chọn hạn thanh toán';
     }
 
+    // Check if billing month overlaps with lease duration
+    if (selectedContractInfo && selectedContractInfo.contractDetails) {
+      const month = parseInt(createForm.month, 10);
+      const year = parseInt(createForm.year, 10);
+      const billingMonthStart = new Date(year, month - 1, 1, 0, 0, 0, 0);
+      const billingMonthEnd = new Date(year, month, 0, 23, 59, 59, 999);
+
+      let hasValidLease = false;
+      for (const detail of selectedContractInfo.contractDetails) {
+        const sDate = new Date(detail.startDate);
+        const eDate = new Date(detail.endDate);
+
+        if (sDate <= billingMonthEnd && eDate >= billingMonthStart) {
+          hasValidLease = true;
+          break;
+        }
+      }
+
+      if (!hasValidLease) {
+        errors.month = `Kỳ thanh toán ${month}/${year} không nằm trong thời hạn thuê của hợp đồng này!`;
+      }
+    }
+
     // Validate room readings
     roomReadings.forEach(r => {
       const elecVal = parseFloat(r.electricityIndex);
@@ -864,6 +887,12 @@ export default function InvoicesManagement() {
                 error={createErrors.dueDate}
               />
             </div>
+
+            {createErrors.month && (
+              <div className="text-xs text-red-500 font-semibold bg-red-50 border border-red-200 p-2.5 rounded-lg text-left">
+                {createErrors.month}
+              </div>
+            )}
 
             {selectedContractInfo && roomReadings.length > 0 && (
               <div className="space-y-4 border-t border-slate-100 pt-4">
