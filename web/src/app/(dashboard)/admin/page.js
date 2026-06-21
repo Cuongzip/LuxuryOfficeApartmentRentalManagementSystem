@@ -290,27 +290,35 @@ export default function AdminDashboard() {
           ) : (
             <div className="space-y-8">
               {/* CSS-based Bar Chart */}
-              <div className="h-56 flex items-end justify-around gap-2 px-4 border-b border-neutral-200/80 pb-3 mt-4">
-                {revenueStats.byMonth.map((item) => {
-                  const barHeight = Math.max(4, Math.round((Number(item.amount) / maxMonthRevenue) * 100));
-                  return (
-                    <div key={item.month} className="flex flex-col items-center flex-1 max-w-[50px] group relative">
-                      {/* Tooltip */}
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-neutral-950 text-white text-[11px] font-bold rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap">
-                        Doanh thu: {formatCurrency(item.amount)}
+              <div className="h-64 flex flex-col justify-between mt-4">
+                <div className="h-52 flex items-end justify-around gap-2 px-4 border-b border-neutral-200/80 pb-2">
+                  {revenueStats.byMonth.map((item) => {
+                    const barHeight = Math.max(4, Math.round((Number(item.amount) / maxMonthRevenue) * 100));
+                    return (
+                      <div key={item.month} className="h-full flex flex-col justify-end items-center flex-1 max-w-[50px] group relative">
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-neutral-950 text-white text-[11px] font-bold rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-nowrap">
+                          Doanh thu: {formatCurrency(item.amount)}
+                        </div>
+                        {/* Interactive Bar */}
+                        <div
+                          className="w-full bg-gradient-to-t from-indigo-500 to-brand hover:from-indigo-600 hover:to-brand-hover rounded-t-lg transition-all duration-300 ease-out"
+                          style={{ height: `${barHeight}%` }}
+                        ></div>
                       </div>
-                      {/* Interactive Bar */}
-                      <div
-                        className="w-full bg-gradient-to-t from-indigo-500 to-brand hover:from-indigo-600 hover:to-brand-hover rounded-t-lg transition-all duration-300 ease-out"
-                        style={{ height: `${barHeight}%` }}
-                      ></div>
-                      {/* Label */}
-                      <span className="text-[10px] text-neutral-400 font-bold mt-2 whitespace-nowrap">
+                    );
+                  })}
+                </div>
+                {/* Monthly Labels Row */}
+                <div className="flex justify-around gap-2 px-4">
+                  {revenueStats.byMonth.map((item) => (
+                    <div key={item.month} className="flex-1 max-w-[50px] text-center">
+                      <span className="text-[10px] text-neutral-400 font-bold whitespace-nowrap">
                         {item.month}
                       </span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
 
               {/* Data Table */}

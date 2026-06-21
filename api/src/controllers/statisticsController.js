@@ -2,7 +2,11 @@ import { statisticsService } from "../services/index.js";
 import { asyncHandler } from "../utils/index.js";
 
 export const getRevenueStatistics = asyncHandler(async (req, res) => {
-  const { startDate, endDate, buildingId } = req.query;
+  const { startDate, endDate } = req.query;
+  let buildingId = req.query.buildingId;
+  if (buildingId === 'undefined' || buildingId === 'null' || !buildingId) {
+    buildingId = undefined;
+  }
   const result = await statisticsService.getRevenueStatistics({
     startDate,
     endDate,
@@ -29,7 +33,10 @@ export const getContractStatistics = asyncHandler(async (req, res) => {
 });
 
 export const getRoomStatistics = asyncHandler(async (req, res) => {
-  const { buildingId } = req.query;
+  let buildingId = req.query.buildingId;
+  if (buildingId === 'undefined' || buildingId === 'null' || !buildingId) {
+    buildingId = undefined;
+  }
   const result = await statisticsService.getRoomStatistics({
     buildingId,
   });

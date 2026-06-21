@@ -3,3 +3,5 @@ node_modules
 .prettierrc
 nodemon.json
 agent-skills
+scratch/
+src/resources/public/uploads/*

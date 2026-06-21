@@ -11,6 +11,7 @@ export const getRooms = async ({
   maxArea,
   minPrice,
   maxPrice,
+  keyword,
   page = 1,
   limit = 10,
 }) => {
@@ -21,6 +22,14 @@ export const getRooms = async ({
     String(val) !== "undefined" &&
     String(val) !== "null" &&
     String(val).trim() !== "";
+
+  if (isValidParam(keyword)) {
+    const trimmed = keyword.trim();
+    where.OR = [
+      { id: { contains: trimmed } },
+      { roomNumber: { contains: trimmed } },
+    ];
+  }
 
   if (buildingId) {
     where.buildingId = buildingId;

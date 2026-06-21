@@ -5,6 +5,7 @@ import { buildingService } from '@/services/building.service';
 import { locationService } from '@/services/location.service';
 import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { buildingSchema, validateForm } from '@/validators';
 import { formatAddress } from '@/utils/format';
@@ -13,6 +14,17 @@ import toast from 'react-hot-toast';
 export default function BuildingsManagement() {
   const [buildings, setBuildings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Search & Filter states
+  const [filters, setFilters] = useState({
+    keyword: '',
+    provinceId: '',
+    wardId: '',
+    page: 1,
+    limit: 10,
+  });
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 1 });
+  const [filterWards, setFilterWards] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBuilding, setCurrentBuilding] = useState(null);
@@ -36,8 +48,17 @@ export default function BuildingsManagement() {
   const fetchBuildings = async () => {
     setIsLoading(true);
     try {
-      const data = await buildingService.getBuildings({ limit: 10 });
-      setBuildings(data || []);
+      const queryParams = {
+        ...filters,
+        keyword: filters.keyword.trim() || undefined,
+        provinceId: filters.provinceId || undefined,
+        wardId: filters.wardId || undefined,
+      };
+      const res = await buildingService.getBuildingsWithPagination(queryParams);
+      if (res.success) {
+        setBuildings(res.data || []);
+        setPagination(res.pagination || { page: 1, limit: 10, total: 0, pages: 1 });
+      }
     } catch (err) {
       console.error('Lỗi khi tải danh sách tòa nhà:', err);
       toast.error('Lỗi khi tải danh sách tòa nhà.');
@@ -47,10 +68,57 @@ export default function BuildingsManagement() {
   };
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      fetchBuildings();
+    fetchBuildings();
+  }, [filters]);
+
+  useEffect(() => {
+    const fetchFilterWards = async () => {
+      if (!filters.provinceId) {
+        setFilterWards([]);
+        return;
+      }
+      try {
+        const data = await locationService.getWards(filters.provinceId);
+        setFilterWards(data || []);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách phường xã cho bộ lọc:', err);
+      }
+    };
+    fetchFilterWards();
+  }, [filters.provinceId]);
+
+  const handleFilterChange = (e) => {
+    const { id, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [id]: value,
+      page: 1,
+    }));
+  };
+
+  const handleFilterProvinceChange = (e) => {
+    const { value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      provinceId: value,
+      wardId: '',
+      page: 1,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      keyword: '',
+      provinceId: '',
+      wardId: '',
+      page: 1,
+      limit: 10,
     });
-  }, []);
+  };
+
+  const handlePageChange = (newPage) => {
+    setFilters(prev => ({ ...prev, page: newPage }));
+  };
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -382,12 +450,106 @@ export default function BuildingsManagement() {
         </Button>
       </div>
 
+      {/* Search & Filter Bar */}
+      <Card className="p-5 bg-white border border-neutral-100 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="keyword" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Từ khóa</label>
+            <input
+              type="text"
+              id="keyword"
+              value={filters.keyword}
+              onChange={handleFilterChange}
+              placeholder="Nhập tên, địa chỉ, mã..."
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 font-medium"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="provinceIdFilter" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Tỉnh / Thành phố</label>
+            <select
+              id="provinceIdFilter"
+              value={filters.provinceId}
+              onChange={handleFilterProvinceChange}
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all font-medium cursor-pointer"
+            >
+              <option value="">Tất cả Tỉnh/Thành</option>
+              {provinces.map((prov) => (
+                <option key={prov.id} value={prov.id}>
+                  {prov.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="wardIdFilter" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Phường / Xã</label>
+            <select
+              id="wardIdFilter"
+              value={filters.wardId}
+              onChange={handleFilterChange}
+              disabled={!filters.provinceId}
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all disabled:bg-neutral-50 disabled:text-neutral-400 font-medium cursor-pointer"
+            >
+              <option value="">Tất cả Phường/Xã</option>
+              {filterWards.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <Button
+              variant="outline"
+              onClick={handleClearFilters}
+              className="w-full h-9 font-semibold hover:bg-neutral-50 cursor-pointer"
+            >
+              Xóa bộ lọc
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       <Table
         columns={columns}
         data={buildings}
         isLoading={isLoading}
-        emptyMessage="Chưa có tòa nhà nào được tạo."
+        emptyMessage="Không tìm thấy tòa nhà nào."
       />
+
+      {/* Pagination controls */}
+      {pagination.pages > 1 && (
+        <div className="flex items-center justify-between border-t border-neutral-100 pt-4">
+          <p className="text-xs text-neutral-400 font-medium">
+            Hiển thị tòa nhà {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} của {pagination.total}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagination.page <= 1}
+              onClick={() => handlePageChange(pagination.page - 1)}
+              className="cursor-pointer"
+            >
+              Trước
+            </Button>
+            <span className="text-xs font-semibold text-neutral-700 px-2">
+              Trang {pagination.page} / {pagination.pages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagination.page >= pagination.pages}
+              onClick={() => handlePageChange(pagination.page + 1)}
+              className="cursor-pointer"
+            >
+              Sau
+            </Button>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">

@@ -5,6 +5,7 @@ import { roomService } from '@/services/room.service';
 import { buildingService } from '@/services/building.service';
 import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { formatCurrency } from '@/utils/format';
 import { ROOM_STATUS, ROOM_STATUS_COLORS, ROOM_TYPES } from '@/constants';
@@ -15,6 +16,19 @@ export default function RoomsManagement() {
   const [rooms, setRooms] = useState([]);
   const [buildings, setBuildings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Search & Filter states
+  const [filters, setFilters] = useState({
+    keyword: '',
+    buildingId: '',
+    status: '',
+    type: '',
+    floor: '',
+    page: 1,
+    limit: 10,
+  });
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 1 });
+  const [filterFloors, setFilterFloors] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentRoom, setCurrentRoom] = useState(null);
@@ -35,26 +49,92 @@ export default function RoomsManagement() {
   const [newImageFiles, setNewImageFiles] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
+  const fetchBuildings = async () => {
     try {
       const bData = await buildingService.getBuildings({ limit: 1000 });
-      const rData = await roomService.getRooms({ limit: 1000 });
       setBuildings(bData || []);
-      setRooms(rData || []);
     } catch (err) {
-      console.error('Lỗi khi tải dữ liệu phòng & tòa nhà:', err);
-      toast.error('Lỗi khi tải dữ liệu phòng & tòa nhà.');
+      console.error('Lỗi khi tải danh sách tòa nhà:', err);
+    }
+  };
+
+  const fetchRooms = async () => {
+    setIsLoading(true);
+    try {
+      const queryParams = {
+        ...filters,
+        keyword: filters.keyword.trim() || undefined,
+        buildingId: filters.buildingId || undefined,
+        status: filters.status || undefined,
+        type: filters.type || undefined,
+        floor: filters.floor || undefined,
+      };
+      const res = await roomService.getRoomsWithPagination(queryParams);
+      if (res.success) {
+        setRooms(res.data || []);
+        setPagination(res.pagination || { page: 1, limit: 10, total: 0, pages: 1 });
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải danh sách phòng:', err);
+      toast.error('Lỗi khi tải danh sách phòng.');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    Promise.resolve().then(() => {
-      fetchData();
-    });
+    fetchBuildings();
   }, []);
+
+  useEffect(() => {
+    fetchRooms();
+  }, [filters]);
+
+  useEffect(() => {
+    if (!filters.buildingId) {
+      setFilterFloors([]);
+      return;
+    }
+    const selectedB = buildings.find(b => b.id === filters.buildingId);
+    const maxFloors = selectedB?.numberOfFloors || 50;
+    const floorsArray = Array.from({ length: maxFloors }, (_, i) => i + 1);
+    setFilterFloors(floorsArray);
+  }, [filters.buildingId, buildings]);
+
+  const handleFilterChange = (e) => {
+    const { id, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [id]: value,
+      page: 1,
+    }));
+  };
+
+  const handleFilterBuildingChange = (e) => {
+    const { value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      buildingId: value,
+      floor: '',
+      page: 1,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      keyword: '',
+      buildingId: '',
+      status: '',
+      type: '',
+      floor: '',
+      page: 1,
+      limit: 10,
+    });
+  };
+
+  const handlePageChange = (newPage) => {
+    setFilters(prev => ({ ...prev, page: newPage }));
+  };
 
   const handleOpenAddModal = () => {
     setCurrentRoom(null);
@@ -253,7 +333,7 @@ export default function RoomsManagement() {
       }
 
       setIsModalOpen(false);
-      fetchData();
+      fetchRooms();
     } catch (err) {
       if (err.errors) {
         setFieldErrors(err.errors);
@@ -270,7 +350,7 @@ export default function RoomsManagement() {
     try {
       await roomService.deleteRoom(id);
       toast.success('Xóa phòng thành công!');
-      fetchData();
+      fetchRooms();
     } catch (err) {
       const errorMsg = err.message || 'Xóa phòng không thành công.';
       toast.error(errorMsg);
@@ -373,12 +453,140 @@ export default function RoomsManagement() {
         </Button>
       </div>
 
+      {/* Search & Filter Bar */}
+      <Card className="p-5 bg-white border border-neutral-100 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="keyword" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Số phòng</label>
+            <input
+              type="text"
+              id="keyword"
+              value={filters.keyword}
+              onChange={handleFilterChange}
+              placeholder="Nhập số phòng..."
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all placeholder-neutral-400 font-medium"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="buildingIdFilter" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Tòa nhà</label>
+            <select
+              id="buildingIdFilter"
+              value={filters.buildingId}
+              onChange={handleFilterBuildingChange}
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all font-medium cursor-pointer"
+            >
+              <option value="">Tất cả tòa nhà</option>
+              {buildings.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="floorFilter" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Tầng</label>
+            <select
+              id="floor"
+              value={filters.floor}
+              onChange={handleFilterChange}
+              disabled={!filters.buildingId}
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all disabled:bg-neutral-50 disabled:text-neutral-400 font-medium cursor-pointer"
+            >
+              <option value="">Tất cả tầng</option>
+              {filterFloors.map((fl) => (
+                <option key={fl} value={fl}>
+                  Tầng {fl}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="typeFilter" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Loại phòng</label>
+            <select
+              id="type"
+              value={filters.type}
+              onChange={handleFilterChange}
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all font-medium cursor-pointer"
+            >
+              <option value="">Tất cả loại</option>
+              {Object.values(ROOM_TYPES).map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1.5 text-left">
+            <label htmlFor="statusFilter" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Trạng thái</label>
+            <select
+              id="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+              className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all font-medium cursor-pointer"
+            >
+              <option value="">Tất cả trạng thái</option>
+              {Object.values(ROOM_STATUS).map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <Button
+              variant="outline"
+              onClick={handleClearFilters}
+              className="w-full h-9 font-semibold hover:bg-neutral-50 cursor-pointer"
+            >
+              Xóa bộ lọc
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       <Table
         columns={columns}
         data={rooms}
         isLoading={isLoading}
-        emptyMessage={buildings.length === 0 ? "Vui lòng tạo tòa nhà trước khi tạo phòng." : "Chưa có phòng nào được tạo."}
+        emptyMessage="Không tìm thấy phòng nào."
       />
+
+      {/* Pagination controls */}
+      {pagination.pages > 1 && (
+        <div className="flex items-center justify-between border-t border-neutral-100 pt-4">
+          <p className="text-xs text-neutral-400 font-medium">
+            Hiển thị phòng {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} của {pagination.total}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagination.page <= 1}
+              onClick={() => handlePageChange(pagination.page - 1)}
+              className="cursor-pointer"
+            >
+              Trước
+            </Button>
+            <span className="text-xs font-semibold text-neutral-700 px-2">
+              Trang {pagination.page} / {pagination.pages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pagination.page >= pagination.pages}
+              onClick={() => handlePageChange(pagination.page + 1)}
+              className="cursor-pointer"
+            >
+              Sau
+            </Button>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">

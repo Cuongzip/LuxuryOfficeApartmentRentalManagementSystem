@@ -11,6 +11,7 @@ export const getRooms = asyncHandler(async (req, res) => {
     maxArea,
     minPrice,
     maxPrice,
+    keyword,
     page,
     limit,
   } = req.query;
@@ -24,6 +25,7 @@ export const getRooms = asyncHandler(async (req, res) => {
     maxArea,
     minPrice,
     maxPrice,
+    keyword,
     page: page ? parseInt(page, 10) : undefined,
     limit: limit ? parseInt(limit, 10) : undefined,
   });

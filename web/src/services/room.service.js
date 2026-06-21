@@ -1,10 +1,26 @@
 import { apiClient } from './apiClient';
 
+const cleanParams = (params) => {
+  const cleaned = {};
+  Object.entries(params).forEach(([key, val]) => {
+    if (val !== undefined && val !== null && val !== '' && String(val) !== 'undefined' && String(val) !== 'null') {
+      cleaned[key] = val;
+    }
+  });
+  return cleaned;
+};
+
 export const roomService = {
   async getRooms(params = {}) {
-    const query = new URLSearchParams(params).toString();
+    const query = new URLSearchParams(cleanParams(params)).toString();
     const response = await apiClient.get(`/rooms${query ? `?${query}` : ''}`);
     return response.data;
+  },
+
+  async getRoomsWithPagination(params = {}) {
+    const query = new URLSearchParams(cleanParams(params)).toString();
+    const response = await apiClient.get(`/rooms${query ? `?${query}` : ''}`);
+    return response;
   },
 
   async getRoomById(id) {
