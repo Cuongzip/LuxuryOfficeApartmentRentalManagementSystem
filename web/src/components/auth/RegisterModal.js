@@ -98,10 +98,6 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     <Modal isOpen={isOpen} onClose={onClose} title={success ? "Xác thực Email" : "Đăng ký tài khoản"} size="md">
       {!success ? (
         <>
-          <div className="flex flex-col items-center mb-4">
-            <img src="/images/logo.png" alt="Logo" className="w-60  object-contain mb-2" />
-
-          </div>
 
           <form onSubmit={handleSubmit} className="space-y-3" noValidate>
             <Input

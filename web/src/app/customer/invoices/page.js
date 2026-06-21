@@ -73,7 +73,7 @@ export default function CustomerInvoices() {
 
   const handleOpenPayment = (invoice, e) => {
     if (e) e.stopPropagation();
-    
+
     const unpaidAmount = getRemainingBalance(invoice);
     setSelectedInvoice(invoice);
     setPaymentForm({
@@ -109,7 +109,7 @@ export default function CustomerInvoices() {
     e.preventDefault();
     const remaining = getRemainingBalance(selectedInvoice);
     const amountVal = Number(paymentForm.amountPaid);
-    
+
     // Validations
     const errors = {};
     if (!paymentForm.amountPaid || isNaN(amountVal) || amountVal <= 0) {
@@ -143,7 +143,7 @@ export default function CustomerInvoices() {
       toast.success('Gửi minh chứng thanh toán thành công! Chờ xác nhận từ Ban quản lý.');
       setIsPaymentOpen(false);
       fetchInvoices();
-      
+
       // Close details modal if it was open in the background
       setIsDetailsOpen(false);
     } catch (error) {
@@ -235,11 +235,10 @@ export default function CustomerInvoices() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setStatusFilter('')}
-              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                statusFilter === ''
-                  ? 'bg-brand text-white border-brand'
-                  : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
-              }`}
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${statusFilter === ''
+                ? 'bg-brand text-white border-brand'
+                : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
+                }`}
             >
               Tất cả
             </button>
@@ -247,11 +246,10 @@ export default function CustomerInvoices() {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                  statusFilter === status
-                    ? 'bg-brand text-white border-brand'
-                    : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
-                }`}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${statusFilter === status
+                  ? 'bg-brand text-white border-brand'
+                  : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
+                  }`}
               >
                 {status}
               </button>
@@ -325,9 +323,8 @@ export default function CustomerInvoices() {
               </div>
               <div>
                 <span className="block text-xs text-neutral-400 font-bold uppercase tracking-wider">Trạng thái:</span>
-                <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border mt-1 ${
-                  PAYMENT_STATUS_COLORS[selectedInvoice.paymentStatus] || 'bg-neutral-100 text-neutral-800'
-                }`}>
+                <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border mt-1 ${PAYMENT_STATUS_COLORS[selectedInvoice.paymentStatus] || 'bg-neutral-100 text-neutral-800'
+                  }`}>
                   {selectedInvoice.paymentStatus}
                 </span>
               </div>
@@ -381,7 +378,7 @@ export default function CustomerInvoices() {
                     {selectedInvoice.invoiceDetails?.map((detail, index) => {
                       const isIndexService = detail.service?.name === 'Điện' || detail.service?.name === 'Nước';
                       const roomLabel = selectedInvoice.contract?.contractDetails?.find(cd => cd.roomId === detail.roomId)?.room?.roomNumber || detail.roomId;
-                      
+
                       return (
                         <tr key={index} className="hover:bg-neutral-50/40">
                           <td className="px-4 py-2.5 font-medium text-neutral-800">

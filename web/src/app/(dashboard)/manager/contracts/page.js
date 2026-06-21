@@ -45,14 +45,12 @@ const SearchableSelect = ({ label, id, value, onChange, options, placeholder, er
       <label className="text-sm font-medium text-slate-700">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      
-      <div 
+
+      <div
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 cursor-pointer flex items-center justify-between hover:border-neutral-300 transition-all ${
-          disabled ? 'bg-neutral-50 text-neutral-400 cursor-not-allowed border-neutral-200' : ''
-        } ${
-          error ? 'border-red-500 focus:ring-red-500' : ''
-        }`}
+        className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 cursor-pointer flex items-center justify-between hover:border-neutral-300 transition-all ${disabled ? 'bg-neutral-50 text-neutral-400 cursor-not-allowed border-neutral-200' : ''
+          } ${error ? 'border-red-500 focus:ring-red-500' : ''
+          }`}
       >
         <span className={selectedOption ? 'text-neutral-900 font-medium' : 'text-neutral-400'}>
           {selectedOption ? selectedOption.label : placeholder}
@@ -86,9 +84,8 @@ const SearchableSelect = ({ label, id, value, onChange, options, placeholder, er
                     setIsOpen(false);
                     setSearch('');
                   }}
-                  className={`px-3 py-2.5 text-xs cursor-pointer hover:bg-neutral-50 transition-colors flex items-center justify-between ${
-                    opt.value === value ? 'bg-brand/5 text-brand font-bold' : 'text-neutral-700'
-                  }`}
+                  className={`px-3 py-2.5 text-xs cursor-pointer hover:bg-neutral-50 transition-colors flex items-center justify-between ${opt.value === value ? 'bg-brand/5 text-brand font-bold' : 'text-neutral-700'
+                    }`}
                 >
                   <span>{opt.label}</span>
                   {opt.value === value && (
@@ -475,9 +472,16 @@ export default function ContractsManagement() {
     }
   };
 
-  const handleOpenDetailModal = (contract) => {
+  const handleOpenDetailModal = async (contract) => {
     setSelectedContract(contract);
     setIsDetailModalOpen(true);
+    try {
+      const detailed = await contractService.getContractById(contract.id);
+      setSelectedContract(detailed);
+    } catch (error) {
+      console.error('Error loading contract details:', error);
+      toast.error('Lỗi khi tải chi tiết hợp đồng.');
+    }
   };
 
   // Filter available rooms for creation dropdown
@@ -510,20 +514,6 @@ export default function ContractsManagement() {
           <div className="text-xs text-neutral-500">{c.customerId}</div>
         </div>
       ),
-    },
-    {
-      header: 'Phòng',
-      key: 'roomInfo',
-      render: (c) => {
-        const detail = c.contractDetails?.[0];
-        if (!detail) return '-';
-        return (
-          <div>
-            <div className="font-medium text-neutral-900">Phòng {detail.room?.roomNumber || detail.roomId}</div>
-            <div className="text-xs text-neutral-500">{detail.room?.building?.name || 'Vãng lai'}</div>
-          </div>
-        );
-      },
     },
     {
       header: 'Thời Hạn',
@@ -748,11 +738,10 @@ export default function ContractsManagement() {
                 <button
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
-                  className={`w-8 h-8 rounded-lg text-xs font-semibold border flex items-center justify-center transition-all cursor-pointer ${
-                    pagination.page === pageNum
-                      ? 'bg-brand text-white border-brand'
-                      : 'border-neutral-200 text-neutral-600 bg-white hover:bg-neutral-50'
-                  }`}
+                  className={`w-8 h-8 rounded-lg text-xs font-semibold border flex items-center justify-center transition-all cursor-pointer ${pagination.page === pageNum
+                    ? 'bg-brand text-white border-brand'
+                    : 'border-neutral-200 text-neutral-600 bg-white hover:bg-neutral-50'
+                    }`}
                 >
                   {pageNum}
                 </button>
@@ -775,218 +764,218 @@ export default function ContractsManagement() {
           <form onSubmit={handleCreateSubmit} noValidate className="flex flex-col max-h-[70vh]">
             <div className="flex-1 overflow-y-auto pr-1.5 space-y-4 pb-4">
               <SearchableSelect
-              label="Khách hàng"
-              id="customerId"
-              value={formData.customerId}
-              onChange={(val) => setFormData(prev => ({ ...prev, customerId: val }))}
-              options={customerOptions}
-              placeholder="Chọn khách hàng thuê..."
-              required
-              error={fieldErrors.customerId}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Ngày bắt đầu (mặc định)"
-                id="defaultStartDate"
-                type="date"
-                value={defaultStartDate}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setDefaultStartDate(val);
-                  setFormData(prev => ({
-                    ...prev,
-                    rooms: prev.rooms.map(r => ({
-                      ...r,
-                      startDate: r.startDate || val
-                    }))
-                  }));
-                }}
+                label="Khách hàng"
+                id="customerId"
+                value={formData.customerId}
+                onChange={(val) => setFormData(prev => ({ ...prev, customerId: val }))}
+                options={customerOptions}
+                placeholder="Chọn khách hàng thuê..."
+                required
+                error={fieldErrors.customerId}
               />
-              <Input
-                label="Ngày kết thúc (mặc định)"
-                id="defaultEndDate"
-                type="date"
-                value={defaultEndDate}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setDefaultEndDate(val);
-                  setFormData(prev => ({
-                    ...prev,
-                    rooms: prev.rooms.map(r => ({
-                      ...r,
-                      endDate: r.endDate || val
-                    }))
-                  }));
-                }}
-              />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-slate-700">Tòa nhà</label>
-                <select
-                  value={selectedBuildingId}
-                  onChange={(e) => setSelectedBuildingId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
-                >
-                  <option value="">-- Chọn tòa nhà --</option>
-                  {buildings.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <SearchableSelect
-                label="Chọn phòng để thêm"
-                id="addRoomSelect"
-                value=""
-                onChange={(roomId) => {
-                  if (roomId && !formData.rooms.some(r => r.roomId === roomId)) {
-                    const roomInfo = rooms.find(r => r.id === roomId);
-                    const newRoom = {
-                      roomId: roomId,
-                      agreedPrice: roomInfo ? Number(roomInfo.price) : 0,
-                      startDate: defaultStartDate || '',
-                      endDate: defaultEndDate || '',
-                    };
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Ngày bắt đầu (mặc định)"
+                  id="defaultStartDate"
+                  type="date"
+                  value={defaultStartDate}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setDefaultStartDate(val);
                     setFormData(prev => ({
                       ...prev,
-                      rooms: [...prev.rooms, newRoom]
+                      rooms: prev.rooms.map(r => ({
+                        ...r,
+                        startDate: r.startDate || val
+                      }))
                     }));
-                  } else if (roomId) {
-                    toast.error('Phòng này đã được chọn');
-                  }
-                }}
-                options={roomOptions}
-                placeholder={selectedBuildingId ? "Chọn phòng trống..." : "Chọn tòa nhà trước"}
-                required={formData.rooms.length === 0}
-                disabled={!selectedBuildingId}
-                error={fieldErrors.rooms}
+                  }}
+                />
+                <Input
+                  label="Ngày kết thúc (mặc định)"
+                  id="defaultEndDate"
+                  type="date"
+                  value={defaultEndDate}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setDefaultEndDate(val);
+                    setFormData(prev => ({
+                      ...prev,
+                      rooms: prev.rooms.map(r => ({
+                        ...r,
+                        endDate: r.endDate || val
+                      }))
+                    }));
+                  }}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-slate-700">Tòa nhà</label>
+                  <select
+                    value={selectedBuildingId}
+                    onChange={(e) => setSelectedBuildingId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                  >
+                    <option value="">-- Chọn tòa nhà --</option>
+                    {buildings.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <SearchableSelect
+                  label="Chọn phòng để thêm"
+                  id="addRoomSelect"
+                  value=""
+                  onChange={(roomId) => {
+                    if (roomId && !formData.rooms.some(r => r.roomId === roomId)) {
+                      const roomInfo = rooms.find(r => r.id === roomId);
+                      const newRoom = {
+                        roomId: roomId,
+                        agreedPrice: roomInfo ? Number(roomInfo.price) : 0,
+                        startDate: defaultStartDate || '',
+                        endDate: defaultEndDate || '',
+                      };
+                      setFormData(prev => ({
+                        ...prev,
+                        rooms: [...prev.rooms, newRoom]
+                      }));
+                    } else if (roomId) {
+                      toast.error('Phòng này đã được chọn');
+                    }
+                  }}
+                  options={roomOptions}
+                  placeholder={selectedBuildingId ? "Chọn phòng trống..." : "Chọn tòa nhà trước"}
+                  required={formData.rooms.length === 0}
+                  disabled={!selectedBuildingId}
+                  error={fieldErrors.rooms}
+                />
+              </div>
+
+              {formData.rooms.length > 0 && (
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-slate-700 block">
+                    Chi tiết phòng thuê ({formData.rooms.length})
+                  </label>
+                  <div className="max-h-80 overflow-y-auto space-y-3 border border-slate-200 rounded-xl p-3 bg-slate-50/50">
+                    {formData.rooms.map((item, idx) => {
+                      const roomInfo = rooms.find(r => r.id === item.roomId);
+                      if (!roomInfo) return null;
+                      return (
+                        <div key={item.roomId} className="bg-white p-3 rounded-lg border border-neutral-200 shadow-sm space-y-3 relative hover:border-brand/40 transition-colors">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <span className="font-bold text-sm text-neutral-850">
+                                Phòng {roomInfo.roomNumber} - {roomInfo.building?.name || 'Vãng lai'}
+                              </span>
+                              <span className="text-xs text-neutral-400 block mt-0.5">
+                                Tầng {roomInfo.floor} • Giá niêm yết: {formatCurrency(roomInfo.price)}/tháng
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  rooms: prev.rooms.filter(r => r.roomId !== item.roomId)
+                                }));
+                              }}
+                              className="p-1 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
+                              title="Xóa phòng"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">Giá thỏa thuận</label>
+                              <input
+                                type="number"
+                                value={item.agreedPrice}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setFormData(prev => {
+                                    const updated = [...prev.rooms];
+                                    updated[idx] = { ...updated[idx], agreedPrice: val };
+                                    return { ...prev, rooms: updated };
+                                  });
+                                }}
+                                className="w-full px-2.5 py-1.5 border border-neutral-200 rounded-lg text-xs bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all font-medium"
+                                placeholder="Giá thuê..."
+                                required
+                              />
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">Ngày bắt đầu</label>
+                              <input
+                                type="date"
+                                value={item.startDate}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setFormData(prev => {
+                                    const updated = [...prev.rooms];
+                                    updated[idx] = { ...updated[idx], startDate: val };
+                                    return { ...prev, rooms: updated };
+                                  });
+                                }}
+                                className="w-full px-2.5 py-1.5 border border-neutral-200 rounded-lg text-xs bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
+                                required
+                              />
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">Ngày kết thúc</label>
+                              <input
+                                type="date"
+                                value={item.endDate}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setFormData(prev => {
+                                    const updated = [...prev.rooms];
+                                    updated[idx] = { ...updated[idx], endDate: val };
+                                    return { ...prev, rooms: updated };
+                                  });
+                                }}
+                                className="w-full px-2.5 py-1.5 border border-neutral-200 rounded-lg text-xs bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="p-2.5 bg-brand/5 border border-brand/10 rounded-xl flex items-center justify-between text-xs text-brand font-semibold">
+                    <span>Tổng giá thuê thỏa thuận:</span>
+                    <span className="text-sm font-bold">
+                      {formatCurrency(
+                        formData.rooms.reduce((sum, item) => sum + Number(item.agreedPrice || 0), 0)
+                      )} / Tháng
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <Input
+                label="Số tiền đặt cọc (VND)"
+                id="deposit"
+                type="number"
+                value={formData.deposit}
+                onChange={handleInputChange}
+                required
+                error={fieldErrors.deposit}
               />
             </div>
-
-            {formData.rooms.length > 0 && (
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-slate-700 block">
-                  Chi tiết phòng thuê ({formData.rooms.length})
-                </label>
-                <div className="max-h-80 overflow-y-auto space-y-3 border border-slate-200 rounded-xl p-3 bg-slate-50/50">
-                  {formData.rooms.map((item, idx) => {
-                    const roomInfo = rooms.find(r => r.id === item.roomId);
-                    if (!roomInfo) return null;
-                    return (
-                      <div key={item.roomId} className="bg-white p-3 rounded-lg border border-neutral-200 shadow-sm space-y-3 relative hover:border-brand/40 transition-colors">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <span className="font-bold text-sm text-neutral-850">
-                              Phòng {roomInfo.roomNumber} - {roomInfo.building?.name || 'Vãng lai'}
-                            </span>
-                            <span className="text-xs text-neutral-400 block mt-0.5">
-                              Tầng {roomInfo.floor} • Giá niêm yết: {formatCurrency(roomInfo.price)}/tháng
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({
-                                ...prev,
-                                rooms: prev.rooms.filter(r => r.roomId !== item.roomId)
-                              }));
-                            }}
-                            className="p-1 rounded-md text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors"
-                            title="Xóa phòng"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">Giá thỏa thuận</label>
-                            <input
-                              type="number"
-                              value={item.agreedPrice}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setFormData(prev => {
-                                  const updated = [...prev.rooms];
-                                  updated[idx] = { ...updated[idx], agreedPrice: val };
-                                  return { ...prev, rooms: updated };
-                                });
-                              }}
-                              className="w-full px-2.5 py-1.5 border border-neutral-200 rounded-lg text-xs bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all font-medium"
-                              placeholder="Giá thuê..."
-                              required
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">Ngày bắt đầu</label>
-                            <input
-                              type="date"
-                              value={item.startDate}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setFormData(prev => {
-                                  const updated = [...prev.rooms];
-                                  updated[idx] = { ...updated[idx], startDate: val };
-                                  return { ...prev, rooms: updated };
-                                });
-                              }}
-                              className="w-full px-2.5 py-1.5 border border-neutral-200 rounded-lg text-xs bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
-                              required
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-semibold text-neutral-500 uppercase tracking-wider">Ngày kết thúc</label>
-                            <input
-                              type="date"
-                              value={item.endDate}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setFormData(prev => {
-                                  const updated = [...prev.rooms];
-                                  updated[idx] = { ...updated[idx], endDate: val };
-                                  return { ...prev, rooms: updated };
-                                });
-                              }}
-                              className="w-full px-2.5 py-1.5 border border-neutral-200 rounded-lg text-xs bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all"
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="p-2.5 bg-brand/5 border border-brand/10 rounded-xl flex items-center justify-between text-xs text-brand font-semibold">
-                  <span>Tổng giá thuê thỏa thuận:</span>
-                  <span className="text-sm font-bold">
-                    {formatCurrency(
-                      formData.rooms.reduce((sum, item) => sum + Number(item.agreedPrice || 0), 0)
-                    )} / Tháng
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <Input
-              label="Số tiền đặt cọc (VND)"
-              id="deposit"
-              type="number"
-              value={formData.deposit}
-              onChange={handleInputChange}
-              required
-              error={fieldErrors.deposit}
-            />
-          </div>
 
             <div className="border-t border-neutral-100 pt-4 flex justify-end gap-3 mt-4">
               <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
@@ -1134,24 +1123,9 @@ export default function ContractsManagement() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-100 text-neutral-600 bg-white">
-                    {(selectedContract.contractDetails || []).flatMap(detail => 
-                      (detail.room?.roomServices || []).map((rs, rsIdx) => (
-                        <tr key={`${detail.roomId}-${rsIdx}`}>
-                          <td className="px-4 py-2.5 font-medium text-neutral-800">{rs.service?.name}</td>
-                          <td className="px-4 py-2.5">Phòng {detail.room?.roomNumber}</td>
-                          <td className="px-4 py-2.5">{formatCurrency(rs.service?.currentPrice)} / {rs.service?.unit}</td>
-                          <td className="px-4 py-2.5">{rs.quantity}</td>
-                        </tr>
-                      ))
-                    ).length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className="px-4 py-4 text-center text-neutral-400 italic bg-white">
-                          Chỉ sử dụng Điện, Nước và các dịch vụ cơ bản của tòa nhà.
-                        </td>
-                      </tr>
-                    ) : (
-                      (selectedContract.contractDetails || []).flatMap(detail => 
-                        (detail.room?.roomServices || []).map((rs, rsIdx) => (
+                    {(() => {
+                      const rows = (selectedContract.contractDetails || []).flatMap(detail =>
+                        (detail.roomServices || []).map((rs, rsIdx) => (
                           <tr key={`${detail.roomId}-${rsIdx}`}>
                             <td className="px-4 py-2.5 font-medium text-neutral-800">{rs.service?.name}</td>
                             <td className="px-4 py-2.5">Phòng {detail.room?.roomNumber}</td>
@@ -1159,8 +1133,15 @@ export default function ContractsManagement() {
                             <td className="px-4 py-2.5">{rs.quantity}</td>
                           </tr>
                         ))
-                      )
-                    )}
+                      );
+                      return rows.length === 0 ? (
+                        <tr>
+                          <td colSpan="4" className="px-4 py-4 text-center text-neutral-400 italic bg-white">
+                            Chỉ sử dụng Điện, Nước và các dịch vụ cơ bản của tòa nhà.
+                          </td>
+                        </tr>
+                      ) : rows;
+                    })()}
                   </tbody>
                 </table>
               </div>
@@ -1187,11 +1168,10 @@ export default function ContractsManagement() {
                           <td className="px-4 py-2.5">Tháng {invoice.paymentMonth}/{invoice.paymentYear}</td>
                           <td className="px-4 py-2.5">{formatDate(invoice.dueDate)}</td>
                           <td className="px-4 py-2.5">
-                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${
-                              invoice.paymentStatus.toLowerCase().includes('đã') || invoice.paymentStatus.toLowerCase().includes('paid')
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-red-50 text-red-700 border-red-200'
-                            }`}>
+                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${invoice.paymentStatus.toLowerCase().includes('đã') || invoice.paymentStatus.toLowerCase().includes('paid')
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-red-50 text-red-700 border-red-200'
+                              }`}>
                               {invoice.paymentStatus}
                             </span>
                           </td>
@@ -1234,9 +1214,8 @@ export default function ContractsManagement() {
                       type="date"
                       value={roomItem.endDate}
                       onChange={(e) => handleRoomExtDateChange(roomItem.roomId, e.target.value)}
-                      className={`w-full px-3 py-2 text-xs border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand bg-white text-neutral-800 ${
-                        fieldErrors[roomItem.roomId] ? 'border-red-500 ring-red-500' : ''
-                      }`}
+                      className={`w-full px-3 py-2 text-xs border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand bg-white text-neutral-800 ${fieldErrors[roomItem.roomId] ? 'border-red-500 ring-red-500' : ''
+                        }`}
                       min={formatDateInput(roomItem.currentEndDate)}
                     />
                     {fieldErrors[roomItem.roomId] && (

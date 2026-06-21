@@ -8,6 +8,7 @@ import requestRouter from './request.js';
 import customerRouter from './customer.js';
 import invoiceRouter from './invoice.js';
 import statisticsRouter from './statistics.js';
+import residentRouter from './resident.js';
 
 const routes = (app) => {
     app.use('/', siteRouter);
@@ -20,6 +21,7 @@ const routes = (app) => {
     app.use('/api/requests', requestRouter);
     app.use('/api/customers', customerRouter);
     app.use('/api/statistics', statisticsRouter);
+    app.use('/api/residents', residentRouter);
 };
 
 

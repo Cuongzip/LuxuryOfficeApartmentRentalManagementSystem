@@ -47,6 +47,8 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, defaultEmail =
         router.push('/admin');
       } else if (data.account.role === ROLES.RENTAL_MANAGER) {
         router.push('/manager');
+      } else if (data.account.role === ROLES.SECURITY) {
+        router.push('/security');
       } else {
         router.push('/');
       }
@@ -63,10 +65,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, defaultEmail =
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Đăng nhập hệ thống" size="md">
-      <div className="flex flex-col items-center mb-6">
-        <img src="/images/logo.png" alt="Logo" className="w-60 object-contain mb-2" />
 
-      </div>
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <Input
           label="Địa chỉ Email"

@@ -26,7 +26,9 @@ export const UserDropdown = ({ variant = 'light' }) => {
     ? '/admin'
     : user.role === ROLES.RENTAL_MANAGER
       ? '/manager'
-      : '/customer/dashboard';
+      : user.role === ROLES.SECURITY
+        ? '/security'
+        : '/customer/dashboard';
   const isDark = variant === 'dark';
 
   return (
@@ -84,17 +86,6 @@ export const UserDropdown = ({ variant = 'light' }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z" />
               </svg>
               Dashboard
-            </Link>
-
-            <Link
-              href={dashboardHref}
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2.5 px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-xl transition-all font-medium"
-            >
-              <svg className="w-4.5 h-4.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Trang cá nhân
             </Link>
           </div>
 

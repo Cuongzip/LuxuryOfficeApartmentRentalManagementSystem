@@ -18,7 +18,7 @@ export const PublicHeader = ({
     }>
       <div className="w-full flex items-center justify-between md:justify-start md:w-auto shrink-0">
         <Link href="/">
-          <img src="/images/logo.png" alt="Logo" className="w-36 md:w-45 object-contain" />
+          <img src="/images/logo.png" alt="Logo" className="w-36 md:w-45 object-contain brightness-0 invert" />
         </Link>
         <div className="md:hidden flex items-center gap-3">
           {user ? (
@@ -49,8 +49,7 @@ export const PublicHeader = ({
           ? "hidden md:flex items-center justify-end gap-6 shrink-0"
           : "hidden md:flex items-center gap-6 shrink-0"
       }>
-        <Link href="/#features" className="text-sm text-white/80 hover:text-white transition-all font-medium">Dịch vụ</Link>
-        <span className="h-4 w-px bg-white/20"></span>
+
         {user ? (
           <UserDropdown variant="dark" />
         ) : (

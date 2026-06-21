@@ -5,6 +5,8 @@ export { roomSchema, updateRoomSchema, roomStatusSchema } from "./roomValidators
 export { createContractSchema, extendContractSchema, cancelContractSchema } from "./contractValidators.js";
 export { createRequestSchema, updateRequestStatusSchema } from "./requestValidators.js";
 export { createInvoiceSchema, recordPaymentSchema, submitPaymentRequestSchema } from "./invoiceValidators.js";
+export { createResidentSchema, updateResidentSchema } from "./residentValidators.js";
+
 
 
 

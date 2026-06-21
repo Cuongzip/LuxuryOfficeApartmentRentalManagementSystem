@@ -67,6 +67,11 @@ export const getContractById = async (id) => {
               building: true,
             },
           },
+          roomServices: {
+            include: {
+              service: true,
+            },
+          },
         },
       },
       customer: true,

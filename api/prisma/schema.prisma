@@ -120,12 +120,13 @@ model Resident {
   nationalId      String    @unique @map("CCCD") @db.Char(12)
   phoneNumber     String    @unique @map("SoDienThoai") @db.VarChar(10)
   image           String?   @map("HinhAnh") @db.NVarChar(2048)
-  residencyType   String    @default("Cu dan") @map("LoaiCuTru") @db.NVarChar(20)
-  residencyStatus String    @default("Tam tru") @map("TrangThaiCuTru") @db.NVarChar(20)
+  residencyType   String    @default("Cư dân") @map("LoaiCuTru") @db.NVarChar(20)
+  residencyStatus String    @default("Tạm trú") @map("TrangThaiCuTru") @db.NVarChar(20)
   dateOfBirth     DateTime? @map("NgaySinh") @db.DateTime
   gender          String?   @map("GioiTinh") @db.NVarChar(20)
   contractId      String    @map("MaHopDong") @db.VarChar(10)
   roomId          String    @map("MaPhong") @db.VarChar(10)
+  deletedAt       DateTime? @map("NgayXoa")
 
   contractDetail ContractDetail @relation(fields: [contractId, roomId], references: [contractId, roomId], onDelete: NoAction, onUpdate: NoAction)
 

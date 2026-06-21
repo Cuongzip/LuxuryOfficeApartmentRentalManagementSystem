@@ -5,7 +5,7 @@ import { ROLES } from "../constants/index.js";
 export const getContracts = asyncHandler(async (req, res) => {
   const { customerId, roomId, employeeId, status, page, limit } = req.query;
 
-  const allowedRoles = [ROLES.RENTAL_MANAGER, ROLES.CUSTOMER];
+  const allowedRoles = [ROLES.RENTAL_MANAGER, ROLES.CUSTOMER, ROLES.SECURITY, ROLES.ADMIN];
   if (!allowedRoles.includes(req.user.role)) {
     throw new AppError("Bạn không có quyền truy cập chức năng này", 403);
   }
@@ -37,7 +37,7 @@ export const getContracts = asyncHandler(async (req, res) => {
 export const getContractById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const allowedRoles = [ROLES.RENTAL_MANAGER, ROLES.ADMIN, ROLES.CUSTOMER];
+  const allowedRoles = [ROLES.RENTAL_MANAGER, ROLES.ADMIN, ROLES.CUSTOMER, ROLES.SECURITY];
   if (!allowedRoles.includes(req.user.role)) {
     throw new AppError("Bạn không có quyền truy cập chức năng này", 403);
   }

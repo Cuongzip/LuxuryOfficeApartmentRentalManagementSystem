@@ -265,24 +265,9 @@ export default function CustomerContracts() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-100 text-neutral-600 bg-white">
-                    {(selectedContract.contractDetails || []).flatMap(detail => 
-                      (detail.room?.roomServices || []).map((rs, rsIdx) => (
-                        <tr key={`${detail.roomId}-${rsIdx}`}>
-                          <td className="px-4 py-2.5 font-medium text-neutral-800">{rs.service?.name}</td>
-                          <td className="px-4 py-2.5">Phòng {detail.room?.roomNumber}</td>
-                          <td className="px-4 py-2.5">{formatCurrency(rs.service?.currentPrice)} / {rs.service?.unit}</td>
-                          <td className="px-4 py-2.5">{rs.quantity}</td>
-                        </tr>
-                      ))
-                    ).length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className="px-4 py-4 text-center text-neutral-400 italic bg-white">
-                          Chỉ sử dụng Điện, Nước và các dịch vụ cơ bản của tòa nhà.
-                        </td>
-                      </tr>
-                    ) : (
-                      (selectedContract.contractDetails || []).flatMap(detail => 
-                        (detail.room?.roomServices || []).map((rs, rsIdx) => (
+                    {(() => {
+                      const rows = (selectedContract.contractDetails || []).flatMap(detail =>
+                        (detail.roomServices || []).map((rs, rsIdx) => (
                           <tr key={`${detail.roomId}-${rsIdx}`}>
                             <td className="px-4 py-2.5 font-medium text-neutral-800">{rs.service?.name}</td>
                             <td className="px-4 py-2.5">Phòng {detail.room?.roomNumber}</td>
@@ -290,8 +275,15 @@ export default function CustomerContracts() {
                             <td className="px-4 py-2.5">{rs.quantity}</td>
                           </tr>
                         ))
-                      )
-                    )}
+                      );
+                      return rows.length === 0 ? (
+                        <tr>
+                          <td colSpan="4" className="px-4 py-4 text-center text-neutral-400 italic bg-white">
+                            Chỉ sử dụng Điện, Nước và các dịch vụ cơ bản của tòa nhà.
+                          </td>
+                        </tr>
+                      ) : rows;
+                    })()}
                   </tbody>
                 </table>
               </div>
