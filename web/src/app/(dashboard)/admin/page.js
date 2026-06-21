@@ -44,6 +44,8 @@ export default function AdminDashboard() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // Fetch building list for filter dropdown
   const fetchBuildings = async () => {
@@ -96,6 +98,25 @@ export default function AdminDashboard() {
     setEndDate(formatDateInput(new Date()));
   };
 
+  const handleExport = async (type, format) => {
+    if (isExporting) return;
+    setIsExporting(true);
+    const filterParams = {
+      buildingId: selectedBuilding || undefined,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+    };
+    try {
+      await statisticsService.exportSummary(filterParams, format);
+      toast.success('Xuất báo cáo thành công!');
+    } catch (error) {
+      console.error('Error exporting statistics:', error);
+      toast.error(error.message || 'Lỗi khi xuất báo cáo.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Find max monthly revenue to scale the CSS bar heights properly
   const maxMonthRevenue = revenueStats.byMonth.reduce((max, item) => Math.max(max, Number(item.amount)), 0) || 1;
 
@@ -114,6 +135,52 @@ export default function AdminDashboard() {
           <p className="text-neutral-500 text-sm mt-1">
             Theo dõi tổng quan doanh thu, tình trạng phòng và hiệu suất hợp đồng thời gian thực.
           </p>
+        </div>
+
+        {/* Combined Export Dropdown */}
+        <div className="relative">
+          <Button
+            variant="primary"
+            className="flex items-center gap-2 font-semibold shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
+            onClick={() => setShowExportMenu(!showExportMenu)}
+            disabled={isExporting}
+            isLoading={isExporting}
+          >
+            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Xuất báo cáo tổng hợp
+          </Button>
+          {showExportMenu && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)}></div>
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-neutral-100 py-2 z-20 text-left transition-all">
+                <div className="px-4 py-2">
+                  <div className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2.5">Xuất báo cáo tổng hợp</div>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => { handleExport('summary', 'xlsx'); setShowExportMenu(false); }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-sm font-semibold transition-colors cursor-pointer text-center"
+                    >
+                      <svg className="w-4.5 h-4.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Định dạng Excel (XLSX)
+                    </button>
+                    <button
+                      onClick={() => { handleExport('summary', 'pdf'); setShowExportMenu(false); }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm font-semibold transition-colors cursor-pointer text-center"
+                    >
+                      <svg className="w-4.5 h-4.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      Định dạng PDF
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -272,13 +339,14 @@ export default function AdminDashboard() {
             <span className="text-amber-300 font-semibold">Bảo trì: {roomStats.maintenance}</span>
           </div>
         </div>
-      </div>
-
-      {/* Main Content Layout */}
+      </div>      {/* Main Content Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Column - Monthly Revenue Bar Chart & Breakdown Table */}
-        <Card className="lg:col-span-2 p-6 flex flex-col justify-between" title="Biểu đồ doanh thu hàng tháng">
+        <Card
+          className="lg:col-span-2 p-6 flex flex-col justify-between"
+          title="Biểu đồ doanh thu hàng tháng"
+        >
           {isLoading ? (
             <div className="h-72 flex items-center justify-center">
               <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>
@@ -425,7 +493,10 @@ export default function AdminDashboard() {
       </div>
 
       {/* Building Occupancy Matrix */}
-      <Card className="p-6 text-left" title="Tỷ lệ thuê của từng tòa nhà">
+      <Card
+        className="p-6 text-left"
+        title="Tỷ lệ thuê của từng tòa nhà"
+      >
         {isLoading ? (
           <div className="py-12 flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-brand border-t-transparent rounded-full animate-spin"></div>

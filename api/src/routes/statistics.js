@@ -9,6 +9,8 @@ const router = Router();
 router.use(authenticate);
 router.use(requireRoles(ROLES.ADMIN, ROLES.RENTAL_MANAGER));
 
+router.get("/summary/export", statisticsController.exportSummaryStatistics);
+
 router.get("/revenue", statisticsController.getRevenueStatistics);
 router.get("/contracts", statisticsController.getContractStatistics);
 router.get("/rooms", statisticsController.getRoomStatistics);
