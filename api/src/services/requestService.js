@@ -11,7 +11,6 @@ export const createRequest = async ({ customerId, roomId, appointmentDate, conte
     throw new AppError("Phòng không tồn tại", 404);
   }
 
-  // Case-insensitive status check
   if (!room.status || room.status.toLowerCase() !== ROOM_STATUS.AVAILABLE.toLowerCase()) {
     throw new AppError("Phòng này không còn ở trạng thái Còn trống. Vui lòng chọn phòng trống khác!", 400);
   }
@@ -23,7 +22,6 @@ export const createRequest = async ({ customerId, roomId, appointmentDate, conte
     throw new AppError("Ngày hẹn không được là ngày trong quá khứ!", 400);
   }
 
-  // Validate working hours in Asia/Ho_Chi_Minh timezone
   const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Ho_Chi_Minh",
     hour12: false,

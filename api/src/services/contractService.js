@@ -1,5 +1,5 @@
 import prisma from "../config/database.js";
-import { AppError, generateId } from "../utils/index.js";
+import { AppError, generateId, formatDate } from "../utils/index.js";
 import { CONTRACT_STATUS, ROOM_STATUS, PAYMENT_STATUS, ID_PREFIXES } from "../constants/index.js";
 
 export const getContracts = async ({ customerId, roomId, employeeId, status, page = 1, limit = 10 }) => {
@@ -118,7 +118,6 @@ export const createContract = async ({
     throw new AppError("Nhân viên không tồn tại", 404);
   }
 
-  // Parse room lease data
   let roomsData = [];
   if (contractRooms && contractRooms.length > 0) {
     roomsData = contractRooms.map(item => ({
@@ -164,7 +163,6 @@ export const createContract = async ({
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Check dates and overlaps for each room
   for (const item of roomsData) {
     if (isNaN(item.startDate.getTime()) || isNaN(item.endDate.getTime())) {
       throw new AppError("Ngày bắt đầu hoặc ngày kết thúc không hợp lệ", 400);
@@ -265,7 +263,6 @@ export const extendContract = async (id, { endDate, rooms }) => {
     throw new AppError("Chi tiết hợp đồng không tồn tại", 404);
   }
 
-  // Parse rooms to extend
   let extensionItems = [];
   if (rooms && rooms.length > 0) {
     extensionItems = rooms.map(r => ({
@@ -283,7 +280,6 @@ export const extendContract = async (id, { endDate, rooms }) => {
 
   const extendedDetails = [];
 
-  // Check and validate each extension item
   for (const item of extensionItems) {
     const detail = details.find(d => d.roomId === item.roomId);
     if (!detail) {
@@ -297,7 +293,6 @@ export const extendContract = async (id, { endDate, rooms }) => {
       );
     }
 
-    // Check for overlapping active contracts during the extended period
     const overlappingContract = await prisma.contractDetail.findFirst({
       where: {
         roomId: item.roomId,
@@ -328,7 +323,6 @@ export const extendContract = async (id, { endDate, rooms }) => {
   }
 
   const updatedContract = await prisma.$transaction(async (tx) => {
-    // 1. Update contract detail end dates
     for (const item of extendedDetails) {
       await tx.contractDetail.update({
         where: {
@@ -340,7 +334,6 @@ export const extendContract = async (id, { endDate, rooms }) => {
         data: { endDate: item.newEndDate },
       });
 
-      // 2. Create a contract extension record
       let extensionId = generateId("GH");
       let existingExtension = await tx.contractExtension.findUnique({
         where: { id: extensionId },
@@ -364,7 +357,6 @@ export const extendContract = async (id, { endDate, rooms }) => {
       });
     }
 
-    // 3. Return the updated contract
     return tx.contract.findUnique({
       where: { id },
       include: {

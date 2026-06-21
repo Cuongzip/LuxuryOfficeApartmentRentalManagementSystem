@@ -1,8 +1,6 @@
 import prisma from "../config/database.js";
-import { AppError, generateId } from "../utils/index.js";
+import { AppError, generateId, deletePhysicalImages, prepareImagesData } from "../utils/index.js";
 import { ROOM_STATUS, CONTRACT_STATUS, ID_PREFIXES } from "../constants/index.js";
-import fs from "fs";
-import path from "path";
 
 export const getRooms = async ({
   buildingId,
@@ -157,15 +155,7 @@ export const createRoom = async ({
       description: description || null,
       maxPeople: maxPeople !== undefined ? maxPeople : 2,
       images: images && images.length > 0 ? {
-        create: images.map((img, index) => {
-          const imgObj = typeof img === "string" ? { imagePath: img } : img;
-          return {
-            id: generateId(ID_PREFIXES.IMAGE),
-            imagePath: imgObj.imagePath,
-            displayOrder: imgObj.displayOrder !== undefined ? imgObj.displayOrder : index + 1,
-            isPrimary: imgObj.isPrimary !== undefined ? imgObj.isPrimary : index === 0,
-          };
-        }),
+        create: prepareImagesData(images),
       } : undefined,
     },
     include: {
@@ -257,15 +247,7 @@ export const updateRoom = async (
 
     data.images = {
       deleteMany: {},
-      create: images ? images.map((img, index) => {
-        const imgObj = typeof img === "string" ? { imagePath: img } : img;
-        return {
-          id: generateId(ID_PREFIXES.IMAGE),
-          imagePath: imgObj.imagePath,
-          displayOrder: imgObj.displayOrder !== undefined ? imgObj.displayOrder : index + 1,
-          isPrimary: imgObj.isPrimary !== undefined ? imgObj.isPrimary : index === 0,
-        };
-      }) : [],
+      create: prepareImagesData(images),
     };
   }
 
@@ -301,16 +283,7 @@ export const updateRoom = async (
     },
   });
 
-  for (const imgPath of filesToDelete) {
-    const physicalPath = path.join("src/resources/public", imgPath.replace(/^\/static\//, ""));
-    try {
-      if (fs.existsSync(physicalPath)) {
-        fs.unlinkSync(physicalPath);
-      }
-    } catch (err) {
-      // Intentionally silent - DB is already consistent
-    }
-  }
+  deletePhysicalImages(filesToDelete);
 
   return updatedRoom;
 };
