@@ -8,7 +8,7 @@ const router = Router();
 
 // Secure all endpoints under this router
 router.use(authenticate);
-router.use(requireRoles(ROLES.SECURITY, ROLES.ADMIN));
+router.use(requireRoles(ROLES.SECURITY));
 
 router.get("/", occupantController.getOccupants);
 router.get("/:id", occupantController.getOccupantById);

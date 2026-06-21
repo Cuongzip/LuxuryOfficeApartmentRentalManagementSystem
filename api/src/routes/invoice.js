@@ -8,22 +8,22 @@ const router = Router();
 
 router.use(authenticate);
 
-// List and details are accessible by RENTAL_MANAGER, ADMIN, and CUSTOMER
+// List and details are accessible by RENTAL_MANAGER and CUSTOMER
 router.get("/", invoiceController.getInvoices);
 router.get("/:id", invoiceController.getInvoiceById);
 
-// Create invoice (RENTAL_MANAGER and ADMIN only)
+// Create invoice (RENTAL_MANAGER)
 router.post(
   "/",
-  requireRoles(ROLES.RENTAL_MANAGER, ROLES.ADMIN),
+  requireRoles(ROLES.RENTAL_MANAGER),
   validateBody(createInvoiceSchema),
   invoiceController.createInvoice
 );
 
-// Record payment (reconciliation) (RENTAL_MANAGER and ADMIN only)
+// Record payment (reconciliation) (RENTAL_MANAGER)
 router.post(
   "/:id/payments",
-  requireRoles(ROLES.RENTAL_MANAGER, ROLES.ADMIN),
+  requireRoles(ROLES.RENTAL_MANAGER),
   validateBody(recordPaymentSchema),
   invoiceController.recordPayment
 );

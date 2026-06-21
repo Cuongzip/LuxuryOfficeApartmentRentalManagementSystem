@@ -7,7 +7,7 @@ const router = Router();
 
 // Apply auth middleware for all statistics endpoints
 router.use(authenticate);
-router.use(requireRoles(ROLES.ADMIN, ROLES.RENTAL_MANAGER));
+router.use(requireRoles(ROLES.ADMIN));
 
 router.get("/summary/export", statisticsController.exportSummaryStatistics);
 

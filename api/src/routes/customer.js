@@ -6,7 +6,7 @@ import { ROLES } from "../constants/index.js";
 const router = Router();
 
 router.use(authenticate);
-router.use(requireRoles(ROLES.RENTAL_MANAGER, ROLES.ADMIN));
+router.use(requireRoles(ROLES.RENTAL_MANAGER));
 
 router.get("/", customerController.getCustomers);
 router.get("/:id", customerController.getCustomerById);
