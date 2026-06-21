@@ -71,8 +71,7 @@ export const AuthProvider = ({ children }) => {
           }
 
           toast.success('Xác thực tài khoản thành công! Vui lòng đăng nhập.');
-          setIsLoginOpen(true);
-          window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
+          window.history.replaceState(null, '', `${window.location.pathname}`);
         } else if (showLogin) {
           setIsLoginOpen(true);
         } else if (showRegister) {
@@ -97,8 +96,7 @@ export const AuthProvider = ({ children }) => {
               setLoginEmail(email);
             }
             setIsRegisterOpen(false);
-            setIsLoginOpen(true);
-            toast.success('Tài khoản đã được xác thực thành công ở tab khác! Vui lòng đăng nhập.');
+            toast.success('Tài khoản đã được xác thực thành công! Vui lòng đăng nhập.');
 
             const originalTitle = document.title;
             document.title = '🔔 Kích hoạt thành công!';
