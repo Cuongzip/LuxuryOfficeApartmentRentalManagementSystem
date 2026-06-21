@@ -11,12 +11,12 @@ Hệ thống quản lý cho thuê căn hộ/văn phòng cao cấp, gồm 2 phầ
 
 Trước khi bắt đầu, cài đặt các công cụ sau:
 
-| Công cụ | Phiên bản gợi ý | Ghi chú |
-|---|---|---|
-| [Node.js](https://nodejs.org/) | >= 18 | Kèm npm |
-| [SQL Server](https://www.microsoft.com/sql-server/sql-server-downloads) | 2019+ (Developer/Express) | Chạy local |
-| [SQL Server Management Studio (SSMS)](https://learn.microsoft.com/sql/ssms/download-ssms) | mới nhất | Không bắt buộc nhưng nên có để xem dữ liệu |
-| Git | mới nhất | Để clone repo |
+| Công cụ                                                                                   | Phiên bản gợi ý           | Ghi chú                                    |
+| ----------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------------ |
+| [Node.js](https://nodejs.org/)                                                            | >= 18                     | Kèm npm                                    |
+| [SQL Server](https://www.microsoft.com/sql-server/sql-server-downloads)                   | 2019+ (Developer/Express) | Chạy local                                 |
+| [SQL Server Management Studio (SSMS)](https://learn.microsoft.com/sql/ssms/download-ssms) | mới nhất                  | Không bắt buộc nhưng nên có để xem dữ liệu |
+| Git                                                                                       | mới nhất                  | Để clone repo                              |
 
 ---
 
@@ -38,8 +38,8 @@ Mặc định SQL Server Express chỉ cho đăng nhập bằng Windows Authenti
 2. Click chuột phải vào server (ở Object Explorer) → **Properties** → **Security**.
 3. Chọn **SQL Server and Windows Authentication mode** → OK.
 4. Trong Object Explorer: **Security → Logins → sa** → chuột phải → **Properties**:
-   - Tab **General**: đặt mật khẩu mới cho `sa` (ghi nhớ lại).
-   - Tab **Status**: set **Login** = **Enabled**.
+    - Tab **General**: đặt mật khẩu mới cho `sa` (ghi nhớ lại).
+    - Tab **Status**: set **Login** = **Enabled**.
 5. **Restart SQL Server service** để áp dụng (mở **Services.msc**, tìm `SQL Server (SQLEXPRESS)` → Restart).
 
 ### 2.3. Bật TCP/IP và đặt port cố định
@@ -48,8 +48,8 @@ Mặc định SQL Server Express chỉ cho đăng nhập bằng Windows Authenti
 2. Vào `SQL Server Network Configuration > Protocols for SQLEXPRESS`.
 3. Click phải vào **TCP/IP** → **Enable** (nếu đang Disabled).
 4. Vẫn trong TCP/IP → tab **Properties** → tab **IP Addresses** → kéo xuống mục **IPAll**:
-   - Xoá giá trị ở **TCP Dynamic Ports** (để trống).
-   - Điền **TCP Port** = `1433`.
+    - Xoá giá trị ở **TCP Dynamic Ports** (để trống).
+    - Điền **TCP Port** = `1433`.
 5. Vào `SQL Server Services` (cùng cửa sổ Configuration Manager) → restart lại **SQL Server (SQLEXPRESS)**.
 6. (Nên làm) Bật luôn dịch vụ **SQL Server Browser** → set chế độ chạy = **Automatic** → Start. Dịch vụ này giúp resolve tên instance, tránh lỗi kết nối khi không chỉ định port rõ ràng.
 
@@ -66,12 +66,15 @@ File script `database/database.sql` trong dự án đã được tích hợp đ�
 Thực hiện import dữ liệu mẫu theo một trong hai cách:
 
 #### Cách 1: Sử dụng SQL Server Management Studio (SSMS)
+
 1. Mở **SSMS** và kết nối vào SQL Server local của bạn.
 2. Chọn **File** -> **Open** -> **File...** (hoặc nhấn `Ctrl + O`) và mở file `database/database.sql`.
 3. Nhấn nút **Execute** (hoặc nhấn phím **F5**) để chạy toàn bộ script. Cơ sở dữ liệu `LuxuryOfficeApartmentRentalManagementDB` cùng toàn bộ bảng và dữ liệu mẫu sẽ được khởi tạo thành công.
 
 #### Cách 2: Sử dụng Command Line (`sqlcmd`)
+
 Chạy lệnh sau từ thư mục gốc của dự án (thay thế mật khẩu `YourPassword123!` bằng mật khẩu user `sa` của bạn):
+
 ```bash
 sqlcmd -S localhost -U sa -P YourPassword123! -i database/database.sql
 ```
@@ -171,19 +174,19 @@ Mở `http://localhost:3001` để xem website.
 
 ## 6. Tổng kết các lệnh thường dùng
 
-| Lệnh (trong `api/`) | Chức năng |
-|---|---|
-| `npm install` | Cài dependencies |
-| `npx prisma migrate dev` | Đồng bộ và cập nhật cấu trúc database khi phát triển |
-| `npm run db:generate` | Generate lại Prisma Client sau khi sửa `schema.prisma` |
-| `npm run db:studio` | Mở Prisma Studio để xem dữ liệu |
-| `npm start` | Chạy server (nodemon, port 3000) |
+| Lệnh (trong `api/`)      | Chức năng                                              |
+| ------------------------ | ------------------------------------------------------ |
+| `npm install`            | Cài dependencies                                       |
+| `npx prisma migrate dev` | Đồng bộ và cập nhật cấu trúc database khi phát triển   |
+| `npm run db:generate`    | Generate lại Prisma Client sau khi sửa `schema.prisma` |
+| `npm run db:studio`      | Mở Prisma Studio để xem dữ liệu                        |
+| `npm start`              | Chạy server (nodemon, port 3000)                       |
 
-| Lệnh (trong `web/`) | Chức năng |
-|---|---|
-| `npm install` | Cài dependencies |
+| Lệnh (trong `web/`)      | Chức năng                         |
+| ------------------------ | --------------------------------- |
+| `npm install`            | Cài dependencies                  |
 | `npm run dev -- -p 3001` | Chạy frontend Next.js (port 3001) |
-| `npm run build` | Build production |
+| `npm run build`          | Build production                  |
 
 ---
 
@@ -226,22 +229,21 @@ LuxuryOfficeApartmentRentalManagementSystem/
 Hệ thống đã được thiết lập sẵn các tài khoản với các vai trò khác nhau để thuận tiện cho việc kiểm thử và chạy demo:
 
 1. **Tài khoản Quản lý (ADMIN)**
-   - **Email:** `admin@luxuryrental.com`
-   - **Mật khẩu:** `Password123`
-   - **Vai trò:** Quản trị viên, có toàn quyền quản lý hệ thống.
+    - **Email:** `admin@luxuryrental.com`
+    - **Mật khẩu:** `Password123`
+    - **Vai trò:** Quản trị viên quản lý tòa nhà, phòng và thống kê báo cáo.
 
 2. **Tài khoản Khách hàng (CUSTOMER)**
-   - **Email:** `customer@luxuryrental.com`
-   - **Mật khẩu:** `Password123`
-   - **Vai trò:** Khách hàng thuê căn hộ/văn phòng.
+    - **Email:** `customer@luxuryrental.com`
+    - **Mật khẩu:** `Password123`
+    - **Vai trò:** Khách hàng thuê căn hộ/văn phòng.
 
 3. **Tài khoản Quản lý thuê (RENT_MGR)**
-   - **Email:** `manager@luxuryrental.com`
-   - **Mật khẩu:** `Password123`
-   - **Vai trò:** Nhân viên quản lý dịch vụ, hợp đồng thuê phòng và hóa đơn.
+    - **Email:** `manager@luxuryrental.com`
+    - **Mật khẩu:** `Password123`
+    - **Vai trò:** Nhân viên quản lý dịch vụ, hợp đồng thuê phòng và hóa đơn.
 
 4. **Tài khoản Nhân viên an ninh (SECURITY)**
-   - **Email:** `security@luxuryrental.com`
-   - **Mật khẩu:** `Password123`
-   - **Vai trò:** Nhân viên an ninh, quản lý cư dân và khách ra vào.
-
+    - **Email:** `security@luxuryrental.com`
+    - **Mật khẩu:** `Password123`
+    - **Vai trò:** Nhân viên an ninh, quản lý cư dân và khách ra vào.

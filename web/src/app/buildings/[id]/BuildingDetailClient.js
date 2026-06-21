@@ -23,6 +23,15 @@ export function BuildingDetailClient({ initialBuilding, initialRooms = [], build
   const { user, logout, openLogin, openRegister } = useAuth();
   const router = useRouter();
 
+  const handleBack = (e) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/search');
+    }
+  };
+
   // Header search states
   const [searchKeyword, setSearchKeyword] = useState('');
   const [draftCity, setDraftCity] = useState('');
@@ -379,12 +388,13 @@ export function BuildingDetailClient({ initialBuilding, initialRooms = [], build
         <div>
           <Link
             href="/search"
+            onClick={handleBack}
             className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 font-semibold transition-colors group"
           >
             <svg className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            Quay lại tìm kiếm
+            Quay lại
           </Link>
         </div>
 

@@ -5,7 +5,7 @@ import { requestService } from '@/services/request.service';
 import { Table } from '@/components/ui/Table';
 import { Card } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
-import { formatCurrency, formatDateTime } from '@/utils/format';
+import { formatCurrency, formatDateTime, formatAddress } from '@/utils/format';
 import { REQUEST_STATUS, REQUEST_STATUS_COLORS } from '@/constants/requests';
 import toast from 'react-hot-toast';
 
@@ -25,7 +25,7 @@ export default function CustomerRequests() {
         status: statusFilter || undefined,
         limit: 1000,
       });
-      setRequests(res?.data || []);
+      setRequests(res || []);
     } catch (error) {
       console.error('Error fetching requests:', error);
       toast.error('Lỗi khi tải danh sách yêu cầu.');
@@ -191,7 +191,7 @@ export default function CustomerRequests() {
               </div>
               <div className="flex justify-between">
                 <span className="text-neutral-500">Địa chỉ:</span>
-                <span className="font-semibold text-neutral-600">{selectedRequest.room?.building?.address?.detailAddress}</span>
+                <span className="font-semibold text-neutral-600">{formatAddress(selectedRequest.room?.building?.address)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-neutral-500">Phòng hẹn xem:</span>

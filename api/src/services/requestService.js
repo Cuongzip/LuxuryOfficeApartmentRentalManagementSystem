@@ -52,7 +52,19 @@ export const createRequest = async ({ customerId, roomId, appointmentDate, conte
     include: {
       room: {
         include: {
-          building: true,
+          building: {
+            include: {
+              address: {
+                include: {
+                  ward: {
+                    include: {
+                      province: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       customer: {
@@ -112,7 +124,19 @@ export const getRequests = async ({
       include: {
         room: {
           include: {
-            building: true,
+            building: {
+              include: {
+                address: {
+                  include: {
+                    ward: {
+                      include: {
+                        province: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
         customer: {
@@ -164,7 +188,19 @@ export const updateRequestStatus = async (id, { status, employeeId }, user) => {
     include: {
       room: {
         include: {
-          building: true,
+          building: {
+            include: {
+              address: {
+                include: {
+                  ward: {
+                    include: {
+                      province: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       customer: {

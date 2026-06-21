@@ -849,7 +849,7 @@ export default function InvoicesManagement() {
       >
         <form onSubmit={handleCreateSubmit} className="space-y-5 text-neutral-900 text-left">
           {/* Scrollable Container */}
-          <div className="max-h-[60vh] overflow-y-auto pr-1.5 space-y-4">
+          <div className="max-h-[60vh] min-h-[350px] overflow-y-auto pr-1.5 space-y-4">
             <SearchableSelect
               label="Hợp đồng đang hiệu lực"
               id="contractSelect"

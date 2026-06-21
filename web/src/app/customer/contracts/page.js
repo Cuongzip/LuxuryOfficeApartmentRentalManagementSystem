@@ -177,7 +177,7 @@ export default function CustomerContracts() {
             <p className="text-xs text-neutral-500">Đang tải chi tiết hợp đồng...</p>
           </div>
         ) : selectedContract ? (
-          <div className="space-y-6">
+          <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-1">
             {/* General details grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 bg-neutral-50/50 p-5 rounded-2xl border border-neutral-200/50">
               <div className="space-y-2.5 text-xs">
