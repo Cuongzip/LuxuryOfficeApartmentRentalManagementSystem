@@ -7,5 +7,6 @@ export * as locationController from "./locationController.js";
 export * as requestController from "./requestController.js";
 export * as customerController from "./customerController.js";
 export * as invoiceController from "./invoiceController.js";
+export * as statisticsController from "./statisticsController.js";
 
 
