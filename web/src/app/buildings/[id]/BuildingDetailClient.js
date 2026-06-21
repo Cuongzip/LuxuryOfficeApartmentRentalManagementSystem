@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { PublicHeader } from '@/components/layout/PublicHeader';
+import { locationService } from '@/services/location.service';
 import { formatAddress, formatCurrency } from '@/utils/format';
 import { ROOM_STATUS, ROOM_STATUS_COLORS } from '@/constants';
 import { requestService } from '@/services/request.service';
@@ -21,6 +22,54 @@ const formatShortCurrency = (value) => {
 export function BuildingDetailClient({ initialBuilding, initialRooms = [], buildingId }) {
   const { user, logout, openLogin, openRegister } = useAuth();
   const router = useRouter();
+
+  // Header search states
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [draftCity, setDraftCity] = useState('');
+  const [draftWard, setDraftWard] = useState('');
+  const [tempCity, setTempCity] = useState('');
+  const [tempWard, setTempWard] = useState('');
+  const [cities, setCities] = useState([]);
+  const [wards, setWards] = useState([]);
+
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const data = await locationService.getProvinces();
+        setCities(data || []);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách tỉnh thành:', err);
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!tempCity) {
+        setWards([]);
+        return;
+      }
+      try {
+        const data = await locationService.getWards(tempCity);
+        setWards(data || []);
+      } catch (err) {
+        console.error('Lỗi khi tải danh sách phường xã:', err);
+      }
+    };
+    fetchWards();
+  }, [tempCity]);
+
+  const handleSearch = (overrideCity, overrideWard) => {
+    const params = new URLSearchParams();
+    const city = overrideCity !== undefined ? overrideCity : draftCity;
+    const ward = overrideWard !== undefined ? overrideWard : draftWard;
+
+    if (searchKeyword) params.set('keyword', searchKeyword);
+    if (city) params.set('provinceId', city);
+    if (ward) params.set('wardId', ward);
+    router.push(`/search?${params.toString()}`);
+  };
 
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -45,9 +94,24 @@ export function BuildingDetailClient({ initialBuilding, initialRooms = [], build
         <PublicHeader
           user={user}
           logout={logout}
-          showSearch={false}
+          showSearch={true}
           onLoginClick={openLogin}
           onRegisterClick={openRegister}
+          searchProps={{
+            searchKeyword,
+            setSearchKeyword,
+            draftCity,
+            setDraftCity,
+            draftWard,
+            setDraftWard,
+            tempCity,
+            setTempCity,
+            tempWard,
+            setTempWard,
+            cities,
+            wards,
+            handleSearch
+          }}
         />
         <main className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
           <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center text-neutral-400">
@@ -290,9 +354,24 @@ export function BuildingDetailClient({ initialBuilding, initialRooms = [], build
       <PublicHeader
         user={user}
         logout={logout}
-        showSearch={false}
+        showSearch={true}
         onLoginClick={openLogin}
         onRegisterClick={openRegister}
+        searchProps={{
+          searchKeyword,
+          setSearchKeyword,
+          draftCity,
+          setDraftCity,
+          draftWard,
+          setDraftWard,
+          tempCity,
+          setTempCity,
+          tempWard,
+          setTempWard,
+          cities,
+          wards,
+          handleSearch
+        }}
       />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6 md:py-8 space-y-6">

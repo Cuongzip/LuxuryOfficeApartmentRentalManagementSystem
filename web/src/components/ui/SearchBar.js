@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { LocationPopover } from './LocationPopover';
 
 export const SearchBar = ({
@@ -17,6 +18,8 @@ export const SearchBar = ({
   wards,
   handleSearch,
 }) => {
+  const pathname = usePathname();
+  const isSearchPage = pathname === '/search';
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   const getSelectedLocationName = () => {
@@ -35,7 +38,7 @@ export const SearchBar = ({
     setDraftCity(tempCity);
     setDraftWard(tempWard);
     setIsLocationOpen(false);
-    if (isHeader && handleSearch) {
+    if (isHeader && handleSearch && isSearchPage) {
       handleSearch(tempCity, tempWard);
     }
   };
@@ -46,7 +49,7 @@ export const SearchBar = ({
     setDraftCity('');
     setDraftWard('');
     setIsLocationOpen(false);
-    if (isHeader && handleSearch) {
+    if (isHeader && handleSearch && isSearchPage) {
       handleSearch('', '');
     }
   };
