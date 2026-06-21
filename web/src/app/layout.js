@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { Toaster } from "react-hot-toast";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col bg-[#F5F5F7] text-neutral-900 font-sans text-sm" suppressHydrationWarning>
         <AuthProvider>
           {children}
-          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+          <ToastProvider />
         </AuthProvider>
       </body>
     </html>
