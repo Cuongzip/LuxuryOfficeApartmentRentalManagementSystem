@@ -250,7 +250,7 @@ export const extendContract = async (id, { endDate, rooms }) => {
   });
 
   if (!contract) {
-    throw new AppError("Hợp đồng không tồn tại hoặc đã bị xóa.", 404);
+    throw new AppError("Hợp đồng không tồn tại.", 404);
   }
 
   if (contract.status !== CONTRACT_STATUS.ACTIVE) {

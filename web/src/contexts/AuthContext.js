@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
 
   const logout = async () => {
     await authService.logout();
@@ -55,7 +56,20 @@ export const AuthProvider = ({ children }) => {
         const isVerified = params.get('verified') === 'true';
         const showLogin = params.get('showLogin') === 'true';
         const showRegister = params.get('showRegister') === 'true';
+        const email = params.get('email');
+
         if (isVerified) {
+          if (email) {
+            setLoginEmail(email);
+          }
+          try {
+            const channel = new BroadcastChannel('auth_channel');
+            channel.postMessage({ type: 'EMAIL_VERIFIED', email });
+            channel.close();
+          } catch (e) {
+            console.error('Broadcast error:', e);
+          }
+
           toast.success('Xác thực tài khoản thành công! Vui lòng đăng nhập.');
           setIsLoginOpen(true);
           window.history.replaceState(null, '', `${window.location.pathname}?showLogin=true`);
@@ -69,6 +83,34 @@ export const AuthProvider = ({ children }) => {
       handleURLParams();
       window.addEventListener('popstate', handleURLParams);
       return () => window.removeEventListener('popstate', handleURLParams);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const channel = new BroadcastChannel('auth_channel');
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'EMAIL_VERIFIED') {
+            const email = event.data?.email;
+            if (email) {
+              setLoginEmail(email);
+            }
+            setIsRegisterOpen(false);
+            setIsLoginOpen(true);
+            toast.success('Tài khoản đã được xác thực thành công ở tab khác! Vui lòng đăng nhập.');
+
+            const originalTitle = document.title;
+            document.title = '🔔 Kích hoạt thành công!';
+            setTimeout(() => {
+              document.title = originalTitle;
+            }, 5000);
+          }
+        };
+        return () => channel.close();
+      } catch (e) {
+        console.error('BroadcastChannel error:', e);
+      }
     }
   }, []);
 
@@ -152,6 +194,7 @@ export const AuthProvider = ({ children }) => {
         isOpen={isLoginOpen}
         onClose={closeLogin}
         onSwitchToRegister={switchToRegister}
+        defaultEmail={loginEmail}
       />
       <RegisterModal
         isOpen={isRegisterOpen}

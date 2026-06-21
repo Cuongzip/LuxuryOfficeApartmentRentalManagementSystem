@@ -10,13 +10,21 @@ import { ROLES } from '@/constants';
 import { loginSchema, validateForm } from '@/validators';
 import toast from 'react-hot-toast';
 
-export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
+export const LoginModal = ({ isOpen, onClose, onSwitchToRegister, defaultEmail = '' }) => {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setEmail(defaultEmail);
+      setPassword('');
+      setFieldErrors({});
+    }
+  }, [isOpen, defaultEmail]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -41,10 +41,10 @@ export const verifyEmail = asyncHandler(async (req, res) => {
     return;
   }
 
-  await authService.verifyEmailToken(token);
+  const account = await authService.verifyEmailToken(token);
 
   const clientUrl = process.env.CLIENT_URL || "http://localhost:3001";
-  res.redirect(`${clientUrl}/?showLogin=true&verified=true`);
+  res.redirect(`${clientUrl}/?showLogin=true&verified=true&email=${encodeURIComponent(account.email)}`);
 });
 
 export const login = asyncHandler(async (req, res) => {
