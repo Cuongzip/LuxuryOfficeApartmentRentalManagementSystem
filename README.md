@@ -59,12 +59,21 @@ Mặc định SQL Server Express chỉ cho đăng nhập bằng Windows Authenti
 
 Nếu vẫn lỗi timeout, mở **Windows Defender Firewall** → **Advanced Settings** → **Inbound Rules** → tạo rule mới cho phép port `TCP 1433`.
 
-### Tạo database
+### 2.5. Khởi tạo Database & Dữ liệu mẫu (Import SQL Script)
 
-Mở SSMS (hoặc `sqlcmd`) kết nối vào SQL Server bằng user `sa`, sau đó tạo database:
+File script `database/database.sql` trong dự án đã được tích hợp đầy đủ lệnh tạo cơ sở dữ liệu (`CREATE DATABASE`), cấu trúc bảng biểu (`CREATE TABLE`) và dữ liệu mẫu (`INSERT`).
 
-```sql
-CREATE DATABASE luxury_rental;
+Thực hiện import dữ liệu mẫu theo một trong hai cách:
+
+#### Cách 1: Sử dụng SQL Server Management Studio (SSMS)
+1. Mở **SSMS** và kết nối vào SQL Server local của bạn.
+2. Chọn **File** -> **Open** -> **File...** (hoặc nhấn `Ctrl + O`) và mở file `database/database.sql`.
+3. Nhấn nút **Execute** (hoặc nhấn phím **F5**) để chạy toàn bộ script. Cơ sở dữ liệu `LuxuryOfficeApartmentRentalManagementDB` cùng toàn bộ bảng và dữ liệu mẫu sẽ được khởi tạo thành công.
+
+#### Cách 2: Sử dụng Command Line (`sqlcmd`)
+Chạy lệnh sau từ thư mục gốc của dự án (thay thế mật khẩu `YourPassword123!` bằng mật khẩu user `sa` của bạn):
+```bash
+sqlcmd -S localhost -U sa -P YourPassword123! -i database/database.sql
 ```
 
 ---
@@ -93,14 +102,14 @@ Copy file mẫu rồi chỉnh lại theo thông tin SQL Server của bạn:
 cp .env.example .env
 ```
 
-Nội dung `.env` cần khai báo (sửa `password` và `database` cho khớp với máy bạn):
+Nội dung `.env` cần khai báo (sửa `password` cho khớp với máy bạn):
 
 ```env
 PORT=3000
 API_URL="http://localhost:3000"
 CLIENT_URL="http://localhost:3001"
 JWT_SECRET="your-super-secret-key"
-DATABASE_URL="sqlserver://localhost:1433;database=luxury_rental;user=sa;password=YourPassword123!;encrypt=true;trustServerCertificate=true"
+DATABASE_URL="sqlserver://localhost:1433;database=LuxuryOfficeApartmentRentalManagementDB;user=sa;password=YourPassword123!;encrypt=true;trustServerCertificate=true"
 
 # SMTP (dùng cho gửi email — có thể dùng Gmail App Password)
 SMTP_HOST="smtp.gmail.com"
@@ -111,30 +120,13 @@ SMTP_FROM_NAME="Luxury Office & Apartment Rental"
 SMTP_FROM_EMAIL="noreply@luxuryrental.com"
 ```
 
-> Nếu bạn dùng Cách B (Docker), `password` chính là `MSSQL_SA_PASSWORD` đã đặt ở bước trên.
-> Phần SMTP không bắt buộc phải đúng thật để chạy API, nhưng cần điền nếu muốn test các chức năng gửi email (ví dụ: quên mật khẩu).
+### Đồng bộ Prisma Client
 
-### Chạy Prisma migrate để tạo schema trong database
-
-Lệnh này sẽ áp toàn bộ các migration có sẵn trong `api/prisma/migrations` vào database `luxury_rental` vừa tạo:
-
-```bash
-npx prisma migrate dev
-```
-
-Nếu chỉ muốn generate Prisma Client mà không tạo migration mới:
+Do cơ sở dữ liệu đã được khởi tạo đầy đủ bằng SQL script ở bước trên, bạn **không cần chạy** prisma migrate (`npx prisma migrate dev`). Bạn chỉ cần sinh Prisma Client để kết nối với cơ sở dữ liệu có sẵn:
 
 ```bash
 npm run db:generate
 ```
-
-### (Tuỳ chọn) Xem dữ liệu bằng Prisma Studio
-
-```bash
-npm run db:studio
-```
-
-Mở `http://localhost:5555` để xem/sửa dữ liệu trực quan.
 
 ### Chạy server API
 
@@ -182,7 +174,7 @@ Mở `http://localhost:3001` để xem website.
 | Lệnh (trong `api/`) | Chức năng |
 |---|---|
 | `npm install` | Cài dependencies |
-| `npx prisma migrate dev` | Tạo/cập nhật bảng trong SQL Server theo schema |
+| `npx prisma migrate dev` | Đồng bộ và cập nhật cấu trúc database khi phát triển |
 | `npm run db:generate` | Generate lại Prisma Client sau khi sửa `schema.prisma` |
 | `npm run db:studio` | Mở Prisma Studio để xem dữ liệu |
 | `npm start` | Chạy server (nodemon, port 3000) |
@@ -201,7 +193,7 @@ Mở `http://localhost:3001` để xem website.
 - **`Could not connect (timeout)` / `ECONNREFUSED`**: chưa bật TCP/IP, hoặc TCP Port chưa đặt là `1433` (bước 2.3) — kiểm tra lại trong SQL Server Configuration Manager, nhớ **restart service** sau khi đổi.
 - **`self signed certificate` / lỗi SSL**: thêm `trustServerCertificate=true` vào `DATABASE_URL` (đã có sẵn trong mẫu ở trên).
 - **Vẫn không kết nối được dù đã làm hết các bước trên**: thử dùng tên instance trong connection string thay vì port, ví dụ:
-  `DATABASE_URL="sqlserver://localhost\\SQLEXPRESS;database=luxury_rental;user=sa;password=...;encrypt=true;trustServerCertificate=true"`
+  `DATABASE_URL="sqlserver://localhost\\SQLEXPRESS;database=LuxuryOfficeApartmentRentalManagementDB;user=sa;password=...;encrypt=true;trustServerCertificate=true"`
   (yêu cầu dịch vụ **SQL Server Browser** đang chạy — xem bước 2.3.6).
 - **Port 3000 bị trùng**: vì cả `api` (mặc định 3000) và `web` (mặc định Next.js là 3000) đều dùng port 3000, nhớ chạy `web` với `-p 3001`.
 
@@ -226,3 +218,30 @@ LuxuryOfficeApartmentRentalManagementSystem/
 │   └── src/
 └── docs/               # Tài liệu phân tích thiết kế (Use Case, ERD...)
 ```
+
+---
+
+## 9. Danh sách tài khoản dùng thử (Predefined Accounts)
+
+Hệ thống đã được thiết lập sẵn các tài khoản với các vai trò khác nhau để thuận tiện cho việc kiểm thử và chạy demo:
+
+1. **Tài khoản Quản lý (ADMIN)**
+   - **Email:** `admin@luxuryrental.com`
+   - **Mật khẩu:** `Password123`
+   - **Vai trò:** Quản trị viên, có toàn quyền quản lý hệ thống.
+
+2. **Tài khoản Khách hàng (CUSTOMER)**
+   - **Email:** `customer@luxuryrental.com`
+   - **Mật khẩu:** `Password123`
+   - **Vai trò:** Khách hàng thuê căn hộ/văn phòng.
+
+3. **Tài khoản Quản lý thuê (RENT_MGR)**
+   - **Email:** `manager@luxuryrental.com`
+   - **Mật khẩu:** `Password123`
+   - **Vai trò:** Nhân viên quản lý dịch vụ, hợp đồng thuê phòng và hóa đơn.
+
+4. **Tài khoản Nhân viên an ninh (SECURITY)**
+   - **Email:** `security@luxuryrental.com`
+   - **Mật khẩu:** `Password123`
+   - **Vai trò:** Nhân viên an ninh, quản lý cư dân và khách ra vào.
+
