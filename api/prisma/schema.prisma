@@ -293,7 +293,7 @@ model ContractExtension {
 }
 
 model BlacklistedToken {
-  id        Int      @id @default(autoincrement()) @map("Id")
+  id        String   @id @map("MaTokenDen") @db.VarChar(10)
   token     String   @unique @map("Token") @db.VarChar(2048)
   expiresAt DateTime @map("ThoiGianHetHan") @db.DateTime
   createdAt DateTime @default(now()) @map("NgayTao") @db.DateTime

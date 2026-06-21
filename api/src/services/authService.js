@@ -193,6 +193,7 @@ export const blacklistToken = async (token) => {
     where: { token },
     update: {},
     create: {
+      id: generateId(ID_PREFIXES.BLACKLIST),
       token,
       expiresAt,
     },

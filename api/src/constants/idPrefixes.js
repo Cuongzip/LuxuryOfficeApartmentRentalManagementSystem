@@ -11,5 +11,6 @@ export const ID_PREFIXES = {
   PAYMENT: "PAY",
   SERVICE: "DV",
   OCCUPANT: "DD",
+  BLACKLIST: "BL",
 };
 
