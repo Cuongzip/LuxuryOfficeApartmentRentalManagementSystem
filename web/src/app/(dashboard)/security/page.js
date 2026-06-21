@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { residentService } from '@/services/resident.service';
+import { occupantService } from '@/services/occupant.service';
 import { contractService } from '@/services/contract.service';
 import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
@@ -9,28 +9,28 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import toast from 'react-hot-toast';
 import {
-  RESIDENCY_TYPES,
-  RESIDENCY_STATUS,
+  OCCUPANCY_TYPES,
+  OCCUPANCY_STATUS,
 } from '@/constants';
-import { residentSchema, validateForm } from '@/validators';
+import { occupantSchema, validateForm } from '@/validators';
 
-export default function SecurityResidentsManagement() {
-  const [residents, setResidents] = useState([]);
+export default function SecurityOccupantsManagement() {
+  const [occupants, setOccupants] = useState([]);
   const [activeContracts, setActiveContracts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Search & Filter states
   const [filters, setFilters] = useState({
     search: '',
-    residencyType: '',
-    residencyStatus: '',
+    occupancyType: '',
+    occupancyStatus: '',
     page: 1,
     limit: 10,
   });
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 1 });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentResident, setCurrentResident] = useState(null);
+  const [currentOccupant, setCurrentOccupant] = useState(null);
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -38,8 +38,8 @@ export default function SecurityResidentsManagement() {
     phoneNumber: '',
     dateOfBirth: '',
     gender: 'Nam',
-    residencyType: RESIDENCY_TYPES.RESIDENT,
-    residencyStatus: RESIDENCY_STATUS.TEMPORARY,
+    occupancyType: OCCUPANCY_TYPES.OCCUPANT,
+    occupancyStatus: OCCUPANCY_STATUS.TEMPORARY,
     contractId: '',
     roomId: '',
   });
@@ -65,23 +65,23 @@ export default function SecurityResidentsManagement() {
     }
   };
 
-  const fetchResidents = async () => {
+  const fetchOccupants = async () => {
     setIsLoading(true);
     try {
       const queryParams = {
         ...filters,
         search: filters.search.trim() || undefined,
-        residencyType: filters.residencyType || undefined,
-        residencyStatus: filters.residencyStatus || undefined,
+        occupancyType: filters.occupancyType || undefined,
+        occupancyStatus: filters.occupancyStatus || undefined,
       };
-      const res = await residentService.getResidents(queryParams);
+      const res = await occupantService.getOccupants(queryParams);
       if (res.success) {
-        setResidents(res.data || []);
+        setOccupants(res.data || []);
         setPagination(res.pagination || { page: 1, limit: 10, total: 0, pages: 1 });
       }
     } catch (err) {
-      console.error('Lỗi khi tải danh sách cư dân:', err);
-      toast.error('Lỗi khi tải danh sách cư dân.');
+      console.error('Lỗi khi tải danh sách người sử dụng:', err);
+      toast.error('Lỗi khi tải danh sách người sử dụng.');
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +92,7 @@ export default function SecurityResidentsManagement() {
   }, []);
 
   useEffect(() => {
-    fetchResidents();
+    fetchOccupants();
   }, [filters]);
 
   // Update room options when selected contract changes in form
@@ -130,8 +130,8 @@ export default function SecurityResidentsManagement() {
   const handleClearFilters = () => {
     setFilters({
       search: '',
-      residencyType: '',
-      residencyStatus: '',
+      occupancyType: '',
+      occupancyStatus: '',
       page: 1,
       limit: 10,
     });
@@ -142,15 +142,15 @@ export default function SecurityResidentsManagement() {
   };
 
   const handleOpenAddModal = () => {
-    setCurrentResident(null);
+    setCurrentOccupant(null);
     setFormData({
       fullName: '',
       nationalId: '',
       phoneNumber: '',
       dateOfBirth: '',
       gender: 'Nam',
-      residencyType: RESIDENCY_TYPES.RESIDENT,
-      residencyStatus: RESIDENCY_STATUS.TEMPORARY,
+      occupancyType: OCCUPANCY_TYPES.OCCUPANT,
+      occupancyStatus: OCCUPANCY_STATUS.TEMPORARY,
       contractId: activeContracts[0]?.id || '',
       roomId: '',
     });
@@ -160,29 +160,29 @@ export default function SecurityResidentsManagement() {
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (resident) => {
-    setCurrentResident(resident);
-    const dobFormatted = resident.dateOfBirth
-      ? new Date(resident.dateOfBirth).toISOString().split('T')[0]
+  const handleOpenEditModal = (occupant) => {
+    setCurrentOccupant(occupant);
+    const dobFormatted = occupant.dateOfBirth
+      ? new Date(occupant.dateOfBirth).toISOString().split('T')[0]
       : '';
 
     setFormData({
-      fullName: resident.fullName || '',
-      nationalId: resident.nationalId || '',
-      phoneNumber: resident.phoneNumber || '',
+      fullName: occupant.fullName || '',
+      nationalId: occupant.nationalId || '',
+      phoneNumber: occupant.phoneNumber || '',
       dateOfBirth: dobFormatted,
-      gender: resident.gender || 'Nam',
-      residencyType: resident.residencyType || RESIDENCY_TYPES.RESIDENT,
-      residencyStatus: resident.residencyStatus || RESIDENCY_STATUS.TEMPORARY,
-      contractId: resident.contractId || '',
-      roomId: resident.roomId || '',
+      gender: occupant.gender || 'Nam',
+      occupancyType: occupant.occupancyType || OCCUPANCY_TYPES.OCCUPANT,
+      occupancyStatus: occupant.occupancyStatus || OCCUPANCY_STATUS.TEMPORARY,
+      contractId: occupant.contractId || '',
+      roomId: occupant.roomId || '',
     });
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL
       ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
       : 'http://localhost:3000';
     setImageFile(null);
-    setImagePreview(resident.image ? `${backendUrl}${resident.image}` : '');
+    setImagePreview(occupant.image ? `${backendUrl}${occupant.image}` : '');
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -220,7 +220,7 @@ export default function SecurityResidentsManagement() {
     e.preventDefault();
     setFieldErrors({});
 
-    const validation = validateForm(residentSchema, formData);
+    const validation = validateForm(occupantSchema, formData);
     if (!validation.success) {
       setFieldErrors(validation.errors);
       return;
@@ -233,8 +233,8 @@ export default function SecurityResidentsManagement() {
       formDataToSend.append('fullName', formData.fullName);
       formDataToSend.append('nationalId', formData.nationalId);
       formDataToSend.append('phoneNumber', formData.phoneNumber);
-      formDataToSend.append('residencyType', formData.residencyType);
-      formDataToSend.append('residencyStatus', formData.residencyStatus);
+      formDataToSend.append('occupancyType', formData.occupancyType);
+      formDataToSend.append('occupancyStatus', formData.occupancyStatus);
       if (formData.dateOfBirth) {
         formDataToSend.append('dateOfBirth', formData.dateOfBirth);
       }
@@ -248,21 +248,21 @@ export default function SecurityResidentsManagement() {
         formDataToSend.append('image', imageFile);
       }
 
-      if (currentResident) {
-        await residentService.updateResident(currentResident.id, formDataToSend);
-        toast.success('Cập nhật thông tin cư dân thành công!');
+      if (currentOccupant) {
+        await occupantService.updateOccupant(currentOccupant.id, formDataToSend);
+        toast.success('Cập nhật thông tin người sử dụng thành công!');
       } else {
-        await residentService.createResident(formDataToSend);
-        toast.success('Thêm cư dân mới thành công!');
+        await occupantService.createOccupant(formDataToSend);
+        toast.success('Thêm người sử dụng mới thành công!');
       }
 
       setIsModalOpen(false);
-      fetchResidents();
+      fetchOccupants();
     } catch (err) {
       if (err.errors) {
         setFieldErrors(err.errors);
       } else {
-        toast.error(err.message || 'Có lỗi xảy ra khi lưu thông tin cư dân.');
+        toast.error(err.message || 'Có lỗi xảy ra khi lưu thông tin người sử dụng.');
       }
     } finally {
       setIsSubmitting(false);
@@ -270,13 +270,13 @@ export default function SecurityResidentsManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa cư dân này không?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa người sử dụng này không?')) return;
     try {
-      await residentService.deleteResident(id);
-      toast.success('Xóa cư dân thành công!');
-      fetchResidents();
+      await occupantService.deleteOccupant(id);
+      toast.success('Xóa người sử dụng thành công!');
+      fetchOccupants();
     } catch (err) {
-      toast.error(err.message || 'Xóa cư dân thất bại.');
+      toast.error(err.message || 'Xóa người sử dụng thất bại.');
     }
   };
 
@@ -368,21 +368,21 @@ export default function SecurityResidentsManagement() {
       )
     },
     {
-      header: 'Loại cư trú',
-      key: 'residencyType',
+      header: 'Loại lưu trú',
+      key: 'occupancyType',
       render: (res) => (
         <span className="text-xs font-semibold text-neutral-700 whitespace-nowrap">
-          {res.residencyType}
+          {res.occupancyType}
         </span>
       )
     },
     {
       header: 'Trạng thái',
-      key: 'residencyStatus',
+      key: 'occupancyStatus',
       render: (res) => {
         return (
-          <span className={`px-2.5 py-1 text-xs rounded-full font-semibold border whitespace-nowrap inline-block ${getStatusColor(res.residencyStatus)}`}>
-            {res.residencyStatus}
+          <span className={`px-2.5 py-1 text-xs rounded-full font-semibold border whitespace-nowrap inline-block ${getStatusColor(res.occupancyStatus)}`}>
+            {res.occupancyStatus}
           </span>
         );
       }
@@ -417,16 +417,16 @@ export default function SecurityResidentsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-neutral-900">Quản lý cư dân & Thẻ từ</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-neutral-900">Quản lý người sử dụng & Thẻ từ</h2>
           <p className="text-slate-500 text-sm mt-1">
-            Tra cứu thông tin, quản lý hồ sơ đăng ký tạm trú, thường trú của cư dân và khách vãng lai.
+            Tra cứu thông tin, quản lý hồ sơ đăng ký tạm trú, thường trú của người sử dụng và khách vãng lai.
           </p>
         </div>
         <Button onClick={handleOpenAddModal} variant="primary" disabled={activeContracts.length === 0}>
           <svg className="w-5 h-5 -ml-1 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          Thêm cư dân
+          Thêm người sử dụng
         </Button>
       </div>
 
@@ -446,15 +446,15 @@ export default function SecurityResidentsManagement() {
           </div>
 
           <div className="flex flex-col gap-1.5 text-left">
-            <label htmlFor="residencyType" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Loại cư trú</label>
+            <label htmlFor="occupancyType" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Loại lưu trú</label>
             <select
-              id="residencyType"
-              value={filters.residencyType}
+              id="occupancyType"
+              value={filters.occupancyType}
               onChange={handleFilterChange}
               className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all font-medium cursor-pointer"
             >
               <option value="">Tất cả loại</option>
-              {Object.values(RESIDENCY_TYPES).map((val) => (
+              {Object.values(OCCUPANCY_TYPES).map((val) => (
                 <option key={val} value={val}>
                   {val}
                 </option>
@@ -463,15 +463,15 @@ export default function SecurityResidentsManagement() {
           </div>
 
           <div className="flex flex-col gap-1.5 text-left">
-            <label htmlFor="residencyStatus" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Trạng thái cư trú</label>
+            <label htmlFor="occupancyStatus" className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Trạng thái lưu trú</label>
             <select
-              id="residencyStatus"
-              value={filters.residencyStatus}
+              id="occupancyStatus"
+              value={filters.occupancyStatus}
               onChange={handleFilterChange}
               className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-sm bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all font-medium cursor-pointer"
             >
               <option value="">Tất cả trạng thái</option>
-              {Object.values(RESIDENCY_STATUS).map((val) => (
+              {Object.values(OCCUPANCY_STATUS).map((val) => (
                 <option key={val} value={val}>
                   {val}
                 </option>
@@ -493,16 +493,16 @@ export default function SecurityResidentsManagement() {
 
       <Table
         columns={columns}
-        data={residents}
+        data={occupants}
         isLoading={isLoading}
-        emptyMessage={activeContracts.length === 0 ? "Vui lòng tạo hợp đồng đang hiệu lực trước khi thêm cư dân." : "Không tìm thấy cư dân nào."}
+        emptyMessage={activeContracts.length === 0 ? "Vui lòng tạo hợp đồng đang hiệu lực trước khi thêm người sử dụng." : "Không tìm thấy người sử dụng nào."}
       />
 
       {/* Pagination */}
       {pagination.pages > 1 && (
         <div className="flex items-center justify-between border-t border-neutral-100 pt-4">
           <p className="text-xs text-neutral-400 font-medium">
-            Hiển thị cư dân {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} của {pagination.total}
+            Hiển thị người sử dụng {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} của {pagination.total}
           </p>
           <div className="flex items-center gap-1.5">
             <Button
@@ -536,7 +536,7 @@ export default function SecurityResidentsManagement() {
           <div className="bg-white border border-slate-200 w-full max-w-lg rounded-xl overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-150">
             <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
               <h3 className="font-bold text-neutral-900 text-lg">
-                {currentResident ? 'Chỉnh sửa thông tin cư dân' : 'Thêm cư dân mới'}
+                {currentOccupant ? 'Chỉnh sửa thông tin người sử dụng' : 'Thêm người sử dụng mới'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -551,7 +551,7 @@ export default function SecurityResidentsManagement() {
             <form onSubmit={handleSubmit} noValidate>
               <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                 <Input
-                  label="Họ và tên cư dân"
+                  label="Họ và tên người sử dụng"
                   id="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
@@ -609,28 +609,28 @@ export default function SecurityResidentsManagement() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="residencyType" className="text-sm font-medium text-slate-700">Loại cư trú</label>
+                    <label htmlFor="occupancyType" className="text-sm font-medium text-slate-700">Loại lưu trú</label>
                     <select
-                      id="residencyType"
-                      value={formData.residencyType}
+                      id="occupancyType"
+                      value={formData.occupancyType}
                       onChange={handleInputChange}
                       className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
                     >
-                      {Object.values(RESIDENCY_TYPES).map((val) => (
+                      {Object.values(OCCUPANCY_TYPES).map((val) => (
                         <option key={val} value={val}>{val}</option>
                       ))}
                     </select>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="residencyStatus" className="text-sm font-medium text-slate-700">Trạng thái</label>
+                    <label htmlFor="occupancyStatus" className="text-sm font-medium text-slate-700">Trạng thái</label>
                     <select
-                      id="residencyStatus"
-                      value={formData.residencyStatus}
+                      id="occupancyStatus"
+                      value={formData.occupancyStatus}
                       onChange={handleInputChange}
                       className="w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
                     >
-                      {Object.values(RESIDENCY_STATUS).map((val) => (
+                      {Object.values(OCCUPANCY_STATUS).map((val) => (
                         <option key={val} value={val}>{val}</option>
                       ))}
                     </select>
@@ -716,7 +716,7 @@ export default function SecurityResidentsManagement() {
                   Hủy
                 </Button>
                 <Button type="submit" variant="primary" isLoading={isSubmitting}>
-                  {currentResident ? 'Cập nhật' : 'Thêm mới'}
+                  {currentOccupant ? 'Cập nhật' : 'Thêm mới'}
                 </Button>
               </div>
             </form>

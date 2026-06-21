@@ -8,7 +8,7 @@ export { PAYMENT_STATUS } from "./paymentStatus.js";
 export { ROOM_TYPES } from "./roomTypes.js";
 export { REQUEST_STATUS } from "./requestStatus.js";
 export { REQUEST_TYPES } from "./requestTypes.js";
-export { RESIDENCY_TYPES } from "./residencyTypes.js";
-export { RESIDENCY_STATUS } from "./residencyStatuses.js";
+export { OCCUPANCY_TYPES } from "./occupancyTypes.js";
+export { OCCUPANCY_STATUS } from "./occupancyStatuses.js";
 
 

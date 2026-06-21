@@ -10,6 +10,6 @@ export const ID_PREFIXES = {
   REQUEST: "YC",
   PAYMENT: "PAY",
   SERVICE: "DV",
-  RESIDENT: "DD",
+  OCCUPANT: "DD",
 };
 

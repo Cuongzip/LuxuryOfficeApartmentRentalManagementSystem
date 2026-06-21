@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { RESIDENCY_TYPES, RESIDENCY_STATUS } from "../constants/index.js";
+import { OCCUPANCY_TYPES, OCCUPANCY_STATUS } from "../constants/index.js";
 
-export const createResidentSchema = z.object({
+export const createOccupantSchema = z.object({
   fullName: z
     .string("Họ và tên không được để trống")
     .trim()
@@ -15,15 +15,15 @@ export const createResidentSchema = z.object({
     .string("Số điện thoại không được để trống")
     .trim()
     .regex(/^0\d{9}$/, "Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0"),
-  residencyType: z.enum([RESIDENCY_TYPES.RESIDENT, RESIDENCY_TYPES.STAFF], {
-    errorMap: () => ({ message: `Loại cư trú phải thuộc: ${Object.values(RESIDENCY_TYPES).join(", ")}` }),
+  occupancyType: z.enum([OCCUPANCY_TYPES.OCCUPANT, OCCUPANCY_TYPES.STAFF], {
+    errorMap: () => ({ message: `Loại lưu trú phải thuộc: ${Object.values(OCCUPANCY_TYPES).join(", ")}` }),
   })
-    .default(RESIDENCY_TYPES.RESIDENT)
+    .default(OCCUPANCY_TYPES.OCCUPANT)
     .optional(),
-  residencyStatus: z.enum([RESIDENCY_STATUS.TEMPORARY, RESIDENCY_STATUS.WORKING, RESIDENCY_STATUS.DEPARTED], {
-    errorMap: () => ({ message: `Trạng thái cư trú phải thuộc: ${Object.values(RESIDENCY_STATUS).join(", ")}` }),
+  occupancyStatus: z.enum([OCCUPANCY_STATUS.TEMPORARY, OCCUPANCY_STATUS.WORKING, OCCUPANCY_STATUS.DEPARTED], {
+    errorMap: () => ({ message: `Trạng thái lưu trú phải thuộc: ${Object.values(OCCUPANCY_STATUS).join(", ")}` }),
   })
-    .default(RESIDENCY_STATUS.TEMPORARY)
+    .default(OCCUPANCY_STATUS.TEMPORARY)
     .optional(),
   dateOfBirth: z
     .string()
@@ -49,4 +49,4 @@ export const createResidentSchema = z.object({
     .max(10, "Mã phòng không được vượt quá 10 ký tự"),
 });
 
-export const updateResidentSchema = createResidentSchema;
+export const updateOccupantSchema = createOccupantSchema;

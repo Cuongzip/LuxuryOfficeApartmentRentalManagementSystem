@@ -3,6 +3,6 @@ export * from './rooms';
 export * from './contracts';
 export * from './requests';
 export * from './invoices';
-export * from './residents';
+export * from './occupants';
 
 

@@ -9,7 +9,7 @@ export * as requestService from "./requestService.js";
 export * as customerService from "./customerService.js";
 export * as invoiceService from "./invoiceService.js";
 export * as statisticsService from "./statisticsService.js";
-export * as residentService from "./residentService.js";
+export * as occupantService from "./occupantService.js";
 export * as exportService from "./exportService.js";
 
 

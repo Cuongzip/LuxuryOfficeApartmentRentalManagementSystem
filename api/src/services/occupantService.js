@@ -2,17 +2,17 @@ import prisma from "../config/database.js";
 import { AppError, generateId, deletePhysicalImages } from "../utils/index.js";
 import { ID_PREFIXES, CONTRACT_STATUS } from "../constants/index.js";
 
-export const getResidents = async ({
+export const getOccupants = async ({
   search,
   roomId,
   contractId,
-  residencyStatus,
-  residencyType,
+  occupancyStatus,
+  occupancyType,
   page = 1,
   limit = 10,
 }) => {
   const where = {
-    deletedAt: null, // Filter out soft-deleted residents
+    deletedAt: null, // Filter out soft-deleted occupants
   };
 
   const isValidParam = (val) =>
@@ -39,20 +39,20 @@ export const getResidents = async ({
     where.contractId = contractId;
   }
 
-  if (isValidParam(residencyStatus)) {
-    where.residencyStatus = residencyStatus;
+  if (isValidParam(occupancyStatus)) {
+    where.occupancyStatus = occupancyStatus;
   }
 
-  if (isValidParam(residencyType)) {
-    where.residencyType = residencyType;
+  if (isValidParam(occupancyType)) {
+    where.occupancyType = occupancyType;
   }
 
   const pageNum = parseInt(page, 10) || 1;
   const limitNum = parseInt(limit, 10) || 10;
   const skip = (pageNum - 1) * limitNum;
 
-  const [residents, total] = await Promise.all([
-    prisma.resident.findMany({
+  const [occupants, total] = await Promise.all([
+    prisma.occupant.findMany({
       where,
       skip,
       take: limitNum,
@@ -74,11 +74,11 @@ export const getResidents = async ({
       },
       orderBy: { id: "desc" },
     }),
-    prisma.resident.count({ where }),
+    prisma.occupant.count({ where }),
   ]);
 
   return {
-    data: residents,
+    data: occupants,
     pagination: {
       page: pageNum,
       limit: limitNum,
@@ -88,8 +88,8 @@ export const getResidents = async ({
   };
 };
 
-export const getResidentById = async (id) => {
-  const resident = await prisma.resident.findFirst({
+export const getOccupantById = async (id) => {
+  const occupant = await prisma.occupant.findFirst({
     where: { id, deletedAt: null },
     include: {
       contractDetail: {
@@ -109,16 +109,16 @@ export const getResidentById = async (id) => {
     },
   });
 
-  if (!resident) {
+  if (!occupant) {
     throw new AppError("Người sử dụng không tồn tại hoặc đã bị xóa", 404);
   }
 
-  return resident;
+  return occupant;
 };
 
-export const createResident = async (data, imageFile) => {
-  // 1. Verify nationalId uniqueness among active residents
-  const existingId = await prisma.resident.findFirst({
+export const createOccupant = async (data, imageFile) => {
+  // 1. Verify nationalId uniqueness among active occupants
+  const existingId = await prisma.occupant.findFirst({
     where: { nationalId: data.nationalId, deletedAt: null },
   });
   if (existingId) {
@@ -127,8 +127,8 @@ export const createResident = async (data, imageFile) => {
     });
   }
 
-  // 2. Verify phoneNumber uniqueness among active residents
-  const existingPhone = await prisma.resident.findFirst({
+  // 2. Verify phoneNumber uniqueness among active occupants
+  const existingPhone = await prisma.occupant.findFirst({
     where: { phoneNumber: data.phoneNumber, deletedAt: null },
   });
   if (existingPhone) {
@@ -167,17 +167,17 @@ export const createResident = async (data, imageFile) => {
     });
   }
 
-  const id = generateId(ID_PREFIXES.RESIDENT);
+  const id = generateId(ID_PREFIXES.OCCUPANT);
 
-  const resident = await prisma.resident.create({
+  const occupant = await prisma.occupant.create({
     data: {
       id,
       fullName: data.fullName,
       nationalId: data.nationalId,
       phoneNumber: data.phoneNumber,
       image: imageFile ? `/static/uploads/${imageFile.filename}` : null,
-      residencyType: data.residencyType || "Cu dan",
-      residencyStatus: data.residencyStatus || "Tam tru",
+      occupancyType: data.occupancyType || "Cư dân",
+      occupancyStatus: data.occupancyStatus || "Tạm trú",
       dateOfBirth: data.dateOfBirth,
       gender: data.gender,
       contractId: data.contractId,
@@ -201,20 +201,20 @@ export const createResident = async (data, imageFile) => {
     },
   });
 
-  return resident;
+  return occupant;
 };
 
-export const updateResident = async (id, data, imageFile) => {
-  const resident = await prisma.resident.findFirst({
+export const updateOccupant = async (id, data, imageFile) => {
+  const occupant = await prisma.occupant.findFirst({
     where: { id, deletedAt: null },
   });
-  if (!resident) {
+  if (!occupant) {
     throw new AppError("Người sử dụng không tồn tại hoặc đã bị xóa", 404);
   }
 
   // 1. Verify nationalId uniqueness if changed
-  if (data.nationalId && data.nationalId !== resident.nationalId) {
-    const existingId = await prisma.resident.findFirst({
+  if (data.nationalId && data.nationalId !== occupant.nationalId) {
+    const existingId = await prisma.occupant.findFirst({
       where: { nationalId: data.nationalId, deletedAt: null },
     });
     if (existingId) {
@@ -225,8 +225,8 @@ export const updateResident = async (id, data, imageFile) => {
   }
 
   // 2. Verify phoneNumber uniqueness if changed
-  if (data.phoneNumber && data.phoneNumber !== resident.phoneNumber) {
-    const existingPhone = await prisma.resident.findFirst({
+  if (data.phoneNumber && data.phoneNumber !== occupant.phoneNumber) {
+    const existingPhone = await prisma.occupant.findFirst({
       where: { phoneNumber: data.phoneNumber, deletedAt: null },
     });
     if (existingPhone) {
@@ -237,10 +237,10 @@ export const updateResident = async (id, data, imageFile) => {
   }
 
   // 3. Verify contract and room combination if changed
-  const newContractId = data.contractId || resident.contractId;
-  const newRoomId = data.roomId || resident.roomId;
+  const newContractId = data.contractId || occupant.contractId;
+  const newRoomId = data.roomId || occupant.roomId;
 
-  if (newContractId !== resident.contractId || newRoomId !== resident.roomId) {
+  if (newContractId !== occupant.contractId || newRoomId !== occupant.roomId) {
     const contractDetail = await prisma.contractDetail.findUnique({
       where: {
         contractId_roomId: {
@@ -270,23 +270,23 @@ export const updateResident = async (id, data, imageFile) => {
   }
 
   // 4. Handle image upload
-  let imagePath = resident.image;
+  let imagePath = occupant.image;
   if (imageFile) {
-    if (resident.image) {
-      deletePhysicalImages([resident.image]);
+    if (occupant.image) {
+      deletePhysicalImages([occupant.image]);
     }
     imagePath = `/static/uploads/${imageFile.filename}`;
   }
 
-  const updatedResident = await prisma.resident.update({
+  const updatedOccupant = await prisma.occupant.update({
     where: { id },
     data: {
       fullName: data.fullName,
       nationalId: data.nationalId,
       phoneNumber: data.phoneNumber,
       image: imagePath,
-      residencyType: data.residencyType,
-      residencyStatus: data.residencyStatus,
+      occupancyType: data.occupancyType,
+      occupancyStatus: data.occupancyStatus,
       dateOfBirth: data.dateOfBirth,
       gender: data.gender,
       contractId: newContractId,
@@ -310,19 +310,19 @@ export const updateResident = async (id, data, imageFile) => {
     },
   });
 
-  return updatedResident;
+  return updatedOccupant;
 };
 
-export const deleteResident = async (id) => {
-  const resident = await prisma.resident.findFirst({
+export const deleteOccupant = async (id) => {
+  const occupant = await prisma.occupant.findFirst({
     where: { id, deletedAt: null },
   });
-  if (!resident) {
+  if (!occupant) {
     throw new AppError("Người sử dụng không tồn tại hoặc đã bị xóa", 404);
   }
 
   // Soft delete setting the deletedAt timestamp
-  await prisma.resident.update({
+  await prisma.occupant.update({
     where: { id },
     data: { deletedAt: new Date() },
   });

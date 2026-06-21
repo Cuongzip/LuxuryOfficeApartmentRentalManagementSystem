@@ -114,14 +114,14 @@ model Invoice {
   @@map("HoaDon")
 }
 
-model Resident {
+model Occupant {
   id              String    @id @map("MaDinhDanh") @db.VarChar(10)
   fullName        String    @map("HoTen") @db.NVarChar(100)
   nationalId      String    @unique @map("CCCD") @db.Char(12)
   phoneNumber     String    @unique @map("SoDienThoai") @db.VarChar(10)
   image           String?   @map("HinhAnh") @db.NVarChar(2048)
-  residencyType   String    @default("Cư dân") @map("LoaiCuTru") @db.NVarChar(20)
-  residencyStatus String    @default("Tạm trú") @map("TrangThaiCuTru") @db.NVarChar(20)
+  occupancyType   String    @default("Cư dân") @map("LoaiCuTru") @db.NVarChar(20)
+  occupancyStatus String    @default("Tạm trú") @map("TrangThaiCuTru") @db.NVarChar(20)
   dateOfBirth     DateTime? @map("NgaySinh") @db.DateTime
   gender          String?   @map("GioiTinh") @db.NVarChar(20)
   contractId      String    @map("MaHopDong") @db.VarChar(10)
@@ -203,7 +203,7 @@ model ContractDetail {
   contract Contract @relation(fields: [contractId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   room     Room     @relation(fields: [roomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  residents          Resident[]
+  occupants          Occupant[]
   invoiceDetails     InvoiceDetail[]
   roomServices       RoomService[]
   contractExtensions ContractExtension[]

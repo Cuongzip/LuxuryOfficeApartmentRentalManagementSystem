@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const residentSchema = z.object({
+export const occupantSchema = z.object({
   fullName: z
     .string()
     .trim()
@@ -14,15 +14,15 @@ export const residentSchema = z.object({
     .string()
     .trim()
     .regex(/^0\d{9}$/, "Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0"),
-  residencyType: z
+  occupancyType: z
     .string()
     .trim()
-    .max(20, "Loại cư trú không được vượt quá 20 ký tự")
+    .max(20, "Loại lưu trú không được vượt quá 20 ký tự")
     .default("Cư dân"),
-  residencyStatus: z
+  occupancyStatus: z
     .string()
     .trim()
-    .max(20, "Trạng thái cư trú không được vượt quá 20 ký tự")
+    .max(20, "Trạng thái lưu trú không được vượt quá 20 ký tự")
     .default("Tạm trú"),
   dateOfBirth: z
     .string()
