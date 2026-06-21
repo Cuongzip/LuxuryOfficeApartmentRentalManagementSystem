@@ -11,6 +11,8 @@ import { Modal } from '@/components/ui/Modal';
 import { formatCurrency, formatDate, formatDateInput } from '@/utils/format';
 import { PAYMENT_STATUS, PAYMENT_STATUS_COLORS } from '@/constants/invoices';
 import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { ROLES } from '@/constants';
 import toast from 'react-hot-toast';
 
 const SearchableSelect = ({ label, id, value, onChange, options, placeholder, error, required, disabled }) => {
@@ -104,7 +106,15 @@ const SearchableSelect = ({ label, id, value, onChange, options, placeholder, er
 };
 
 export default function InvoicesManagement() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user && user.role !== ROLES.RENTAL_MANAGER) {
+      router.replace('/admin');
+    }
+  }, [user, loading, router]);
+
   const [invoices, setInvoices] = useState([]);
   const [activeContracts, setActiveContracts] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, pages: 1 });

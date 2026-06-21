@@ -96,7 +96,17 @@ export default function RoomsManagement() {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [id]: value };
+      if (id === 'buildingId') {
+        const newBuilding = buildings.find(b => b.id === value);
+        const maxFloors = newBuilding?.numberOfFloors || 50;
+        if (Number(prev.floor) > maxFloors) {
+          updated.floor = '';
+        }
+      }
+      return updated;
+    });
     if (fieldErrors[id]) {
       setFieldErrors((prev) => ({ ...prev, [id]: '' }));
     }
@@ -467,15 +477,31 @@ export default function RoomsManagement() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <Input
-                    label="Tầng"
-                    id="floor"
-                    type="number"
-                    value={formData.floor}
-                    onChange={handleInputChange}
-                    required
-                    error={fieldErrors.floor}
-                  />
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="floor" className="text-sm font-medium text-slate-700">
+                      Tầng <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="floor"
+                      value={formData.floor}
+                      onChange={handleInputChange}
+                      required
+                      className={`w-full px-3.5 py-2.5 rounded-lg border text-sm bg-white text-neutral-900 border-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all ${fieldErrors.floor ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    >
+                      <option value="">-- Tầng --</option>
+                      {Array.from(
+                        { length: buildings.find(b => b.id === formData.buildingId)?.numberOfFloors || 50 },
+                        (_, i) => i + 1
+                      ).map((floor) => (
+                        <option key={floor} value={floor}>
+                          Tầng {floor}
+                        </option>
+                      ))}
+                    </select>
+                    {fieldErrors.floor && (
+                      <span className="text-xs text-red-500 font-medium">{fieldErrors.floor}</span>
+                    )}
+                  </div>
 
                   <Input
                     label="Diện tích (m²)"
